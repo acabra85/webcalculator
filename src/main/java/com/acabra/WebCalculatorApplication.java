@@ -1,6 +1,7 @@
 package com.acabra;
 
 import com.acabra.health.TemplateHealthCheck;
+import com.acabra.resources.WebCalculatorResource;
 import io.dropwizard.Application;
 import io.dropwizard.java8.Java8Bundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
@@ -46,6 +47,7 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
         final JerseyEnvironment env = environment.jersey();
+        env.register(new WebCalculatorResource());
 
         final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
         environment.healthChecks().register("template", healthCheck);
