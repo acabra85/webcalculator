@@ -6,7 +6,7 @@ package com.acabra.domain.response;
  */
 public class EmptyResponse extends SimpleResponse {
 
-    public EmptyResponse(String message){
-        super(message);
+    public EmptyResponse(long id){
+        super(id);
     }
 }
