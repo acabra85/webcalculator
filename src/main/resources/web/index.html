@@ -39,10 +39,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
+
+      var SITE_URL = 'http://webmathcalculator.herokuapp.com/webcalculator';
       
       function retrieveSessionToken() {
         var q = $.Deferred();
-        var jqxhr = $.post( 'http://localhost:8080/webcalculator/token', function(response) {
+        var jqxhr = $.post( SITE_URL + '/token', function(response) {
             result = response.body.token;
             q.resolve(result);
         }).fail( function (msg) {
@@ -79,7 +81,7 @@
       }
 
       function updateHistory(historyComponent) {
-        $.get(encodeURI('http://localhost:8080/webcalculator/history?token=' + token), function(historyResponse) {
+        $.get(encodeURI(SITE_URL + '/history?token=' + token), function(historyResponse) {
           historyComponent.text('');
           historyComponent.append(historyResponse.body.tableHTML);
         }).fail( function () {
@@ -92,7 +94,7 @@
         var expressionField = $('#expression')[0];
         var expressionText = encodeURIComponent(expressionField.value);
         if (token.length > 0) {
-          $.post( encodeURI('http://localhost:8080/webcalculator?token=' + token + '&expression=' + expressionText), function(calculationResponse) {
+          $.post( encodeURI(SITE_URL + '?token=' + token + '&expression=' + expressionText), function(calculationResponse) {
             expressionField.value = calculationResponse.body.result;
             updateHistory($('#history-container'));
             }).fail( function () {
@@ -101,7 +103,7 @@
         } else {
           retrieveSessionToken().then(function(resultToken) {   
             token = resultToken;
-            $.post( encodeURI('http://localhost:8080/webcalculator?token=' + resultToken + '&expression=' + expressionText), function(calculationResponse) {
+            $.post( encodeURI(SITE_URL + '?token=' + resultToken + '&expression=' + expressionText), function(calculationResponse) {
             expressionField.value = calculationResponse.body.result;
             updateHistory($('#history-container'));
             }).fail( function () {
