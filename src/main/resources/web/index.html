@@ -59,9 +59,9 @@
       var token = ""; 
       var lastButtonEqual = false;
       var lastButtonOperator = false;
-      var OPERATORS = ['+', '*', '/', '-'];
-      var VALID_CODES = [42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57];
-      var VALID_KEYS =  ['*', '+', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      var OPERATORS = ['+', '*', '/', '-', '[', ']', '{', '}', '(', ')'];
+      var VALID_CODES = [40, 41, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 123, 125];
+      var VALID_KEYS =  ['(', ')', '*', '+', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[', ']', '{', '}'];
       var ENTER_KEY = 'Enter';
       var ENTER_CODE = 13;
       var ESC_KEY = 27;
@@ -146,6 +146,7 @@
 
       function evaluateKeyPressed(e) {
         var code = ('charCode' in event) ? event.charCode : event.keyCode;
+        console.log(code + ' ' + e.key);
         var index = VALID_CODES.indexOf(code);
         if (index >= 0) {
           append(VALID_KEYS[index]);
