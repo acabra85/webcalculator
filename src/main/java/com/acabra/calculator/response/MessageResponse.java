@@ -1,4 +1,4 @@
-package com.acabra.domain.response;
+package com.acabra.calculator.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

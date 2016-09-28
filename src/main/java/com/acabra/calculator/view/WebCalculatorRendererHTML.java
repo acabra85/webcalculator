@@ -1,6 +1,7 @@
-package com.acabra.view;
+package com.acabra.calculator.view;
 
-import com.acabra.domain.response.CalculationResponse;
+import com.acabra.calculator.response.CalculationResponse;
+import com.acabra.calculator.response.TableHistoryResponse;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;

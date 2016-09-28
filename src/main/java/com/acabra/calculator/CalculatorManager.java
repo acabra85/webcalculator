@@ -1,8 +1,8 @@
 package com.acabra.calculator;
 
-import com.acabra.domain.response.CalculationResponse;
-import com.acabra.domain.response.SimpleResponse;
-import com.acabra.view.WebCalculatorRenderer;
+import com.acabra.calculator.response.CalculationResponse;
+import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.calculator.view.WebCalculatorRenderer;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,7 +1,7 @@
-package com.acabra.resources;
+package com.acabra.calculator.resources;
 
 
-import com.acabra.domain.response.SimpleResponse;
+import com.acabra.calculator.response.SimpleResponse;
 
 import javax.ws.rs.core.Response;
 

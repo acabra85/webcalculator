@@ -1,4 +1,4 @@
-package com.acabra.domain.response;
+package com.acabra.calculator.response;
 
 /**
  * @author acabra

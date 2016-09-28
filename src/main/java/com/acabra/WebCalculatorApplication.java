@@ -1,12 +1,10 @@
 package com.acabra;
 
 import com.acabra.calculator.CalculatorManager;
+import com.acabra.calculator.resources.WebCalculatorResource;
+import com.acabra.calculator.view.RenderType;
+import com.acabra.calculator.view.WebCalculatorRenderFactory;
 import com.acabra.health.TemplateHealthCheck;
-import com.acabra.resources.WebCalculatorResource;
-import com.acabra.view.RenderType;
-import com.acabra.view.WebCalculatorRenderFactory;
-import com.acabra.view.WebCalculatorRenderer;
-import com.acabra.view.WebCalculatorRendererHTML;
 import io.dropwizard.Application;
 import io.dropwizard.java8.Java8Bundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;

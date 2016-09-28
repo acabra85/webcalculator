@@ -1,11 +1,9 @@
-package com.acabra.resources;
+package com.acabra.calculator.resources;
 
 import com.acabra.calculator.CalculatorManager;
-import com.acabra.domain.response.CalculationResponse;
-import com.acabra.domain.response.MessageResponse;
-import com.acabra.domain.response.SimpleResponse;
-import com.acabra.domain.response.TokenResponse;
-import com.acabra.view.WebCalculatorRendererHTML;
+import com.acabra.calculator.response.MessageResponse;
+import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.calculator.response.TokenResponse;
 import com.codahale.metrics.annotation.Timed;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.server.ManagedAsync;
@@ -17,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.net.URLDecoder;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;

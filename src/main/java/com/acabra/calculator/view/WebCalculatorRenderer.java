@@ -1,7 +1,7 @@
-package com.acabra.view;
+package com.acabra.calculator.view;
 
-import com.acabra.domain.response.CalculationResponse;
-import com.acabra.domain.response.SimpleResponse;
+import com.acabra.calculator.response.CalculationResponse;
+import com.acabra.calculator.response.SimpleResponse;
 
 import java.util.List;
 

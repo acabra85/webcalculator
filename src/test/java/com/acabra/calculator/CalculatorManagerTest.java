@@ -1,8 +1,9 @@
 package com.acabra.calculator;
 
-import com.acabra.domain.response.CalculationResponse;
-import com.acabra.domain.response.SimpleResponse;
-import com.acabra.view.*;
+import com.acabra.calculator.response.CalculationResponse;
+import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.calculator.response.TableHistoryResponse;
+import com.acabra.calculator.view.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

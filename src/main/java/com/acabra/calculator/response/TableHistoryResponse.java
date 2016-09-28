@@ -1,6 +1,5 @@
-package com.acabra.view;
+package com.acabra.calculator.response;
 
-import com.acabra.domain.response.SimpleResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**

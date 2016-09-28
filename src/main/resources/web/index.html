@@ -45,11 +45,11 @@
 
       function retrieveSessionToken() {
         var q = $.Deferred();
-        var jqxhr = $.post( SITE_URL + '/token', function(response) {
+        $.post( SITE_URL + '/token', function(response) {
             result = response.body.token;
             q.resolve(result);
-        }).fail( function (msg) {
-            window.alert("token retrieval failed");
+        }).fail( function (failedResponse) {
+            console.log("token retrieval failed " + failedResponse.message);
             result = "defaultToken";
             q.resolve(result);
         });
@@ -86,12 +86,13 @@
         trimLeadingZero();
       }
 
-      function updateHistory(historyComponent) {
+      function updateHistory() {
+        var historyComponent = $('#history-container');
         $.get(encodeURI(SITE_URL + '/history?token=' + token), function(historyResponse) {
           historyComponent.text('');
           historyComponent.append(historyResponse.body.tableHTML);
-        }).fail( function () {
-          window.alert("failed retrieving history");
+        }).fail( function (failedResponse) {
+          console.log("failed retrieving history " + failedResponse.message);
         });
       }
       
@@ -102,18 +103,20 @@
         if (token.length > 0) {
           $.post( encodeURI(SITE_URL + '?token=' + token + '&expression=' + expressionText), function(calculationResponse) {
             expressionField.value = calculationResponse.body.result;
-            updateHistory($('#history-container'));
-            }).fail( function () {
-                window.alert("fail calculation");
-            });
+            }).fail( function (failedResponse) {
+                console.log("fail calculation " + failedResponse.message);
+            }).always(function () {
+              updateHistory();
+          });
         } else {
           retrieveSessionToken().then(function(resultToken) {   
             token = resultToken;
             $.post( encodeURI(SITE_URL + '?token=' + resultToken + '&expression=' + expressionText), function(calculationResponse) {
             expressionField.value = calculationResponse.body.result;
-            updateHistory($('#history-container'));
-            }).fail( function () {
-                window.alert("fail calculation");
+            }).fail( function (failedResponse) {
+                console.log("fail calculation " + failedResponse.message);
+            }).always(function () {
+              updateHistory();
             });
           });
         }

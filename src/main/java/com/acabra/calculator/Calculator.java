@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -30,7 +29,7 @@ public class Calculator {
             double result = Double.parseDouble(engine.eval(getFilteredExpression(expression) + ";") + "");
             counter.incrementAndGet();
             return trimTrailingZeros(result + "");
-        } catch (ScriptException e) {
+        } catch (Exception e) {
             logger.error(e);
             return "NaN";
         }

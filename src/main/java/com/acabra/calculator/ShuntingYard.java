@@ -4,6 +4,7 @@ import java.util.*;
 
 /**
  * Created by Agustin on 9/28/2016.
+ * @see <a href="http://eddmann.com/posts/shunting-yard-implementation-in-java/">Shunting Yard, Edd Mann</a>
  */
 public class ShuntingYard {
 
@@ -35,28 +36,20 @@ public class ShuntingYard {
         Deque<String> stack = new LinkedList<>();
 
         for (String token : infix.split("\\s")) {
-            // operator
             if (ops.containsKey(token)) {
                 while (!stack.isEmpty() && hasHigherPrecedence(token, stack.peek()))
                     output.append(stack.pop()).append(' ');
                 stack.push(token);
-
-                // left parenthesis
             } else if (GROUPING_LEFT.contains(token)) {
                 stack.push(token);
-
-                // right parenthesis
             } else if (GROUPING_RIGHT.contains(token)) {
                 while (!GROUPING_LEFT.contains(stack.peek()))
                     output.append(stack.pop()).append(' ');
                 stack.pop();
-
-                // digit
             } else {
                 output.append(token).append(' ');
             }
         }
-
         while (!stack.isEmpty())
             output.append(stack.pop()).append(' ');
 
