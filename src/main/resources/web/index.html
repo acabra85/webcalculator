@@ -3,215 +3,430 @@
 <head>
     <meta charset="UTF-8">
     <title>Web Calculator</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <style>
-    .to-center {
-      width: 275px;
-      height: auto;
-      text-align: right;        
-    }
-    .calc-buttons {
-      width: 255px;
-      height: auto;
-      text-align: center;
-    }
-    #calculator-container {
-      width: 255px;
-      height: auto;
-      text-align: center;
-      float:left;
-    }
-    #history-container {
-      width: 680px;
-      height: auto;
-      text-align: center;
-      float:right;
-      overflow: auto;
-    }
-    #all-content {
-    width:1000px;
-    text-align:center;
-}
-  </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+        .to-center {
+            width: 275px;
+            height: auto;
+            text-align: right;
+        }
+
+        .calc-buttons {
+            width: 255px;
+            height: auto;
+            text-align: center;
+        }
+
+        #calculator-container {
+            width: 255px;
+            height: auto;
+            text-align: center;
+            float: left;
+        }
+
+        #history-container {
+            width: 680px;
+            height: 274px;
+            text-align: center;
+            float: right;
+            overflow: auto;
+        }
+
+        #all-content {
+            width: 1200px;
+            text-align: center;
+        }
+
+        .operation-container {
+            align-content: center;
+        }
+
+        .error-messages {
+            float: left;
+            width: 95%;
+            text-align: center;
+        }
+
+    </style>
 </head>
 <body onkeypress="evaluateKeyPressed(event)">
 <!-- Latest compiled and minified JavaScript -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+<script>
 
-      var SITE_URL = 'http://webmathcalculator.herokuapp.com/webcalculator';
-      //var SITE_URL = 'http://localhost:8080/webcalculator';
+    //var SITE_URL = 'http://webmathcalculator.herokuapp.com/webcalculator';
+    var SITE_URL = 'http://localhost:8080/webcalculator';
+    var SQRT_SYMBOL = 'sqrt (';
+    var OPERATORS = ['+', '*', '/', '-', '[', ']', '{', '}', '(', ')', SQRT_SYMBOL];
+    var sqrtIndex = OPERATORS.indexOf(SQRT_SYMBOL);
+    var VALID_CODES = [40, 41, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 123, 125];
+    var VALID_KEYS = ['(', ')', '*', '+', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[', ']', '{', '}'];
+    var AVAILABLE_FUNCTIONS = ['e^x'];
+    var ENTER_KEY = 'Enter';
+    var ERROR_RESULTS = ['INFINITY', 'NAN'];
+    var ENTER_CODE = 13;
+    var ESC_KEY = 27;
 
-      function retrieveSessionToken() {
+    var token = "";
+    var lastButtonEqual = true;
+    var lastButtonOperator = false;
+    var activePanel = 0;
+    var panels = [];
+    var errorContainer = null;
+    var ERROR_FADE_TIME = 8000;
+    var allowInteractions = true;
+    var integralSubmit = null;
+    var expressionField = null;
+    var integralSelectedFunction = 0;
+
+    function initIntegralSubmit() {
+        if (integralSubmit === null) {
+            integralSubmit = $('#sendintegral');
+        }
+    }
+
+    function initExpressionField() {
+        if (expressionField === null) {
+            expressionField = $('#expression')[0];
+        }
+    }
+    function buildAndAppendErrorDiv(errorContainer, errorMessage) {
+        var rand = Math.random() + '';
+        var newErrorId =  "error_" + rand.substr(rand.length - 5);
+        errorContainer.append('<div class="alert alert-danger ' + newErrorId + '" role="alert" id="' +  newErrorId + '"><b>Error: </b>' + errorMessage + '</div>');
+        return newErrorId;
+    }
+
+    function displayError(errorMessage) {
+        if (errorContainer === null) {
+            errorContainer = $('#error_messages');
+        }
+        var newErrorId = buildAndAppendErrorDiv(errorContainer, errorMessage);
+        $('#' + newErrorId).fadeOut(ERROR_FADE_TIME, function () {
+            $('div').remove('.' + newErrorId);
+        });
+    }
+
+    function retrieveSessionToken() {
         var q = $.Deferred();
-        $.post( SITE_URL + '/token', function(response) {
+        $.post(SITE_URL + '/token'
+        ).done(function (response) {
             result = response.body.token;
             q.resolve(result);
-        }).fail( function (failedResponse) {
-            console.log("token retrieval failed " + failedResponse.message);
-            result = "defaultToken";
-            q.resolve(result);
+        }).fail(function (failedResponse) {
+            displayError("No connection with the server");
+            q.reject();
         });
         return q.promise();
-      }
-      
-      var token = ""; 
-      var lastButtonEqual = false;
-      var lastButtonOperator = false;
-      var OPERATORS = ['+', '*', '/', '-', '[', ']', '{', '}', '(', ')'];
-      var VALID_CODES = [40, 41, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 123, 125];
-      var VALID_KEYS =  ['(', ')', '*', '+', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[', ']', '{', '}'];
-      var ENTER_KEY = 'Enter';
-      var ENTER_CODE = 13;
-      var ESC_KEY = 27;
+    }
 
-      function trimLeadingZero() {
-        lastButtonEqual = false;
-        var expressionField = $('#expression')[0];
-        var expressionText = expressionField.value;
-        if (expressionText.length > 1 && (expressionText.charAt(0) === '0' || expressionText.charAt(0) === '0.0')) {
-           expressionField.value = expressionText.substr(1, expressionText.length);
+    function blurIfAvailable(comp) {
+        try {
+            if (comp && !comp.hasOwnProperty('blur')) {
+                $('#' + comp).blur();
+            }
+        } catch(e) {
+            console.log(e);
         }
-      }
-      
-      function append(s) {
-        lastButtonOperator = OPERATORS.indexOf(s) >= 0;
-        var expressionField = $('#expression')[0];
-        if (lastButtonEqual) {
-          expressionField.value = lastButtonOperator ? expressionField.value + ' ' + s + ' ' : s;
-        } else {
-          expressionField.value = expressionField.value + (lastButtonOperator ? ' ' + s + ' ' : s);
-        }
-        trimLeadingZero();
-      }
+    }
 
-      function updateHistory() {
+    function append(comp, s, override) {
+        if (allowInteractions || override) {
+            allowInteractions = false;
+            var opIndex = OPERATORS.indexOf(s);
+            lastButtonOperator = opIndex >= 0;
+            initExpressionField();
+            expressionField.value = ERROR_RESULTS.indexOf(expressionField.value.toUpperCase()) >= 0 ? '0' : expressionField.value;
+            if (lastButtonEqual) {
+                if (lastButtonOperator) {
+                    var binaryOperator = opIndex !== sqrtIndex;
+                    if (binaryOperator) {
+                        expressionField.value = expressionField.value + ' ' + s + ' ';
+                    } else {
+                        expressionField.value = s + ' ';
+                    }
+                } else {
+                    expressionField.value = s + ' ';
+                }
+            } else {
+                expressionField.value = expressionField.value + (lastButtonOperator ? ' ' + s + ' ' : s);
+            }
+            lastButtonEqual = false;
+            blurIfAvailable(comp);
+            allowInteractions = true;
+        }
+    }
+
+    function updateHistory() {
         var historyComponent = $('#history-container');
-        $.get(encodeURI(SITE_URL + '/history?token=' + token), function(historyResponse) {
-          historyComponent.text('');
-          historyComponent.append(historyResponse.body.tableHTML);
-        }).fail( function (failedResponse) {
-          console.log("failed retrieving history " + failedResponse.message);
+        $.get(encodeURI(SITE_URL + '/history?token=' + token)
+        ).done(function (historyResponse) {
+            historyComponent.text('');
+            historyComponent.append(historyResponse.body.tableHTML);
+        }).fail(function (failedResponse) {
+            console.log("failed retrieving history " + failedResponse.message);
+        }).always(function () {
+            allowInteractions = true;
         });
-      }
-      
-      function calculate() { 
+    }
+
+    function executeCalculationWithToken(expressionText, expressionField, calculatedToken) {
+        $.post(encodeURI(SITE_URL + '?token=' + calculatedToken + '&expression=' + expressionText)
+        ).done(function (calculationResponse) {
+            expressionField.value = calculationResponse.body.result;
+        }).fail(function (failedResponse) {
+            console.log("fail calculation " + failedResponse.message);
+        }).always(function () {
+            updateHistory();
+        });
+    }
+    function calculate() {
+        $('#bcalculate').blur();
         lastButtonEqual = true;
-        var expressionField = $('#expression')[0];
-        var expressionText = encodeURIComponent(expressionField.value);
-        if (token.length > 0) {
-          $.post( encodeURI(SITE_URL + '?token=' + token + '&expression=' + expressionText), function(calculationResponse) {
-            expressionField.value = calculationResponse.body.result;
-            }).fail( function (failedResponse) {
-                console.log("fail calculation " + failedResponse.message);
-            }).always(function () {
-              updateHistory();
-          });
-        } else {
-          retrieveSessionToken().then(function(resultToken) {   
-            token = resultToken;
-            $.post( encodeURI(SITE_URL + '?token=' + resultToken + '&expression=' + expressionText), function(calculationResponse) {
-            expressionField.value = calculationResponse.body.result;
-            }).fail( function (failedResponse) {
-                console.log("fail calculation " + failedResponse.message);
-            }).always(function () {
-              updateHistory();
-            });
-          });
+        if (allowInteractions) {
+            allowInteractions = false;
+            initExpressionField();
+            var expressionText = encodeURIComponent(expressionField.value);
+            if (token.length > 0) {
+                executeCalculationWithToken(expressionText, expressionField, token);
+            } else {
+                retrieveSessionToken().then(function (resultToken) {
+                    token = resultToken;
+                    executeCalculationWithToken(expressionText, expressionField, token);
+                }, function () {
+                    allowInteractions = true;
+                });
+            }
         }
-      }
-      
-      function clearResult() {
-        var expressionField = $('#expression')[0];
+    }
+
+    function clearResult() {
+        lastButtonEqual = true;
+        initExpressionField();
         expressionField.value = 0;
-      }
-      
-      function displayHistory() {
-          if (token.length > 0) {
+        $('#clear_result').blur();
+    }
+
+    function displayHistory() {
+        if (token.length > 0) {
             var historyComponent = $('#history-container');
             if (historyComponent[0].style.display === 'none') {
-              historyComponent[0].style.display = 'block'
+                historyComponent[0].style.display = 'block'
             } else {
-              historyComponent[0].style.display = 'none'
+                historyComponent[0].style.display = 'none'
             }
-          }
-      }
-      
-      function removeLastCharacter() {        
-        var expressionField = $('#expression')[0];
-        if (expressionField.value.length > 1) {
-          expressionField.value = expressionField.value.substr(0, expressionField.value.length - 1);
-        } else {
-          expressionField.value = '0';
         }
-      }
+        $('#display_history').blur();
+    }
 
-      function evaluateKeyPressed(e) {
-        var code = ('charCode' in event) ? event.charCode : event.keyCode;
-        console.log(code + ' ' + e.key);
-        var index = VALID_CODES.indexOf(code);
-        if (index >= 0) {
-          append(VALID_KEYS[index]);
-        } else if (code === ENTER_CODE) {
-          calculate();
-        } else if (code === ESC_KEY) {
-          clearResult();
+    function removeLastCharacter() {
+        initExpressionField();
+        if (expressionField.value.length > 1) {
+            expressionField.value = expressionField.value.substr(0, expressionField.value.length - (lastButtonOperator ? 3 : 1));
+        } else {
+            expressionField.value = '0';
         }
-      }
-      
-    </script>
-  <div class="panel panel-default">
-  <div class="panel-body">
-    <div id="all-content">
-      <div id="calculator-container">      
-        <div class="input-group input-group-lg to-center">
-            <span class="input-group-addon" id="basic-addon1"></span>
-            <input  data-toggle="tooltip" title="eval($('#expression')[0].value)" type="text" id="expression" name="expression" class="form-control" placeholder="" aria-describedby="basic-addon1" value="0" style="text-align:right;" readonly />
-          <div class="calc-buttons">
-            <div class="btn-group btn-group-lg">
-              <button type="button" class="btn btn-primary" onclick="clearResult()">Clear</button>
-              <button type="button" class="btn btn-primary" onclick="displayHistory()">History</button>
-              <button type="button" class="btn btn-primary" onclick="removeLastCharacter()"><span class="glyphicon glyphicon-arrow-left"></span></button>
+        $('#remove_last').blur();
+    }
+
+    function initCalculationPanels() {
+        if (panels.length === 0) {
+            panels = [$('#main_calculator_panel'), $('#integral_calculator_panel')];
+        }
+    }
+    function evaluateKeyPressed(eventCaptured) {
+        initCalculationPanels();
+        var code = ('charCode' in eventCaptured) ? eventCaptured.charCode : eventCaptured.keyCode;
+        var index = VALID_CODES.indexOf(code);
+        if (code === ESC_KEY) {
+            clearResult();
+        }
+        if (activePanel === 0) {
+            if (index >= 0) {
+                append(this, VALID_KEYS[index], true);
+            } else if (code === ENTER_CODE) {
+                calculate();
+            }
+        }
+    }
+
+    function toggleBasicIntegralPanels(num) {
+        initCalculationPanels();
+        if (activePanel !== num) {
+            lastButtonEqual = true;
+            expressionField.value = '0';
+            panels[activePanel].fadeOut();
+            panels[activePanel][0].style.display = 'none';
+            activePanel = num;
+            panels[activePanel].fadeIn();
+            panels[activePanel][0].style.display = 'block';
+        }
+    }
+
+    function requestExponentialIntegral() {
+        if (allowInteractions) {
+            allowInteractions = false;
+            lastButtonEqual = true;
+            initIntegralSubmit();
+            initExpressionField();
+            $('#sendintegral').blur();
+            if (token.length > 0) {
+                executeExponentialIntegralWithToken(token, expressionField);
+            } else {
+                retrieveSessionToken().then(function (resultToken) {
+                    token = resultToken;
+                    executeExponentialIntegralWithToken(token, expressionField);
+                }, function () {
+                    allowInteractions = true;
+                });
+            }
+        }
+    }
+
+    function validIntegralRequestData(req) {
+        return req.lowerBound <= req.upperBound
+                && req.numberThreads > 0 && req.numberThreads <= 15
+                && req.repeatedCalculations > 0 && req.repeatedCalculations <= 1000;
+    }
+
+    function executeExponentialIntegralWithToken(receivedToken, expressionField) {
+        var integralRequest = {
+            lowerBound: parseFloat($('#lowerbound')[0].value),
+            upperBound: parseFloat($('#upperbound')[0].value),
+            repeatedCalculations: parseInt($('#repeatedcalculations')[0].value),
+            numberThreads: parseInt($('#numthreads')[0].value),
+            functionId: integralSelectedFunction
+        };
+        if (validIntegralRequestData(integralRequest)){
+            $.ajax({
+                url : encodeURI(SITE_URL + '/integral?token=' + receivedToken),
+                type: 'POST',
+                dataType : "json",
+                data:  JSON.stringify(integralRequest),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).fail(function (response) {
+                displayError('unable to calculate integral ' + response.messsage);
+            }).done(function (integralResponse) {
+                console.log(integralResponse.body.result + ' = ' + integralResponse.body.result);
+                expressionField.value = integralResponse.body.result;
+            }).always(function () {
+                updateHistory();
+            });
+        } else {
+            displayError('invalid integral request, please verify the constraints for the fields');
+            allowInteractions = true;
+        }
+
+    }
+
+    function useFunction(num) {
+        $('#selected_function')[0].value = AVAILABLE_FUNCTIONS[num];
+        integralSelectedFunction = num;
+    }
+
+</script>
+<div class="panel panel-default" style="align-content: center;">
+    <h1>web calculator 1.0</h1>
+    <div class="panel-body">
+        <div id="all-content">
+            <div id="calculator-container">
+                <div class="input-group input-group-lg to-center">
+                    <span class="input-group-addon" id="basic-addon1"></span>
+                    <input type="text" id="expression"
+                           name="expression" class="form-control" placeholder="" aria-describedby="basic-addon1"
+                           value="0" style="text-align:right; width: 400px" readonly/>
+                    <ul class="nav nav-tabs">
+                        <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(0)"><a href="#">Basic</a></li>
+                        <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(1)"><a href="#">Integrals</a></li>
+                        <li role="presentation"><a href="#">
+                            <button type="button" class="btn btn-info btn-xs" id="display_history" onclick="displayHistory()">History</button>
+                        </a></li>
+                        <li role="presentation"><a href="#">
+                            <button type="button" class="btn btn-danger btn-xs" id="clear_result" onclick="clearResult()">Clear</button>
+                        </a></li>
+                        <li role="presentation"><a href="#">
+                            <button type="button" class="btn btn-warning btn-xs" id="remove_last" onclick="removeLastCharacter()"><span
+                                    class="glyphicon glyphicon-arrow-left"></span></button>
+                        </a></li>
+                    </ul>
+                    <div class="calc-buttons operation-container" id="main_calculator_panel" style="display: block;">
+                        <div class="btn-group btn-group-lg">
+                            <button type="button" class="btn btn-primary" id="b7" onclick="append(this.id, '7')">7</button>
+                            <button type="button" class="btn btn-primary" id="b8" onclick="append(this.id, '8')">8</button>
+                            <button type="button" class="btn btn-primary" id="b9" onclick="append(this.id, '9')">9</button>
+                            <button type="button" class="btn btn-primary" id="bplus" onclick="append(this.id, '+')">+</button>
+                            <button type="button" class="btn btn-primary" id="bleftB" onclick="append(this.id, '[')">[</button>
+                            <button type="button" class="btn btn-primary" id="brightB" onclick="append(this.id, ']')">]</button>
+                        </div>
+                        <div class="btn-group btn-group-lg">
+                            <button type="button" class="btn btn-primary" id="b4" onclick="append(this.id, '4')">4</button>
+                            <button type="button" class="btn btn-primary" id="b5" onclick="append(this.id, '5')">5</button>
+                            <button type="button" class="btn btn-primary" id="b6" onclick="append(this.id, '6')">6</button>
+                            <button type="button" class="btn btn-primary" id="bminus" onclick="append(this.id, '-')">-</button>
+                            <button type="button" class="btn btn-primary" id="bleftP" onclick="append(this.id, '(')">(</button>
+                            <button type="button" class="btn btn-primary" id="brightP" onclick="append(this.id, ')')">)</button>
+                        </div>
+                        <div class="btn-group btn-group-lg">
+                            <button type="button" class="btn btn-primary" id="b1" onclick="append(this.id, '1')">1</button>
+                            <button type="button" class="btn btn-primary" id="b2" onclick="append(this.id, '2')">2</button>
+                            <button type="button" class="btn btn-primary" id="b3" onclick="append(this.id, '3')">3</button>
+                            <button type="button" class="btn btn-primary" id="bmult" onclick="append(this.id, '*')">*</button>
+                            <button type="button" class="btn btn-primary" id="bleftC" onclick="append(this.id, '{')">{</button>
+                            <button type="button" class="btn btn-primary" id="brightC" onclick="append(this.id, '}')">}</button>
+                        </div>
+                        <div class="btn-group btn-group-lg">
+                            <button type="button" class="btn btn-primary" id="b0" onclick="append(this.id, '0')">0</button>
+                            <button type="button" class="btn btn-primary" id="bdot" onclick="append(this.id, '.')">.</button>
+                            <button type="button" class="btn btn-primary" id="bcalculate" onclick="calculate()">=</button>
+                            <button type="button" class="btn btn-primary" id="bdivide" onclick="append(this.id, '/')">/</button>
+                            <button type="button" class="btn btn-primary" id="bsqrt" onclick="append(this.id, 'sqrt (')">sqrt</button>
+                        </div>
+                    </div>
+                    <div class="panel-body" id="integral_calculator_panel" style="display: none">
+                        <div id="integralForm">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Function<span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                        <li onclick="useFunction(0)"><a href="#">e^x</a></li>
+                                    </ul>
+                                </div><!-- /btn-group -->
+                                <input type="text" id="selected_function" class="form-control" aria-label="..." value="e^x" readonly>
+                            </div><!-- /input-group -->
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-addon" id="sizing-addon2">Lower Bound:</span>
+                                <input type="number" class="form-control" id="lowerbound" data-toggle="tooltip" data-placement="right" title="must be lower that upper-bound" aria-describedby="sizing-addon2" value="0" step="0.01">
+                            </div>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-addon" id="sizing-addon1">Upper Bound:</span>
+                                <input type="number" class="form-control" id="upperbound" data-toggle="tooltip" data-placement="right" title="must be higher than lower-bound" aria-describedby="sizing-addon1" value="0" step="0.01">
+                            </div>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-addon" id="sizing-addon3">Repeated Calculations:</span>
+                                <input type="number" class="form-control" id="repeatedcalculations" data-toggle="tooltip" data-placement="right" title="must a be number greater than 0" aria-describedby="sizing-addon3" min="1" max="1000" value="1">
+                            </div>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-addon" id="sizing-addon4">Number Threads:</span>
+                                <input type="number" class="form-control" id="numthreads" data-toggle="tooltip" data-placement="right" title="must be number between 0 and 15 " aria-describedby="sizing-addon4" min="1" max="15" value="1">
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <button type="button" class="btn btn-primary integral-inputs" id="sendintegral" onclick="requestExponentialIntegral()">Evaluate Integral</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="error_messages" class="error-messages"></div>
+                </div>
             </div>
-            <div class="btn-group btn-group-lg">
-              <button type="button" class="btn btn-primary" onclick="append('7')">7</button>
-              <button type="button" class="btn btn-primary" onclick="append('8')">8</button>
-              <button type="button" class="btn btn-primary" onclick="append('9')">9</button>
-              <button type="button" class="btn btn-primary" onclick="append('+')">+</button>
-              <button type="button" class="btn btn-primary" onclick="append('[')">[</button>
-              <button type="button" class="btn btn-primary" onclick="append(']')">]</button>
-            </div>
-            <div class="btn-group btn-group-lg">
-              <button type="button" class="btn btn-primary" onclick="append('4')">4</button>
-              <button type="button" class="btn btn-primary" onclick="append('5')">5</button>
-              <button type="button" class="btn btn-primary" onclick="append('6')">6</button>
-              <button type="button" class="btn btn-primary" onclick="append('-')">-</button>
-              <button type="button" class="btn btn-primary" onclick="append('(')">(</button>
-              <button type="button" class="btn btn-primary" onclick="append(')')">)</button>
-            </div>
-            <div class="btn-group btn-group-lg">
-              <button type="button" class="btn btn-primary" onclick="append('1')">1</button>
-              <button type="button" class="btn btn-primary" onclick="append('2')">2</button>
-              <button type="button" class="btn btn-primary" onclick="append('3')">3</button>
-              <button type="button" class="btn btn-primary" onclick="append('*')">*</button>
-              <button type="button" class="btn btn-primary" onclick="append('{')">{</button>
-              <button type="button" class="btn btn-primary" onclick="append('}')">}</button>
-            </div>
-            <div class="btn-group btn-group-lg">
-              <button type="button" class="btn btn-primary" onclick="append('0')">0</button>
-              <button type="button" class="btn btn-primary" onclick="append('.')">.</button>
-              <button type="button" class="btn btn-primary" onclick="calculate()">=</button>
-              <button type="button" class="btn btn-primary" onclick="append('/')">/</button>
-              <button type="button" class="btn btn-primary" onclick="append('sqrt(')">sqrt</button>
-            </div>
-          </div>
-        </div> 
-      </div>      
-      <div id="history-container" style="display: none"></div>
-    </div>   
-  </div>
-  <div class="panel-footer">web calculator 1.0</div>
+            <div id="history-container" style="display: none"></div>
+        </div>
+    </div>
+    <div class="panel-footer">web calculator 1.0</div>
 </div>
 </body>
 </html>

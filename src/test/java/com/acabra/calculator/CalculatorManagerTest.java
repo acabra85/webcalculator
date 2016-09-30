@@ -38,15 +38,20 @@ public class CalculatorManagerTest {
     private final static String res1 = "6";
     private final static String expr2 = "4 + 4";
     private final static String res2 = "8";
+    private final static String expr3 = "sqrt ( 4 )";
+    private final static String res3 = "8";
     private final static String tableHeader = "<caption>History</caption><thead><tr><th>Id.</th><th>Expression</th><th>Result</th></tr></thead>";
     private final static String renderedTableEmpty = "<table>" + tableHeader + "</table>";
     private final static String rowExpr1 = "<tr><td>1</td><td>3 + 3</td><td>6</td></tr>";
     private final static String rowExpr2 = "<tr><td>2</td><td>4 + 4</td><td>8</td></tr>";
+    private final static String rowExpr3 = "<tr><td>1</td><td>sqrt ( 4 )</td><td>2</td></tr>";
     private final static String renderedTable1 = "<table>" + tableHeader + "<tbody>" + rowExpr1 + "</tbody></table>";
     private final static String renderedTable2 = "<table>" + tableHeader + "<tbody>" + rowExpr1 + rowExpr2 + "</tbody></table>";
+    private final static String renderedTable3 = "<table>" + tableHeader + "<tbody>" + rowExpr3 + "</tbody></table>";
     SimpleResponse defaultTableResponseEmpty = new TableHistoryResponse(0L, renderedTableEmpty);
     SimpleResponse defaultTableResponse1 = new TableHistoryResponse(1L, renderedTable1);
     SimpleResponse defaultTableResponse2 = new TableHistoryResponse(2L, renderedTable2);
+    SimpleResponse defaultTableResponse3 = new TableHistoryResponse(3L, renderedTable3);
 
     private Calculator calculatorMock;
     private WebCalculatorRenderer rendererMock;
@@ -114,12 +119,7 @@ public class CalculatorManagerTest {
 
     @Test
     public void provideRenderedHistoryResult1Test() {
-        when(calculatorMock.makeCalculation(expr1)).thenReturn(res1);
-        calculatorManager.processCalculation(expr1, TOKEN);
-        List<CalculationResponse> historyList = calculatorManager.provideCalculationHistory(TOKEN);
-        when(rendererMock.renderCalculationHistory(eq(historyList), eq(true))).thenReturn(defaultTableResponse1);
-        assertEquals(renderedTable1, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
-        verify(rendererMock, times(1)).renderCalculationHistory(eq(historyList), eq(true));
+        testSingleRowOperation(expr1, res1, defaultTableResponse1, renderedTable1);
     }
 
     @Test
@@ -134,6 +134,20 @@ public class CalculatorManagerTest {
         when(rendererMock.renderCalculationHistory(eq(historyList), eq(true))).thenReturn(defaultTableResponse2);
 
         assertEquals(renderedTable2, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
+        verify(rendererMock, times(1)).renderCalculationHistory(eq(historyList), eq(true));
+    }
+
+    @Test
+    public void provideRenderedHistoryResult3Test() {
+        testSingleRowOperation(expr3, res3, defaultTableResponse3, renderedTable3);
+    }
+
+    private void testSingleRowOperation(String expr, String res, SimpleResponse defaultTableResponse, String renderedTable) {
+        when(calculatorMock.makeCalculation(expr)).thenReturn(res);
+        calculatorManager.processCalculation(expr, TOKEN);
+        List<CalculationResponse> historyList = calculatorManager.provideCalculationHistory(TOKEN);
+        when(rendererMock.renderCalculationHistory(eq(historyList), eq(true))).thenReturn(defaultTableResponse);
+        assertEquals(renderedTable, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
         verify(rendererMock, times(1)).renderCalculationHistory(eq(historyList), eq(true));
     }
 

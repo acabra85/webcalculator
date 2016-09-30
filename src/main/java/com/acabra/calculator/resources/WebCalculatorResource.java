@@ -1,6 +1,7 @@
 package com.acabra.calculator.resources;
 
 import com.acabra.calculator.CalculatorManager;
+import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.MessageResponse;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.calculator.response.TokenResponse;
@@ -48,7 +49,6 @@ public class WebCalculatorResource implements AppResource {
 
     @GET
     @Timed
-    @ManagedAsync
     @Produces(MediaType.TEXT_HTML)
     public InputStream provideHomeDirectory() {
         return WebCalculatorResource.class.getClassLoader().getResourceAsStream(INDEX_FILE_URI);
@@ -65,6 +65,24 @@ public class WebCalculatorResource implements AppResource {
                 return getResponse(Response.Status.OK, "retrieved history", calculatorManager.provideRenderedHistoryResult(token));
             }  catch (Exception e) {
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Error retrieving history: " + e.getMessage(), null);
+            }
+        }).thenApply(asyncResponse::resume);
+    }
+
+    @POST
+    @Timed
+    @ManagedAsync
+    @Path("/integral")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void resolveIntegral(@Suspended final AsyncResponse asyncResponse, @QueryParam("token") String token,
+                                IntegralRequestDTO integralRequestDTO) {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return calculatorManager.processExponentialIntegralCalculation(integralRequestDTO, token)
+                        .thenApply(x -> getResponse(Response.Status.OK, "calculation performed", x))
+                        .get();
+            } catch (Exception e) {
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Error calculating result: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
     }

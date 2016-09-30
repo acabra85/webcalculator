@@ -1,14 +1,19 @@
 package com.acabra.calculator;
 
+import com.acabra.calculator.domain.IntegralRequest;
+import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.calculator.util.RequestMapper;
+import com.acabra.calculator.util.ResultFormatter;
+import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Agustin on 9/27/2016.
@@ -17,14 +22,20 @@ public class CalculatorManager {
 
     private final Calculator calculator;
     private final HashMap<String, List<CalculationResponse>> history;
-    private final AtomicLong counter;
     private final WebCalculatorRenderer renderer;
 
     public CalculatorManager(WebCalculatorRenderer renderer) {
         this.history = new HashMap<>();
         this.calculator = new Calculator();
-        counter = new AtomicLong();
         this.renderer = renderer;
+    }
+
+    public CompletableFuture<CalculationResponse> processExponentialIntegralCalculation(IntegralRequestDTO integralRequestDTO, String token) {
+        IntegralRequest integralRequest = RequestMapper.fromInternalRequest(integralRequestDTO);
+        WebCalculatorValidation.validateIntegralRequest(integralRequest);
+        return calculator.resolveIntegralRequest(integralRequest)
+                .thenApply(solvedIntegral ->
+                        appendCalculationHistory(token, solvedIntegral.toString(), ResultFormatter.formatResult(solvedIntegral.getResult())));
     }
 
     public SimpleResponse processCalculation(String expression, String token) {
@@ -32,7 +43,7 @@ public class CalculatorManager {
         return appendCalculationHistory(token, expression, result);
     }
 
-    private CalculationResponse appendCalculationHistory(String token, String expression, String result) {
+    public CalculationResponse appendCalculationHistory(String token, String expression, String result) {
         if (!history.containsKey(token)) {
             history.put(token, new ArrayList<>());
         }
@@ -42,7 +53,7 @@ public class CalculatorManager {
         return calculationResponse;
     }
 
-    public List<CalculationResponse> provideCalculationHistory(String token) {
+    List<CalculationResponse> provideCalculationHistory(String token) {
         return history.containsKey(token) && history.get(token).size() > 0 ? history.get(token) : Collections.emptyList();
     }
 
