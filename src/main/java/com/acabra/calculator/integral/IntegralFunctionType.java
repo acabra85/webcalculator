@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
  * Created by Agustin on 9/30/2016.
  */
 enum IntegralFunctionType {
-    EXPONENTIAL(0, "e^x"), POLYNOMIAL(1, "x^2");
+    EXPONENTIAL(0, "e^x"), POLYNOMIAL(1, "x^2"), LOGARITHMIC(2, "ln(x)");
 
     final int type;
     final String label;
@@ -20,6 +20,8 @@ enum IntegralFunctionType {
         switch (functionId) {
             case 0:
                 return EXPONENTIAL;
+            case 1:
+                return POLYNOMIAL;
             default:
                 throw new NoSuchElementException("unable to find function type");
         }

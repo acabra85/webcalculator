@@ -18,7 +18,18 @@ public class ExponentialIntegral extends IntegrableFunction {
         if (null == result) {
             logger.info("solving in -> " + Thread.currentThread().getName());
             result = Math.exp(upperBound) - Math.exp(lowerBound);
+            areaUnderTheGraph = result;
         }
         return result;
+    }
+
+    @Override
+    protected double solveAreaUnderTheGraph() {
+        if (null == areaUnderTheGraph) {
+            logger.info("solving in -> " + Thread.currentThread().getName());
+            areaUnderTheGraph = Math.exp(upperBound) - Math.exp(lowerBound);
+            result = areaUnderTheGraph;
+        }
+        return areaUnderTheGraph;
     }
 }

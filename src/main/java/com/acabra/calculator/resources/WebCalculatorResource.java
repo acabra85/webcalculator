@@ -5,6 +5,7 @@ import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.MessageResponse;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.calculator.response.TokenResponse;
+import com.acabra.calculator.util.RequestMapper;
 import com.codahale.metrics.annotation.Timed;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.server.ManagedAsync;
@@ -78,7 +79,7 @@ public class WebCalculatorResource implements AppResource {
                                 IntegralRequestDTO integralRequestDTO) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return calculatorManager.processExponentialIntegralCalculation(integralRequestDTO, token)
+                return calculatorManager.processExponentialIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token)
                         .thenApply(x -> getResponse(Response.Status.OK, "calculation performed", x))
                         .get();
             } catch (Exception e) {
@@ -97,7 +98,7 @@ public class WebCalculatorResource implements AppResource {
                 logger.info("encoded expression '" + expression + "'");
                 String decodedExpression = URLDecoder.decode(expression, UTF8_ENC);
                 logger.info("decoded expression '" + decodedExpression + "'");
-                return getResponse(Response.Status.OK, "calculation performed", calculatorManager.processCalculation(decodedExpression, token));
+                return getResponse(Response.Status.OK, "calculation performed", calculatorManager.processArithmeticCalculation(decodedExpression, token));
             } catch (Exception e) {
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Error calculating result: " + e.getMessage(), null);
             }

@@ -1,10 +1,8 @@
 package com.acabra.calculator;
 
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.SimpleResponse;
-import com.acabra.calculator.util.RequestMapper;
 import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
@@ -30,17 +28,17 @@ public class CalculatorManager {
         this.renderer = renderer;
     }
 
-    public CompletableFuture<CalculationResponse> processExponentialIntegralCalculation(IntegralRequestDTO integralRequestDTO, String token) {
-        IntegralRequest integralRequest = RequestMapper.fromInternalRequest(integralRequestDTO);
+    public CompletableFuture<CalculationResponse> processExponentialIntegralCalculation(IntegralRequest integralRequest, String token) {
         WebCalculatorValidation.validateIntegralRequest(integralRequest);
         return calculator.resolveIntegralRequest(integralRequest)
                 .thenApply(solvedIntegral ->
                         appendCalculationHistory(token, solvedIntegral.toString(), ResultFormatter.formatResult(solvedIntegral.getResult())));
     }
 
-    public SimpleResponse processCalculation(String expression, String token) {
-        String result = calculator.makeCalculation(expression);
-        return appendCalculationHistory(token, expression, result);
+    public SimpleResponse processArithmeticCalculation(String expression, String token) {
+        String result = calculator.solveArithmeticExpression(expression).toString();
+        return appendCalculationHistory(token, expression,
+                ResultFormatter.trimIntegerResults(result));
     }
 
     public CalculationResponse appendCalculationHistory(String token, String expression, String result) {

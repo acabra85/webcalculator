@@ -12,6 +12,7 @@ public abstract class IntegrableFunction {
     private String label;
     private static final String STRING_REPRESENTATION_FORMAT = "integral{%s}[%.2f, %.2f]";
     protected Double result;
+    protected Double areaUnderTheGraph;
     protected static final Logger logger = Logger.getLogger(IntegrableFunction.class);
 
     public IntegrableFunction(double lowerBound, double upperBound, String label) {
@@ -30,6 +31,8 @@ public abstract class IntegrableFunction {
 
     protected abstract double solve();
 
+    protected abstract double solveAreaUnderTheGraph();
+
     public double getLowerBound() {
         return lowerBound;
     }
@@ -40,6 +43,10 @@ public abstract class IntegrableFunction {
 
     public double getResult() {
         return solve();
+    }
+
+    public Double getAreaUnderTheGraph() {
+        return solveAreaUnderTheGraph();
     }
 
     @Override

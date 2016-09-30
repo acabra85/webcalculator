@@ -12,8 +12,6 @@ public class IntegralFunctionFactory {
         switch (functionType) {
             case EXPONENTIAL:
                 return result.isPresent() ? new ExponentialIntegral(lowerbound, upperbound, result.get()) : new ExponentialIntegral(lowerbound, upperbound);
-            case POLYNOMIAL:
-                return new PolynomialIntegral(lowerbound, upperbound);
             default:
                 throw new NoSuchElementException("function not defined in the scope of the calculator");
         }
@@ -21,5 +19,9 @@ public class IntegralFunctionFactory {
 
     public static IntegralFunctionType evaluateFunctionType(int functionId) {
         return IntegralFunctionType.provideType(functionId);
+    }
+
+    public static IntegrableFunction createPolynomialIntegralFunction(int lowerbound, int upperbound, int order, boolean[] exponents, double[] coefficients, Optional<Double> result) {
+        return !result.isPresent() ? new PolynomialIntegral(lowerbound, upperbound, order, exponents, coefficients) : new PolynomialIntegral(lowerbound, upperbound, order, exponents, coefficients, result);
     }
 }
