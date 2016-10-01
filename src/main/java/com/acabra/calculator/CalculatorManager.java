@@ -37,8 +37,7 @@ public class CalculatorManager {
 
     public SimpleResponse processArithmeticCalculation(String expression, String token) {
         String result = calculator.solveArithmeticExpression(expression).toString();
-        return appendCalculationHistory(token, expression,
-                ResultFormatter.trimIntegerResults(result));
+        return appendCalculationHistory(token, expression, ResultFormatter.trimIntegerResults(result));
     }
 
     public CalculationResponse appendCalculationHistory(String token, String expression, String result) {

@@ -65,7 +65,7 @@ public class WebCalculatorResource implements AppResource {
             try {
                 return getResponse(Response.Status.OK, "retrieved history", calculatorManager.provideRenderedHistoryResult(token));
             }  catch (Exception e) {
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Error retrieving history: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "retrieving history: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
     }
@@ -83,7 +83,7 @@ public class WebCalculatorResource implements AppResource {
                         .thenApply(x -> getResponse(Response.Status.OK, "calculation performed", x))
                         .get();
             } catch (Exception e) {
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Error calculating result: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
     }
@@ -100,7 +100,7 @@ public class WebCalculatorResource implements AppResource {
                 logger.info("decoded expression '" + decodedExpression + "'");
                 return getResponse(Response.Status.OK, "calculation performed", calculatorManager.processArithmeticCalculation(decodedExpression, token));
             } catch (Exception e) {
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Error calculating result: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
     }
@@ -116,7 +116,7 @@ public class WebCalculatorResource implements AppResource {
                 String successMessage = "token retrieved successfully";
                 return getResponse(Response.Status.OK, successMessage, new TokenResponse(counter.incrementAndGet(), UUID.randomUUID().toString()));
             } catch (Exception e) {
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Error calculating result: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
     }

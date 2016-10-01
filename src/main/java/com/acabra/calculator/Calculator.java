@@ -5,6 +5,7 @@ import com.acabra.calculator.integral.ConcurrentIntegralSolver;
 import com.acabra.calculator.integral.IntegrableFunction;
 import org.apache.log4j.Logger;
 
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -27,7 +28,7 @@ public class Calculator {
             return solvePostFixExpression(ShuntingYard.postfix(expression));
         } catch (Exception e) {
             logger.error(e);
-            return Double.NaN;
+            throw new InputMismatchException("invalid expression");
         }
     }
 

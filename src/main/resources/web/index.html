@@ -61,13 +61,15 @@
     var SITE_URL = 'http://webmathcalculator.herokuapp.com/webcalculator';
     //var SITE_URL = 'http://localhost:8080/webcalculator';
     var SQRT_SYMBOL = 'sqrt (';
-    var OPERATORS = ['+', '*', '/', '-', '[', ']', '{', '}', '(', ')', SQRT_SYMBOL];
+    var MINUS_SYMBOL = '-';
+    var OPERATORS = ['+', '*', '/', MINUS_SYMBOL, '[', ']', '{', '}', '(', ')', SQRT_SYMBOL];
     var sqrtIndex = OPERATORS.indexOf(SQRT_SYMBOL);
+    var minusIndex = OPERATORS.indexOf(MINUS_SYMBOL);
     var VALID_CODES = [40, 41, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 123, 125];
-    var VALID_KEYS = ['(', ')', '*', '+', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[', ']', '{', '}'];
+    var VALID_KEYS = ['(', ')', '*', '+', MINUS_SYMBOL, '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[', ']', '{', '}'];
     var AVAILABLE_FUNCTIONS = ['e^x'];
     var ENTER_KEY = 'Enter';
-    var ERROR_RESULTS = ['INFINITY', 'NAN'];
+    var ERROR_RESULTS = ['INFINITY', 'NAN', '-INFINITY'];
     var ENTER_CODE = 13;
     var ESC_KEY = 27;
 
@@ -82,6 +84,24 @@
     var integralSubmit = null;
     var expressionField = null;
     var integralSelectedFunction = 0;
+    var inputStackSizes = [];
+
+    var STACK_ADD = 0;
+    var STACK_REMOVE = 1;
+    var STACK_EMPTY = 2;
+
+    function operateStack(operation, num) {
+        if (operation === STACK_ADD) {
+            inputStackSizes.push(num);
+            return 0;
+        } else if (operation === STACK_REMOVE) {
+            return inputStackSizes.pop();
+        } else if (operation === STACK_EMPTY) {
+            inputStackSizes.length = 0;
+            return -1;
+        }
+        return -2;
+    }
 
     function initIntegralSubmit() {
         if (integralSubmit === null) {
@@ -135,29 +155,51 @@
     }
 
     function append(comp, s, override) {
+        var consecutiveDots = function (value) {
+            var split = value.split(' ');
+            for (var i = 0; i < split.length; i++) {
+                if (split[i].indexOf('..') >= 0) {
+                    return true;
+                }
+            }
+            return false;
+        };
         if (allowInteractions || override) {
-            allowInteractions = false;
             var opIndex = OPERATORS.indexOf(s);
             lastButtonOperator = opIndex >= 0;
             initExpressionField();
+            var lastAddedValue = null;
             expressionField.value = ERROR_RESULTS.indexOf(expressionField.value.toUpperCase()) >= 0 ? '0' : expressionField.value;
             if (lastButtonEqual) {
                 if (lastButtonOperator) {
                     var binaryOperator = opIndex !== sqrtIndex;
                     if (binaryOperator) {
-                        expressionField.value = expressionField.value + ' ' + s + ' ';
+                        lastAddedValue = ' ' + s + ' ';
+                        expressionField.value = expressionField.value + lastAddedValue;
                     } else {
-                        expressionField.value = s + ' ';
+                        lastAddedValue = s + ' ';
+                        expressionField.value = lastAddedValue;
                     }
                 } else {
-                    expressionField.value = s;
+                    lastAddedValue = s;
+                    expressionField.value = lastAddedValue;
                 }
             } else {
-                expressionField.value = expressionField.value + (lastButtonOperator ? ' ' + s + ' ' : s);
+                if (lastButtonOperator){
+                    lastAddedValue = ' ' + s + ' ';
+                    expressionField.value = expressionField.value + lastAddedValue;
+                } else {
+                    lastAddedValue = s;
+                    expressionField.value = expressionField.value + lastAddedValue;
+                }
+            }
+            if (consecutiveDots(expressionField.value)) {
+                expressionField.value = expressionField.value.substr(0, expressionField.value.length - 1);
+            } else {
+                operateStack(STACK_ADD, lastAddedValue.length);
             }
             lastButtonEqual = false;
             blurIfAvailable(comp);
-            allowInteractions = true;
         }
     }
 
@@ -168,6 +210,7 @@
             historyComponent.text('');
             historyComponent.append(historyResponse.body.tableHTML);
         }).fail(function (failedResponse) {
+            displayError(failedResponse.responseJSON.message);
             console.log("failed retrieving history " + failedResponse.message);
         }).always(function () {
             allowInteractions = true;
@@ -179,18 +222,20 @@
         ).done(function (calculationResponse) {
             expressionField.value = calculationResponse.body.result;
         }).fail(function (failedResponse) {
-            console.log("fail calculation " + failedResponse.message);
+            displayError(failedResponse.responseJSON.message);
         }).always(function () {
             updateHistory();
         });
     }
+
     function calculate() {
         $('#bcalculate').blur();
-        lastButtonEqual = true;
         if (allowInteractions) {
+            lastButtonEqual = true;
             allowInteractions = false;
             initExpressionField();
             var expressionText = encodeURIComponent(expressionField.value);
+            operateStack(STACK_EMPTY);
             if (token.length > 0) {
                 executeCalculationWithToken(expressionText, expressionField, token);
             } else {
@@ -206,6 +251,7 @@
 
     function clearResult() {
         lastButtonEqual = true;
+        operateStack(STACK_EMPTY);
         initExpressionField();
         expressionField.value = 0;
         $('#clear_result').blur();
@@ -223,13 +269,38 @@
         $('#display_history').blur();
     }
 
+    function clearExpressionRecord() {
+        expressionField.value = '0';
+        lastButtonEqual = true;
+        operateStack(STACK_EMPTY);
+
+    }
+
+    function howManyDigitsToRemove(value, len) {
+        if (value.charAt(0) !== MINUS_SYMBOL) {
+            return 1;
+        } else {
+            if (len > 2) {
+                return 1;
+            }
+            return 2;
+        }
+    }
+
     function removeLastCharacter() {
         initExpressionField();
-        if (expressionField.value.length > 1) {
-            expressionField.value = expressionField.value.substr(0, expressionField.value.length - (lastButtonOperator ? 3 : 1));
+        var expLength = expressionField.value.length;
+        if (lastButtonEqual) {
+            if (ERROR_RESULTS.indexOf(expressionField.value.toUpperCase()) >= 0) {
+                clearExpressionRecord();
+            } else {
+                expressionField.value = expressionField.value.substr(0, expLength - howManyDigitsToRemove(expressionField.value, expLength));
+            }
         } else {
-            expressionField.value = '0';
-            lastButtonEqual = true;
+            expressionField.value = expressionField.value.substr(0, expLength - operateStack(STACK_REMOVE));
+        }
+        if (expressionField.value.length === 0) {
+            clearExpressionRecord();
         }
         $('#remove_last').blur();
     }
@@ -258,8 +329,7 @@
     function toggleBasicIntegralPanels(num) {
         initCalculationPanels();
         if (activePanel !== num) {
-            lastButtonEqual = true;
-            expressionField.value = '0';
+            clearExpressionRecord();
             panels[activePanel].fadeOut();
             panels[activePanel][0].style.display = 'none';
             activePanel = num;
@@ -348,11 +418,11 @@
                         <li role="presentation"><a href="#">
                             <button type="button" class="btn btn-info btn-xs" id="display_history" onclick="displayHistory()">History</button>
                         </a></li>
-                        <li role="presentation"><a href="#">
-                            <button type="button" class="btn btn-danger btn-xs" id="clear_result" onclick="clearResult()">Clear</button>
+                        <li role="presentation" onclick="clearResult()"><a href="#">
+                            <button type="button" class="btn btn-danger btn-xs" id="clear_result">Clear</button>
                         </a></li>
-                        <li role="presentation"><a href="#">
-                            <button type="button" class="btn btn-warning btn-xs" id="remove_last" onclick="removeLastCharacter()"><span
+                        <li role="presentation" onclick="removeLastCharacter()" ><a href="#">
+                            <button type="button" class="btn btn-warning btn-xs" id="remove_last"><span
                                     class="glyphicon glyphicon-arrow-left"></span></button>
                         </a></li>
                     </ul>
@@ -431,3 +501,40 @@
 </div>
 </body>
 </html>
+
+<!--
+else {
+                if (expLength > 1) {
+                    if (expressionField.value.charAt(expLength - 1) !== ' ') {
+                        expressionField.value = expressionField.value.substr(0, expLength - 1);
+                    } else {
+                        if(expLength === 7 && expressionField.value === 'sqrt ( ') {
+                            expressionField.value = '0';
+                            lastButtonEqual = true;
+                        } else if (expLength > 7) {
+
+                        }
+                    }
+                    //expressionField.value = expressionField.value.substr(0, expressionField.value.length - 1);
+                } else {
+                    expressionField.value = '0';
+                    lastButtonEqual = true;
+                    lastAddedValue = null;
+                }
+            }
+
+            if (lastButtonEqual) {
+            if (ERROR_RESULTS.indexOf(expressionField.value.toUpperCase()) >= 0) {
+                clearExpressionRecord();
+            }
+        } else {
+            if (expLength > 1) {
+                expressionField.value = expressionField.value.substr(0, expLength - (lastButtonOperator ? 3 : 1));
+                //expressionField.value = expressionField.value.substr(0, expressionField.value.length - lastAddedValue.length);
+            } else {
+                expressionField.value = '0';
+                lastButtonEqual = true;
+                lastAddedValue = null;
+            }
+        }
+-->

@@ -9,6 +9,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
@@ -146,13 +147,56 @@ public class CalculatorTest {
         assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
     }
 
-    @Test
+    @Test(expected = InputMismatchException.class)
     public void solveInFixExpressionInvalid1Test() {
         String expression = "1 + 2 *  ) ( 3 - 4 ) + 8 / ( 1 + 1 )";
-        double expected = Double.NaN;
 
         PowerMockito.mockStatic(ShuntingYard.class);
         when(ShuntingYard.postfix(anyString())).thenThrow(NoSuchElementException.class);
+
+        calculator.solveArithmeticExpression(expression);
+    }
+
+    @Test
+    public void solveInFixExpressionPosInfiniteTest() {
+        String expression = "6 / 0";
+        double expected = Double.POSITIVE_INFINITY;
+        List<String> postFixExpressionList = Arrays.asList("6 0 /".split("\\s+"));
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        verifyStatic(times(1));
+
+        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+    }
+
+    @Test
+    public void solveInFixExpressionNegInfiniteTest() {
+        String expression = "-6 / 0";
+        double expected = Double.NEGATIVE_INFINITY;
+        List<String> postFixExpressionList = Arrays.asList("-6 0 /".split("\\s+"));
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        verifyStatic(times(1));
+
+        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+    }
+
+    @Test
+    public void solveInFixExpressionNaNTest() {
+        String expression = "0 / 0";
+        double expected = Double.NaN;
+        List<String> postFixExpressionList = Arrays.asList("0 0 /".split("\\s+"));
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
