@@ -1,6 +1,6 @@
 template: Hello, %s!
 defaultName: Stranger
-applicationName: Risk Scoring
+applicationName: Web Calculator
 server:
   type: simple
   applicationContextPath: /
