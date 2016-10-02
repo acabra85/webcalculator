@@ -6,6 +6,7 @@ import com.acabra.calculator.integral.IntegrableFunction;
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.calculator.response.TableHistoryResponse;
+import com.acabra.calculator.util.WebCalculatorConstants;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
 import com.acabra.calculator.view.WebCalculatorRendererHTML;
@@ -26,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,13 +94,13 @@ public class CalculatorManagerTest {
 
         assertEquals(calculationResponse.getId(), 1);
         assertEquals(calculationResponse.getExpression(), expr1);
-        assertEquals(res1Str,  calculationResponse.getResult());
+        assertEquals(res1,  calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
 
         CalculationResponse calculationResponse2 = (CalculationResponse) calculatorManager.processArithmeticCalculation(expr2, TOKEN);
 
         assertEquals(2, calculationResponse2.getId());
         assertEquals(expr2, calculationResponse2.getExpression());
-        assertEquals(res2Str, calculationResponse2.getResult());
+        assertEquals(res2, calculationResponse2.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
 
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expr1));
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expr2));
@@ -216,7 +218,7 @@ public class CalculatorManagerTest {
 
     @Test
     public void provideRenderedHistoryResultIntegral1Test() throws ExecutionException, InterruptedException {
-        String expr = "integral{e^x}[0.00, 1.00]";
+        String expr = "integ{e^x}[0.00, 1.00]";
         String res = "1.71456";
         String rowExpr = "<tr><td>1</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
@@ -232,7 +234,7 @@ public class CalculatorManagerTest {
 
     @Test
     public void provideRenderedHistoryResultIntegral2Test() throws ExecutionException, InterruptedException {
-        String expr = "integral{e^x}[0.00, 0.00]";
+        String expr = "integ{e^x}[0.00, 0.00]";
         String res = "0";
         String rowExpr = "<tr><td>1</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
@@ -248,7 +250,7 @@ public class CalculatorManagerTest {
 
     @Test
     public void provideRenderedHistoryResultIntegral3Test() throws Exception {
-        String expr = "integral{e^x}[-10.0, -9.99]";
+        String expr = "integ{e^x}[-10.0, -9.99]";
         String res = "0.00456E-5";
         String rowExpr = "<tr><td>1</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
@@ -269,11 +271,16 @@ public class CalculatorManagerTest {
         double lowerBound = 0;
         double upperBound = 1;
         double result = 1.71828;
-        String expr = "integral{e^x}[0.00, 1.00]";
-        String res = "1.71828";
+        String expr = "Integ{e^x}[0, 1] #Rep=10 #Th=5";
         CompletableFuture<IntegrableFunction> integralResult = CompletableFuture.completedFuture(new ExponentialIntegral(lowerBound, upperBound, result));
 
-        when(calculatorMock.resolveIntegralRequest(eq(null))).thenReturn(integralResult);
+        IntegralRequest integralRequestMock = PowerMockito.mock(IntegralRequest.class);
+        when(integralRequestMock.getLowerBound()).thenReturn(lowerBound);
+        when(integralRequestMock.getUpperBound()).thenReturn(upperBound);
+        when(integralRequestMock.getRepeatedCalculations()).thenReturn(10);
+        when(integralRequestMock.getNumThreads()).thenReturn(5);
+
+        when(calculatorMock.resolveIntegralApproximateRiemannSequenceRequest(any())).thenReturn(integralResult);
 
         PowerMockito.mockStatic(WebCalculatorValidation.class);
         IntegralRequest reqMock = PowerMockito.mock(IntegralRequest.class);
@@ -283,12 +290,13 @@ public class CalculatorManagerTest {
             e.printStackTrace();
         }
 
-        CalculationResponse calculationResponse = calculatorManager.processExponentialIntegralCalculation(null, TOKEN).get();
+        CalculationResponse calculationResponse = calculatorManager.processExponentialIntegralCalculation(integralRequestMock, TOKEN).get();
 
-        verify(calculatorMock, Mockito.times(1)).resolveIntegralRequest(eq(null));
+        verify(calculatorMock, Mockito.times(1)).resolveIntegralApproximateRiemannSequenceRequest(any());
         PowerMockito.verifyStatic(Mockito.times(1));
 
-        assertEquals(res, calculationResponse.getResult());
+        assertEquals(1.0, calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals("1.71828", calculationResponse.getDescription());
         assertEquals(expr, calculationResponse.getExpression());
     }
 
@@ -297,12 +305,12 @@ public class CalculatorManagerTest {
         int functionId = 0;
         double lowerBound = 0;
         double upperBound = 1;
-        double result = 1.71828;
+        double result = 1.0;
         int numThreads = 5;
         int repeatedCalculations = 6;
-        String expr = "integral{e^x}[0.00, 1.00]";
-        String res = "1.71828";
-        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, res);
+        String expr = "Integ{e^x}[0, 1] #Rep=6 #Th=5";
+        String description = "1.0";
+        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description);
     }
 
     @Test
@@ -310,12 +318,12 @@ public class CalculatorManagerTest {
         int functionId = 0;
         double lowerBound = -10;
         double upperBound = -9.99;
-        double result = 0.0000043345435;
+        double result = 4.5399929762483885E-7;
         int numThreads = 5;
         int repeatedCalculations = 6;
-        String expr = "integral{e^x}[" + lowerBound + "0, " + upperBound +"]";
-        String res = "0.04335E-5";
-        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, res);
+        String expr = "Integ{e^x}[-10, -9.99] #Rep=6 #Th=5";
+        String description = "4.5399929762483885E-7";
+        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description);
     }
 
     @Test
@@ -326,9 +334,9 @@ public class CalculatorManagerTest {
         double result = 0.0;
         int numThreads = 5;
         int repeatedCalculations = 6;
-        String expr = "integral{e^x}[" + lowerBound + "0, " + upperBound +"0]";
-        String res = "0.0";
-        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, res);
+        String expr = "Integ{e^x}[0, 0] #Rep=6 #Th=5";
+        String description = "0.0";
+        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description);
     }
 
     @Test
@@ -339,8 +347,7 @@ public class CalculatorManagerTest {
         double result = 0.0;
         int numThreads = 5;
         int repeatedCalculations = 6;
-        String expr = "integral{e^x}[" + lowerBound + "0, " + upperBound +"0]";
-        String res = "0.0";
+        String expr = "Integ{e^x}[0, 0] #Rep=6 #Th=5";
         CompletableFuture<IntegrableFunction> integralResult = CompletableFuture.completedFuture(new ExponentialIntegral(lowerBound, upperBound, result));
         IntegralRequest integralRequest = new IntegralRequest.IntegralRequestBuilder()
                 .withFunctionId(functionId)
@@ -350,17 +357,17 @@ public class CalculatorManagerTest {
                 .withRepeatedCalculations(repeatedCalculations)
                 .build();
 
-        when(calculatorMock.resolveIntegralRequest(eq(integralRequest))).thenReturn(integralResult);
+        when(calculatorMock.resolveIntegralApproximateRiemannSequenceRequest(eq(integralRequest))).thenReturn(integralResult);
 
         CalculationResponse calculationResponse = calculatorManager.processExponentialIntegralCalculation(integralRequest, TOKEN).get();
 
-        verify(calculatorMock, Mockito.times(1)).resolveIntegralRequest(eq(integralRequest));
+        verify(calculatorMock, Mockito.times(1)).resolveIntegralApproximateRiemannSequenceRequest(eq(integralRequest));
 
-        assertEquals(res, calculationResponse.getResult());
+        assertEquals(result, calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expr, calculationResponse.getExpression());
     }
 
-    private void evaluateResultFormatting(int functionId, double lowerBound, double upperBound, double result, int numThreads, int repeatedCalculations, String expr, String res) throws InterruptedException, ExecutionException {
+    private void evaluateResultFormatting(int functionId, double lowerBound, double upperBound, double result, int numThreads, int repeatedCalculations, String expr, String description) throws InterruptedException, ExecutionException {
         CompletableFuture<IntegrableFunction> integralResult = CompletableFuture.completedFuture(new ExponentialIntegral(lowerBound, upperBound, result));
         IntegralRequest integralReqMock = PowerMockito.mock(IntegralRequest.class);
 
@@ -369,19 +376,20 @@ public class CalculatorManagerTest {
         when(integralReqMock.getUpperBound()).thenReturn(upperBound);
         when(integralReqMock.getNumThreads()).thenReturn(numThreads);
         when(integralReqMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
-        when(calculatorMock.resolveIntegralRequest(eq(integralReqMock))).thenReturn(integralResult);
+        when(calculatorMock.resolveIntegralApproximateRiemannSequenceRequest(eq(integralReqMock))).thenReturn(integralResult);
 
         CalculationResponse calculationResponse = calculatorManager.processExponentialIntegralCalculation(integralReqMock, TOKEN).get();
 
-        verify(integralReqMock, Mockito.times(1)).getRepeatedCalculations();
-        verify(integralReqMock, Mockito.times(2)).getNumThreads();
+        verify(integralReqMock, Mockito.times(2)).getRepeatedCalculations();
+        verify(integralReqMock, Mockito.times(3)).getNumThreads();
         verify(integralReqMock, Mockito.times(1)).getFunctionId();
-        verify(integralReqMock, Mockito.times(1)).getLowerBound();
-        verify(integralReqMock, Mockito.times(1)).getUpperBound();
-        verify(calculatorMock, Mockito.times(1)).resolveIntegralRequest(eq(integralReqMock));
+        verify(integralReqMock, Mockito.times(2)).getLowerBound();
+        verify(integralReqMock, Mockito.times(2)).getUpperBound();
+        verify(calculatorMock, Mockito.times(1)).resolveIntegralApproximateRiemannSequenceRequest(eq(integralReqMock));
 
-        assertEquals(res, calculationResponse.getResult());
         assertEquals(expr, calculationResponse.getExpression());
+        assertEquals(description, calculationResponse.getDescription());
+        assertEquals(result, calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
 
@@ -483,12 +491,11 @@ public class CalculatorManagerTest {
     public void resultSimpleArithmeticResponse1Test() throws ExecutionException, InterruptedException {
         String expr = "6 - 10 * (2 - 5)";
         double res = 36;
-        String resStr = "36";
         when(calculatorMock.solveArithmeticExpression(eq(expr))).thenReturn(res);
 
         CalculationResponse calculationResponse = (CalculationResponse) calculatorManager.processArithmeticCalculation(expr, TOKEN);
 
-        assertEquals(resStr, calculationResponse.getResult());
+        assertEquals(res, calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expr, calculationResponse.getExpression());
 
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expr));

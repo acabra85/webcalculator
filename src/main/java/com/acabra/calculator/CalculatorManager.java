@@ -30,22 +30,27 @@ public class CalculatorManager {
 
     public CompletableFuture<CalculationResponse> processExponentialIntegralCalculation(IntegralRequest integralRequest, String token) {
         WebCalculatorValidation.validateIntegralRequest(integralRequest);
-        return calculator.resolveIntegralRequest(integralRequest)
+        return calculator.resolveIntegralApproximateRiemannSequenceRequest(integralRequest)
                 .thenApply(solvedIntegral ->
-                        appendCalculationHistory(token, solvedIntegral.toString(), ResultFormatter.formatResult(solvedIntegral.getResult())));
+                        appendCalculationHistory(token,
+                                ResultFormatter.formatIntegralRequest(solvedIntegral.getLabel(),
+                                        integralRequest.getLowerBound()+"", integralRequest.getUpperBound()+"",
+                                        integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads()),
+                                solvedIntegral.getSequenceRiemannRectangle(),
+                                Double.toString(solvedIntegral.getResult())));
     }
 
     public SimpleResponse processArithmeticCalculation(String expression, String token) {
-        String result = calculator.solveArithmeticExpression(expression).toString();
-        return appendCalculationHistory(token, expression, ResultFormatter.trimIntegerResults(result));
+        double result = calculator.solveArithmeticExpression(expression);
+        return appendCalculationHistory(token, expression, result, "");
     }
 
-    public CalculationResponse appendCalculationHistory(String token, String expression, String result) {
+    private CalculationResponse appendCalculationHistory(String token, String expression, double result, String description) {
         if (!history.containsKey(token)) {
             history.put(token, new ArrayList<>());
         }
         List<CalculationResponse> calculationResponses = history.get(token);
-        CalculationResponse calculationResponse = new CalculationResponse(calculationResponses.size() + 1, expression, result);
+        CalculationResponse calculationResponse = new CalculationResponse(calculationResponses.size() + 1, expression, result, description);
         calculationResponses.add(calculationResponse);
         return calculationResponse;
     }

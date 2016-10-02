@@ -13,23 +13,45 @@ public class ExponentialIntegral extends IntegrableFunction {
         super(lowerBound, upperBound, result, IntegralFunctionType.EXPONENTIAL.getLabel());
     }
 
+    public ExponentialIntegral(double lowerBound, double upperBound, double result, double sequenceRiemannRectangleAreaSum) {
+        super(lowerBound, upperBound, result, IntegralFunctionType.EXPONENTIAL.getLabel());
+        this.sequenceRiemannRectangle = sequenceRiemannRectangleAreaSum;
+    }
+
+    @Override
+    protected double evaluate(double domainPoint) {
+        return Math.exp(domainPoint);
+    }
+
     @Override
     public double solve() {
         if (null == result) {
-            logger.info("solving in -> " + Thread.currentThread().getName());
-            result = Math.exp(upperBound) - Math.exp(lowerBound);
-            areaUnderTheGraph = result;
+            result = executeIntegration();
         }
         return result;
     }
 
     @Override
-    protected double solveAreaUnderTheGraph() {
-        if (null == areaUnderTheGraph) {
-            logger.info("solving in -> " + Thread.currentThread().getName());
-            areaUnderTheGraph = Math.exp(upperBound) - Math.exp(lowerBound);
-            result = areaUnderTheGraph;
+    protected Double calculateRiemannSequenceRectangleArea(boolean inscribed) {
+        /*TODO Areas under the x-axis should be taken in count
+               this runs on the assumption that the evaluations on all points on this
+               function are positive values on y-axis, to solve discrepancy a split
+               of ranges is required
+          */
+        double width = (upperBound - lowerBound);
+        double height = inscribed ? evaluate(lowerBound) : evaluate(upperBound);
+        return width * height;
+    }
+
+    @Override
+    protected double solveIntegralWithRiemannSequences(boolean inscribedRectangle) {
+        if (sequenceRiemannRectangle == null) {
+            sequenceRiemannRectangle = calculateRiemannSequenceRectangleArea(inscribedRectangle);
         }
-        return areaUnderTheGraph;
+        return sequenceRiemannRectangle;
+    }
+
+    private Double executeIntegration() {
+        return Math.exp(upperBound) - Math.exp(lowerBound);
     }
 }

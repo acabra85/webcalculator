@@ -2,6 +2,7 @@ package com.acabra.calculator.view;
 
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.TableHistoryResponse;
+import com.acabra.calculator.util.ResultFormatter;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -39,7 +40,7 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
         sb.append("<tr>");
         sb.append("<td>" + reverseHistory.get(i).getId() + "</td>");
         sb.append("<td>" + reverseHistory.get(i).getExpression() + "</td>");
-        sb.append("<td>" + reverseHistory.get(i).getResult() + "</td>");
+        sb.append("<td>" + ResultFormatter.trimIntegerResults(Double.toString(reverseHistory.get(i).getResult())) + "</td>");
         sb.append("</tr>");
     }
 

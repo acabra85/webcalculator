@@ -1,5 +1,8 @@
 package com.acabra.calculator.request;
 
+import com.acabra.calculator.integral.IntegralFunctionFactory;
+import com.acabra.calculator.util.ResultFormatter;
+import com.acabra.calculator.util.WebCalculatorConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -51,8 +54,4 @@ public class IntegralRequestDTO implements SimpleRequest {
         return functionId;
     }
 
-    @Override
-    public String toString() {
-        return "integral{e^x}["+lowerBound+","+upperBound+"]";
-    }
 }

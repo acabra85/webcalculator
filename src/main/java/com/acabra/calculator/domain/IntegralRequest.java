@@ -1,5 +1,8 @@
 package com.acabra.calculator.domain;
 
+import com.acabra.calculator.util.ResultFormatter;
+import com.acabra.calculator.util.WebCalculatorConstants;
+
 /**
  * Created by Agustin on 9/30/2016.
  */

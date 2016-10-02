@@ -80,7 +80,7 @@ public class WebCalculatorResource implements AppResource {
         CompletableFuture.supplyAsync(() -> {
             try {
                 return calculatorManager.processExponentialIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token)
-                        .thenApply(x -> getResponse(Response.Status.OK, "calculation performed", x))
+                        .thenApply(calculationResponse -> getResponse(Response.Status.OK, "calculation performed", calculationResponse))
                         .get();
             } catch (Exception e) {
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);

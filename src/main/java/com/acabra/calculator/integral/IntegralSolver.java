@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Agustin on 9/29/2016.
  */
-public class ConcurrentIntegralSolver {
+public class IntegralSolver {
 
     private final double lowerBound;
     private final double upperBound;
@@ -20,7 +20,7 @@ public class ConcurrentIntegralSolver {
     private final int repeatedCalculations;
     private final IntegralFunctionType functionType;
 
-    public ConcurrentIntegralSolver(IntegralRequest integralRequest) {
+    public IntegralSolver(IntegralRequest integralRequest) {
         this.lowerBound = integralRequest.getLowerBound();
         this.upperBound = integralRequest.getUpperBound();
         this.numThreads = integralRequest.getNumThreads();
@@ -36,18 +36,19 @@ public class ConcurrentIntegralSolver {
         );
     }
 
-    public CompletableFuture<IntegrableFunction> resolveIntegral() {
+    public CompletableFuture<IntegrableFunction> approximateSequenceRiemannArea(final boolean inscribedArea) {
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         List<IntegrableFunction> subRanges = IntegralSubRangeProvider.provideIntegralsOnSubRanges(lowerBound, upperBound, repeatedCalculations, functionType);
         List<CompletableFuture<Double>> integralSolutionFutures = subRanges.stream()
-                .map(integral -> CompletableFuture.supplyAsync(() -> integral.solve(), executor))
+                .map(integral -> CompletableFuture.supplyAsync(() -> integral.solveIntegralWithRiemannSequences(inscribedArea), executor))
                 .collect(Collectors.toList());
         CompletableFuture<List<Double>> allDone = sequence(integralSolutionFutures);
         return allDone.thenApply(subSolutions -> {
-            double result = subSolutions.stream()
+            double sequenceRiemannRectangleAreaSum = subSolutions.stream()
                     .mapToDouble(x -> x)
                     .sum();
-            return IntegralFunctionFactory.createIntegralFunction(functionType, lowerBound, upperBound, Optional.of(result));
+            IntegrableFunction integralFunction = IntegralFunctionFactory.createIntegralFunction(functionType, lowerBound, upperBound, Optional.empty());
+            return IntegralFunctionFactory.createFullySolvedIntegralFunction(functionType, lowerBound, upperBound, integralFunction.solve(), sequenceRiemannRectangleAreaSum);
         } );
     }
 }

@@ -1,5 +1,7 @@
 package com.acabra.calculator.view;
 
+import java.util.NoSuchElementException;
+
 /**
  * Created by Agustin on 9/28/2016.
  */
@@ -10,7 +12,7 @@ public class WebCalculatorRenderFactory {
             case HTML:
                 return new WebCalculatorRendererHTML();
             default:
-                throw new RuntimeException("invalid render type");
+                throw new NoSuchElementException("not yet implemented render type");
         }
     }
 }

@@ -1,14 +1,11 @@
 package com.acabra.calculator;
 
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.ConcurrentIntegralSolver;
+import com.acabra.calculator.integral.IntegralSolver;
 import com.acabra.calculator.integral.IntegrableFunction;
 import org.apache.log4j.Logger;
 
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -76,8 +73,8 @@ public class Calculator {
         }
     }
 
-    public CompletableFuture<IntegrableFunction> resolveIntegralRequest(IntegralRequest integralRequest) {
-        ConcurrentIntegralSolver concurrentIntegralSolver = new ConcurrentIntegralSolver(integralRequest);
-        return concurrentIntegralSolver.resolveIntegral();
+    public CompletableFuture<IntegrableFunction> resolveIntegralApproximateRiemannSequenceRequest(IntegralRequest integralRequest) {
+        IntegralSolver integralSolver = new IntegralSolver(integralRequest);
+        return integralSolver.approximateSequenceRiemannArea(true);
     }
 }

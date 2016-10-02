@@ -1,5 +1,6 @@
 package com.acabra.calculator.integral;
 
+import com.acabra.calculator.util.WebCalculatorConstants;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import java.util.Optional;
 public class IntegralSubRangeProvider {
 
     private static final Logger logger = Logger.getLogger(IntegralSubRangeProvider.class);
-    public static final double accuracyEpsilon = 0.0001;
     /**
      *
      * @param lowerBound lower integral bound
@@ -41,6 +41,6 @@ public class IntegralSubRangeProvider {
      * @return Validates with accuracy of 10^-4 if upperBound is exceeded by current value
      */
     private static boolean isGoodEnough(double upperBound, double current) {
-        return Math.abs(upperBound - current) > accuracyEpsilon;
+        return Math.abs(upperBound - current) > WebCalculatorConstants.ACCURACY_EPSILON;
     }
 }

@@ -8,12 +8,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CalculationResponse extends SimpleResponse {
 
     private final String expression;
-    private final String result;
+    private final double result;
+    private final String description;
 
-    public CalculationResponse(long id, String expression, String result) {
+    public CalculationResponse(long id, String expression, double result, String description) {
         super(id);
         this.expression = expression;
         this.result = result;
+        this.description = description;
     }
 
     @JsonProperty("expression")
@@ -22,7 +24,12 @@ public class CalculationResponse extends SimpleResponse {
     }
 
     @JsonProperty("result")
-    public String getResult() {
+    public double getResult() {
         return result;
+    }
+
+    @JsonProperty("description")
+    public String getDescription() {
+        return description;
     }
 }

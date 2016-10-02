@@ -1,5 +1,8 @@
 package com.acabra.calculator.util;
 
+import com.acabra.calculator.domain.IntegralRequest;
+import com.acabra.calculator.integral.IntegralFunctionFactory;
+
 /**
  * Created by Agustin on 9/30/2016.
  */
@@ -19,5 +22,14 @@ public class ResultFormatter {
 
     public static String trimIntegerResults(String result) {
         return result.endsWith(".0") ? result.substring(0, result.length() - 2) : result;
+    }
+
+    public static String formatIntegralRequest(String label, String lowerBound, String upperBound, int repeatedCalculations, int numberThreads) {
+        return String.format(WebCalculatorConstants.INTEGRAL_REQ_FORMAT,
+                label,
+                ResultFormatter.trimIntegerResults(lowerBound),
+                ResultFormatter.trimIntegerResults(upperBound),
+                repeatedCalculations,
+                numberThreads);
     }
 }

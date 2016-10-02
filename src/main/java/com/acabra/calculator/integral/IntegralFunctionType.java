@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 /**
  * Created by Agustin on 9/30/2016.
  */
-enum IntegralFunctionType {
+public enum IntegralFunctionType {
     EXPONENTIAL(0, "e^x"), POLYNOMIAL(1, "x^2"), LOGARITHMIC(2, "ln(x)");
 
     final int type;

@@ -1,6 +1,10 @@
 package com.acabra.calculator;
 
-import com.acabra.calculator.integral.*;
+import com.acabra.calculator.integral.IntegralSolver;
+import com.acabra.calculator.integral.ExponentialIntegral;
+import com.acabra.calculator.integral.IntegrableFunction;
+import com.acabra.calculator.integral.PolynomialIntegral;
+import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -8,10 +12,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Arrays;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +26,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
  * Created by Agustin on 9/30/2016.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Calculator.class, ConcurrentIntegralSolver.class, ShuntingYard.class})
+@PrepareForTest({Calculator.class, IntegralSolver.class, ShuntingYard.class})
 @PowerMockIgnore(value = {"javax.management.*"})
 public class CalculatorTest {
 
@@ -36,33 +37,35 @@ public class CalculatorTest {
         double expected = 1.71828;
         CompletableFuture<IntegrableFunction> concurrentIntegralResult = CompletableFuture.completedFuture(new ExponentialIntegral(0, 1, expected));
 
-        ConcurrentIntegralSolver concurrentIntegralSolverMock = PowerMockito.mock(ConcurrentIntegralSolver.class);
+        IntegralSolver integralSolverMock = PowerMockito.mock(IntegralSolver.class);
 
-        whenNew(ConcurrentIntegralSolver.class).withAnyArguments().thenReturn(concurrentIntegralSolverMock);
-        when(concurrentIntegralSolverMock.resolveIntegral()).thenReturn(concurrentIntegralResult);
-        IntegrableFunction integrableFunction = calculator.resolveIntegralRequest(null).get();
+        whenNew(IntegralSolver.class).withAnyArguments().thenReturn(integralSolverMock);
+        when(integralSolverMock.approximateSequenceRiemannArea(true)).thenReturn(concurrentIntegralResult);
+        IntegrableFunction integrableFunction = calculator.resolveIntegralApproximateRiemannSequenceRequest(null).get();
 
         assertEquals(expected, integrableFunction.getResult(), 0.00001);
 
-        verifyNew(ConcurrentIntegralSolver.class).withArguments(eq(null));
-        verify(concurrentIntegralSolverMock, times(1));
+        verifyNew(IntegralSolver.class).withArguments(eq(null));
+        verify(integralSolverMock, times(1));
     }
 
     @Test
     public void solvePolynomialIntegralExpression() throws Exception {
         double expected = 1.71828;
-        CompletableFuture<IntegrableFunction> concurrentIntegralResult = CompletableFuture.completedFuture(new ExponentialIntegral(0, 1, expected));
+        double[] coefficients = {0, 2};
+        CompletableFuture<IntegrableFunction> concurrentIntegralResult =
+                CompletableFuture.completedFuture(new PolynomialIntegral(0, 1, 2, coefficients, Optional.of(expected)));
 
-        ConcurrentIntegralSolver concurrentIntegralSolverMock = PowerMockito.mock(ConcurrentIntegralSolver.class);
+        IntegralSolver integralSolverMock = PowerMockito.mock(IntegralSolver.class);
 
-        whenNew(ConcurrentIntegralSolver.class).withAnyArguments().thenReturn(concurrentIntegralSolverMock);
-        when(concurrentIntegralSolverMock.resolveIntegral()).thenReturn(concurrentIntegralResult);
-        IntegrableFunction integrableFunction = calculator.resolveIntegralRequest(null).get();
+        whenNew(IntegralSolver.class).withAnyArguments().thenReturn(integralSolverMock);
+        when(integralSolverMock.approximateSequenceRiemannArea(true)).thenReturn(concurrentIntegralResult);
+        IntegrableFunction integrableFunction = calculator.resolveIntegralApproximateRiemannSequenceRequest(null).get();
 
         assertEquals(expected, integrableFunction.getResult(), 0.00001);
 
-        verifyNew(ConcurrentIntegralSolver.class).withArguments(eq(null));
-        verify(concurrentIntegralSolverMock, times(1));
+        verifyNew(IntegralSolver.class).withArguments(eq(null));
+        verify(integralSolverMock, times(1));
     }
 
     @Test
@@ -78,7 +81,7 @@ public class CalculatorTest {
 
         verifyStatic(times(1));
 
-        assertEquals(result, calculatorResult, IntegralSubRangeProvider.accuracyEpsilon);
+        assertEquals(result, calculatorResult, WebCalculatorConstants.ACCURACY_EPSILON);
 
     }
 
@@ -95,7 +98,7 @@ public class CalculatorTest {
 
         verifyStatic(times(1));
 
-        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
 
     }
 
@@ -112,7 +115,7 @@ public class CalculatorTest {
 
         verifyStatic(times(1));
 
-        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
     @Test
@@ -128,7 +131,7 @@ public class CalculatorTest {
 
         verifyStatic(times(1));
 
-        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
     @Test
@@ -144,7 +147,7 @@ public class CalculatorTest {
 
         verifyStatic(times(1));
 
-        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
     @Test(expected = InputMismatchException.class)
@@ -170,7 +173,7 @@ public class CalculatorTest {
 
         verifyStatic(times(1));
 
-        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
     @Test
@@ -186,7 +189,7 @@ public class CalculatorTest {
 
         verifyStatic(times(1));
 
-        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
     @Test
@@ -202,6 +205,6 @@ public class CalculatorTest {
 
         verifyStatic(times(1));
 
-        assertEquals(expected, actual, IntegralSubRangeProvider.accuracyEpsilon);
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
 }
