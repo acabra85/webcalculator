@@ -14,7 +14,7 @@ Approximation (inscribed rectangles)
 ###Requirements
 
 1. Requires Java ```1.8.0_45``` or higher
-2. Browser (IE11, Chrome, IOS)
+2. Browser (IE11, Chrome, IOS Safari, Firefox)
 
 ###Steps
 
