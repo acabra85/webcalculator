@@ -10,5 +10,5 @@ import java.util.List;
  */
 public interface WebCalculatorRenderer {
 
-    SimpleResponse renderCalculationHistory(List<CalculationResponse> calculationResponseList, boolean descendingOrder);
+    String renderCalculationHistory(List<CalculationResponse> calculationResponseList, boolean descendingOrder);
 }

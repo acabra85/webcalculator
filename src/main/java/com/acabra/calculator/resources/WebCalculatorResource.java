@@ -4,7 +4,6 @@ import com.acabra.calculator.CalculatorManager;
 import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.MessageResponse;
 import com.acabra.calculator.response.SimpleResponse;
-import com.acabra.calculator.response.TokenResponse;
 import com.acabra.calculator.util.RequestMapper;
 import com.codahale.metrics.annotation.Timed;
 import org.apache.log4j.Logger;
@@ -17,7 +16,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.net.URLDecoder;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -25,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author acabra
  * @created 2016-09-27
  */
-@Path("/webcalculator")
+@Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class WebCalculatorResource implements AppResource {
 
@@ -58,7 +56,7 @@ public class WebCalculatorResource implements AppResource {
     @GET
     @Timed
     @ManagedAsync
-    @Path("/history")
+    @Path("history")
     @Consumes(MediaType.APPLICATION_JSON)
     public void retrieveHistoryResults(@Suspended final AsyncResponse asyncResponse, @QueryParam("token") String token) {
         CompletableFuture.supplyAsync(() -> {
@@ -73,7 +71,7 @@ public class WebCalculatorResource implements AppResource {
     @POST
     @Timed
     @ManagedAsync
-    @Path("/integral")
+    @Path("integral")
     @Consumes(MediaType.APPLICATION_JSON)
     public void resolveIntegral(@Suspended final AsyncResponse asyncResponse, @QueryParam("token") String token,
                                 IntegralRequestDTO integralRequestDTO) {
@@ -109,12 +107,12 @@ public class WebCalculatorResource implements AppResource {
     @Timed
     @ManagedAsync
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/token")
+    @Path("token")
     public void provideSessionToken(@Suspended final AsyncResponse asyncResponse) {
         CompletableFuture.supplyAsync(() -> {
             try {
                 String successMessage = "token retrieved successfully";
-                return getResponse(Response.Status.OK, successMessage, new TokenResponse(counter.incrementAndGet(), UUID.randomUUID().toString()));
+                return getResponse(Response.Status.OK, successMessage, calculatorManager.provideSessionToken());
             } catch (Exception e) {
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }

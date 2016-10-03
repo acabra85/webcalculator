@@ -1,6 +1,13 @@
 template: Hello, %s!
 defaultName: Stranger
 applicationName: Web Calculator
+server:
+  type: simple
+  applicationContextPath: /
+  adminContextPath: /admin
+  connector:
+    type: http
+    port: 8080
 # Database settings.
 # HEROKU NOTE - none of these are used since the values come from the Heroku $DATABASE_URL
 #database:

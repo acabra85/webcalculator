@@ -1,33 +1,39 @@
 package com.acabra.calculator;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Agustin on 9/30/2016.
  */
 
 public enum Operator {
-    ADD(1), SUBTRACT(2), MULTIPLY(3), DIVIDE(4), SQRT(5);
-    private final int precedence;
+    ADD(1, "+"), SUBTRACT(2, "-"), MULTIPLY(3, "*"), DIVIDE(4, "/"), SQRT(5, "@");
 
-    Operator(int p) {
+    private final int precedence;
+    private final String label;
+
+    public static final Map<String, Operator> OPERATOR_MAP  = Collections.unmodifiableMap(new HashMap<String, Operator>() {{
+        put(Operator.ADD.getLabel(), Operator.ADD);
+        put(Operator.SUBTRACT.getLabel(), Operator.SUBTRACT);
+        put(Operator.MULTIPLY.getLabel(), Operator.MULTIPLY);
+        put(Operator.DIVIDE.getLabel(), Operator.DIVIDE);
+        put(Operator.SQRT.getLabel(), Operator.SQRT);
+    }});
+
+    public static List<String> GROUPING_LEFT_SYMBOLS = Collections.unmodifiableList(Arrays.asList("(", "[", "{"));
+    public static List<String> GROUPING_RIGHT_SYMBOLS = Collections.unmodifiableList(Arrays.asList(")", "]", "}"));
+
+    Operator(int p, String label) {
         precedence = p;
+        this.label = label;
     }
 
-    private static Map<String, Operator> operatorMap = new HashMap<String, Operator>() {{
-        put("+", Operator.ADD);
-        put("-", Operator.SUBTRACT);
-        put("*", Operator.MULTIPLY);
-        put("/", Operator.DIVIDE);
-        put("@", Operator.SQRT);
-    }};
+
+    public String getLabel() {
+        return label;
+    }
 
     public int getPrecedence() {
         return precedence;
-    }
-
-    public static Map<String, Operator> getOperatorMap() {
-        return operatorMap;
     }
 }

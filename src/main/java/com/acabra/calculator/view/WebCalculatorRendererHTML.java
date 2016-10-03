@@ -3,6 +3,7 @@ package com.acabra.calculator.view;
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.TableHistoryResponse;
 import com.acabra.calculator.util.ResultFormatter;
+import com.acabra.calculator.util.WebCalculatorConstants;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -14,34 +15,23 @@ import java.util.stream.IntStream;
  */
 public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
 
-    private  AtomicLong counter;
-
     public WebCalculatorRendererHTML() {
-        this.counter = new AtomicLong();
+
     }
 
     @Override
-    public TableHistoryResponse renderCalculationHistory(List<CalculationResponse> history, boolean descending) {
-        String tableHTML = descending ? renderHistoryTable(reverseResults(history)) : renderHistoryTable(history);
-        return new TableHistoryResponse(counter.incrementAndGet(), tableHTML);
+    public String renderCalculationHistory(List<CalculationResponse> history, boolean descending) {
+        return descending ? renderHistoryTable(reverseResults(history)) : renderHistoryTable(history);
     }
 
     private String renderHistoryTable(List<CalculationResponse> orderList) {
         StringBuilder sb = new StringBuilder("<table class=\"table table-striped\"><caption style=\"text-align: center\"><h4>History</h4></caption>");
         sb.append("<thead><tr></tr><th><b>Id.</b></th><th><b>Expression</b></th><th><b>Result</b></th><tr></tr></thead><tbody>");
         for (int i = 0; i < orderList.size(); i++) {
-            extractRow(orderList, sb, i);
+            extractRow(orderList.get(i), sb);
         }
         sb.append("</tbody></table>");
         return sb.toString();
-    }
-
-    private void extractRow(List<CalculationResponse> reverseHistory, StringBuilder sb, int i) {
-        sb.append("<tr>");
-        sb.append("<td>" + reverseHistory.get(i).getId() + "</td>");
-        sb.append("<td>" + reverseHistory.get(i).getExpression() + "</td>");
-        sb.append("<td>" + ResultFormatter.trimIntegerResults(Double.toString(reverseHistory.get(i).getResult())) + "</td>");
-        sb.append("</tr>");
     }
 
     private List<CalculationResponse> reverseResults(List<CalculationResponse> calculationResponses) {
@@ -49,6 +39,22 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
         return IntStream.range(0, size)
                 .mapToObj(i -> calculationResponses.get(size - i - 1))
                 .collect(Collectors.toList());
+    }
+
+    private void extractRow(CalculationResponse calculationResponse, StringBuilder sb) {
+        sb.append("<tr>");
+        sb.append("<td>" + calculationResponse.getId() + "</td>");
+        sb.append("<td>" + calculationResponse.getExpression() + "</td>");
+        sb.append("<td>" + provideFormatting(calculationResponse) + "</td>");
+        sb.append("</tr>");
+    }
+
+    private String provideFormatting(CalculationResponse calculationResponse) {
+        String result = ResultFormatter.trimIntegerResults(Double.toString(calculationResponse.getResult()));
+        if (calculationResponse.getExpression().startsWith(WebCalculatorConstants.INTEGRAL_PREFIX)) {
+            return ResultFormatter.formatResult(calculationResponse.getResult());
+        }
+        return result;
     }
 
 }

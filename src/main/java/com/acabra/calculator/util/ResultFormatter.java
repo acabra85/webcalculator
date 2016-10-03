@@ -1,23 +1,20 @@
 package com.acabra.calculator.util;
 
-import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.IntegralFunctionFactory;
-
 /**
  * Created by Agustin on 9/30/2016.
  */
 public class ResultFormatter {
 
-    static double epsilon = 0.00001d;
+    static double epsilon = 0.000001d;
 
     public static String formatResult(double result) {
         if (result == 0) {
-            return result + "";
+            return "0";
         }
         else if (Math.abs(result) < epsilon) {
-            return String.format("%.5fE-5", result * 10000);
+            return String.format("%.5fE-6", result * 1000000);
         }
-        return String.format("%.5f", result);
+        return (Double.parseDouble(String.format("%.6f", result))) + "";
     }
 
     public static String trimIntegerResults(String result) {

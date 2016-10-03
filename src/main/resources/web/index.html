@@ -65,8 +65,6 @@
         crossorigin="anonymous"></script>
 <script>
 
-    var SITE_URL = 'http://webmathcalculator.herokuapp.com/webcalculator';
-    //SITE_URL = 'http://localhost:8080/webcalculator';
     var SQRT_SYMBOL = 'sqrt (';
     var MINUS_SYMBOL = '-';
     var OPERATORS = ['+', '*', '/', MINUS_SYMBOL, '[', ']', '{', '}', '(', ')', SQRT_SYMBOL];
@@ -140,7 +138,7 @@
 
     function retrieveSessionToken() {
         var q = $.Deferred();
-        $.post(SITE_URL + '/token'
+        $.post('/token'
         ).done(function (response) {
             result = response.body.token;
             q.resolve(result);
@@ -212,7 +210,7 @@
 
     function updateHistory() {
         var historyComponent = $('#history-container');
-        $.get(encodeURI(SITE_URL + '/history?token=' + token)
+        $.get(encodeURI('/history?token=' + token)
         ).done(function (historyResponse) {
             historyComponent.text('');
             historyComponent.append(historyResponse.body.tableHTML);
@@ -224,7 +222,7 @@
     }
 
     function executeCalculationWithToken(expressionText, expressionField, calculatedToken) {
-        $.post(encodeURI(SITE_URL + '?token=' + calculatedToken + '&expression=' + expressionText)
+        $.post(encodeURI('?token=' + calculatedToken + '&expression=' + expressionText)
         ).done(function (calculationResponse) {
             expressionField.value = calculationResponse.body.result;
             lastButtonEqual = true;
@@ -350,7 +348,7 @@
             allowInteractions = false;
             initIntegralSubmit();
             initExpressionField();
-            $('#sendintegral').blur();
+            integralSubmit.blur();
             if (token.length > 0) {
                 executeExponentialIntegralWithToken(token, expressionField);
             } else {
@@ -367,7 +365,7 @@
     function validIntegralRequestData(req) {
         return req.lowerBound <= req.upperBound
                 && req.numberThreads > 0 && req.numberThreads <= 15
-                && req.repeatedCalculations > 0 && req.repeatedCalculations <= 100000;
+                && req.repeatedCalculations > 0 && req.repeatedCalculations < 1000000;
     }
 
     function executeExponentialIntegralWithToken(receivedToken, expressionField) {
@@ -380,7 +378,7 @@
         };
         if (validIntegralRequestData(integralRequest)){
             $.ajax({
-                url : encodeURI(SITE_URL + '/integral?token=' + receivedToken),
+                url : encodeURI('/integral?token=' + receivedToken),
                 type: 'POST',
                 dataType : "json",
                 data:  JSON.stringify(integralRequest),
@@ -467,7 +465,7 @@
                         </div>
                     </div>
                     <div class="panel-body" id="integral_calculator_panel" style="display: none">
-                        <div id="integralForm">
+                        <form id="integralForm" onsubmit="requestExponentialIntegral();return false;">
                             <div class="input-group">
                                 <div class="input-group-btn">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Function<span class="caret"></span></button>
@@ -487,16 +485,16 @@
                             </div>
                             <div class="input-group input-group-lg">
                                 <span class="input-group-addon" id="sizing-addon3">Repeated Calculations:</span>
-                                <input type="number" class="form-control" id="repeatedcalculations" data-toggle="tooltip" data-placement="right" title="must a be number greater than 0" aria-describedby="sizing-addon3" min="1" max="1000" value="1">
+                                <input type="number" class="form-control" id="repeatedcalculations" data-toggle="tooltip" data-placement="right" title="must a be number between [1 and 999999]" aria-describedby="sizing-addon3" min="1" max="999999" value="1">
                             </div>
                             <div class="input-group input-group-lg">
                                 <span class="input-group-addon" id="sizing-addon4">Number Threads:</span>
-                                <input type="number" class="form-control" id="numthreads" data-toggle="tooltip" data-placement="right" title="must be number between 0 and 15 " aria-describedby="sizing-addon4" min="1" max="15" value="1">
+                                <input type="number" class="form-control" id="numthreads" data-toggle="tooltip" data-placement="right" title="must be number between [1 and 15]" aria-describedby="sizing-addon4" min="1" max="15" value="1">
                             </div>
                             <div class="btn-group btn-group-lg">
-                                <button type="button" class="btn btn-primary integral-inputs" id="sendintegral" onclick="requestExponentialIntegral()">Evaluate Integral</button>
+                                <button type="submit" class="btn btn-primary integral-inputs" id="sendintegral">Evaluate Integral</button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                     <div id="error_messages" class="error-messages"></div>
                 </div>

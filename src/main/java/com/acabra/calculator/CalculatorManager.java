@@ -3,6 +3,7 @@ package com.acabra.calculator;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.calculator.response.WebCalculatorFactoryResponse;
 import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
@@ -12,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Agustin on 9/27/2016.
@@ -21,11 +23,13 @@ public class CalculatorManager {
     private final Calculator calculator;
     private final HashMap<String, List<CalculationResponse>> history;
     private final WebCalculatorRenderer renderer;
+    private AtomicLong counter;
 
     public CalculatorManager(WebCalculatorRenderer renderer) {
         this.history = new HashMap<>();
         this.calculator = new Calculator();
         this.renderer = renderer;
+        counter = new AtomicLong();
     }
 
     public CompletableFuture<CalculationResponse> processExponentialIntegralCalculation(IntegralRequest integralRequest, String token) {
@@ -60,7 +64,12 @@ public class CalculatorManager {
     }
 
     public SimpleResponse provideRenderedHistoryResult(String token) {
-        return renderer.renderCalculationHistory(provideCalculationHistory(token), true);
+        List<CalculationResponse> calculationResponseList = provideCalculationHistory(token);
+        String table = renderer.renderCalculationHistory(calculationResponseList, true);
+        return WebCalculatorFactoryResponse.createTableResponse(counter.getAndIncrement(), table);
     }
 
+    public SimpleResponse provideSessionToken() {
+        return WebCalculatorFactoryResponse.createTokenResponse(counter.getAndIncrement());
+    }
 }

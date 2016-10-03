@@ -4,6 +4,7 @@ import com.acabra.calculator.integral.IntegralSolver;
 import com.acabra.calculator.integral.ExponentialIntegral;
 import com.acabra.calculator.integral.IntegrableFunction;
 import com.acabra.calculator.integral.PolynomialIntegral;
+import com.acabra.calculator.util.ShuntingYard;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -104,9 +105,9 @@ public class CalculatorTest {
 
     @Test
     public void solveInFixExpression2Test() {
-        String expression = "2 sqrt ( 9 ) * 5";
+        String expression = "2 @ ( 9 ) * 5";
         double expected = 30;
-        List<String> postFixExpressionList = Arrays.asList("2 9 @ 5 *".split("\\s+"));
+        List<String> postFixExpressionList = ShuntingYard.postfix(expression);
 
         PowerMockito.mockStatic(ShuntingYard.class);
         when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
@@ -120,9 +121,9 @@ public class CalculatorTest {
 
     @Test
     public void solveInFixExpression3Test() {
-        String expression = "2  + sqrt ( 9 )";
+        String expression = "2  + @ ( 9 )";
         double expected = 5;
-        List<String> postFixExpressionList = Arrays.asList("2 9 @ +".split("\\s+"));
+        List<String> postFixExpressionList = ShuntingYard.postfix(expression);
 
         PowerMockito.mockStatic(ShuntingYard.class);
         when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
@@ -197,6 +198,54 @@ public class CalculatorTest {
         String expression = "0 / 0";
         double expected = Double.NaN;
         List<String> postFixExpressionList = Arrays.asList("0 0 /".split("\\s+"));
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        verifyStatic(times(1));
+
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test
+    public void solveArithmeticExpressionTest() {
+        String expression = "6 + ( [ { 6 } ] )";
+        int expected = 12;
+        List<String> postFixExpressionList = Arrays.asList("6 6 +".split("\\s+"));
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        verifyStatic(times(1));
+
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test
+    public void solveArithmeticExpression2Test() {
+        String expression = "6 @ ( [ { 16 } ] )";
+        int expected = 24;
+        List<String> postFixExpressionList = ShuntingYard.postfix(expression);
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        verifyStatic(times(1));
+
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test
+    public void solveArithmeticExpression3Test() {
+        String expression = "8 @ ( @ ( 8 + 8 ) * 6 + 1 ) ";
+        int expected = 40;
+        List<String> postFixExpressionList = ShuntingYard.postfix(expression);
 
         PowerMockito.mockStatic(ShuntingYard.class);
         when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);

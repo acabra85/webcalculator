@@ -3,9 +3,7 @@ package com.acabra.calculator;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.integral.ExponentialIntegral;
 import com.acabra.calculator.integral.IntegrableFunction;
-import com.acabra.calculator.response.CalculationResponse;
-import com.acabra.calculator.response.SimpleResponse;
-import com.acabra.calculator.response.TableHistoryResponse;
+import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
@@ -27,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -40,7 +39,8 @@ import static org.powermock.api.mockito.PowerMockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CalculatorManager.class, Calculator.class,
         WebCalculatorRendererHTML.class, WebCalculatorValidation.class,
-        IntegralRequest.class})
+        IntegralRequest.class, WebCalculatorFactoryResponse.class,
+        TokenResponse.class, TableHistoryResponse.class})
 @PowerMockIgnore(value = {"javax.management.*"})
 public class CalculatorManagerTest {
 
@@ -57,13 +57,14 @@ public class CalculatorManagerTest {
     private final static double res3 = 8;
     private final static String res3Str = "8";
     private final static String tableHeader = "<caption>History</caption><thead><tr><th>Id.</th><th>Expression</th><th>Result</th></tr></thead>";
-    private final static String renderedTableEmpty = "<table>" + tableHeader + "</table>";
     private final static String rowExpr1 = "<tr><td>1</td><td>3 + 3</td><td>6</td></tr>";
     private final static String rowExpr2 = "<tr><td>2</td><td>4 + 4</td><td>8</td></tr>";
     private final static String rowExpr3 = "<tr><td>1</td><td>sqrt ( 4 )</td><td>2</td></tr>";
+    private final static String renderedTableEmpty = "<table>" + tableHeader + "</table>";
     private final static String renderedTable1 = "<table>" + tableHeader + "<tbody>" + rowExpr1 + "</tbody></table>";
     private final static String renderedTable2 = "<table>" + tableHeader + "<tbody>" + rowExpr1 + rowExpr2 + "</tbody></table>";
     private final static String renderedTable3 = "<table>" + tableHeader + "<tbody>" + rowExpr3 + "</tbody></table>";
+
     private SimpleResponse defaultTableResponseEmpty = new TableHistoryResponse(0L, renderedTableEmpty);
     private SimpleResponse defaultTableResponse1 = new TableHistoryResponse(1L, renderedTable1);
     private SimpleResponse defaultTableResponse2 = new TableHistoryResponse(2L, renderedTable2);
@@ -82,6 +83,41 @@ public class CalculatorManagerTest {
         calculatorManager = new CalculatorManager(rendererMock);
 
         verifyNew(Calculator.class).withNoArguments();
+    }
+
+    @Test
+    public void provideSessionTokenTest() {
+        long id = 0L;
+
+        PowerMockito.mockStatic(WebCalculatorFactoryResponse.class);
+        TokenResponse tokenResponseMock = PowerMockito.mock(TokenResponse.class);
+
+        when(WebCalculatorFactoryResponse.createTokenResponse(id)).thenReturn(tokenResponseMock);
+
+        assertTrue(tokenResponseMock == calculatorManager.provideSessionToken());
+
+        verifyStatic(times(1));
+
+    }
+
+    @Test
+    public void provideRenderedHistoryResultTest() {
+        long id = 0L;
+        String table = "tableHTML";
+        List<CalculationResponse> emptyList = Collections.emptyList();
+
+        TableHistoryResponse tableHistoryResponseMock = PowerMockito.mock(TableHistoryResponse.class);
+
+        PowerMockito.mockStatic(WebCalculatorFactoryResponse.class);
+        when(WebCalculatorFactoryResponse.createTableResponse(id, table)).thenReturn(tableHistoryResponseMock);
+
+        when(rendererMock.renderCalculationHistory(eq(emptyList), eq(true))).thenReturn(table);
+
+        assertTrue(tableHistoryResponseMock == calculatorManager.provideRenderedHistoryResult(TOKEN));
+
+        verify(rendererMock, times(1)).renderCalculationHistory(eq(emptyList), eq(true));
+        verifyStatic(times(1));
+
     }
 
     @Test
@@ -130,7 +166,7 @@ public class CalculatorManagerTest {
 
     @Test
     public void provideRenderedHistoryResultEmptyTest() {
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponseEmpty);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTableEmpty);
 
         String emptyTable = ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML();
 
@@ -141,7 +177,7 @@ public class CalculatorManagerTest {
 
     @Test
     public void provideRenderedHistoryResult1Test() {
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponse1);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTable1);
 
         assertEquals(renderedTable1, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
 
@@ -157,7 +193,7 @@ public class CalculatorManagerTest {
         calculatorManager.processArithmeticCalculation(expr2, TOKEN);
 
         List<CalculationResponse> historyList = calculatorManager.provideCalculationHistory(TOKEN);
-        when(rendererMock.renderCalculationHistory(eq(historyList), eq(true))).thenReturn(defaultTableResponse2);
+        when(rendererMock.renderCalculationHistory(eq(historyList), eq(true))).thenReturn(renderedTable2);
 
         assertEquals(renderedTable2, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
         verify(rendererMock, times(1)).renderCalculationHistory(eq(historyList), eq(true));
@@ -167,7 +203,7 @@ public class CalculatorManagerTest {
 
     @Test
     public void provideRenderedHistoryResult3Test() {
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponse3);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTable3);
 
         assertEquals(renderedTable3, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
 
@@ -178,9 +214,8 @@ public class CalculatorManagerTest {
     public void provideRenderedHistoryResult4Test() {
         String rowExpr4 = "<tr><td>5</td><td>10 - 5</td><td>5</td></tr>";
         String renderedTable4 = "<table>" + tableHeader + "<tbody>" + rowExpr4 + "</tbody></table>";
-        SimpleResponse defaultTableResponse4 = new TableHistoryResponse(4L, renderedTable4);
 
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponse4);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTable4);
 
         assertEquals(renderedTable4, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
 
@@ -192,9 +227,8 @@ public class CalculatorManagerTest {
         double res = -4;
         String rowExpr = "<tr><td>5</td><td>6 - 10</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
-        SimpleResponse defaultTableResponse = new TableHistoryResponse(4L, renderedTable);
 
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponse);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTable);
 
         assertEquals(renderedTable, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
 
@@ -207,9 +241,8 @@ public class CalculatorManagerTest {
         double res = -4;
         String rowExpr = "<tr><td>5</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
-        SimpleResponse defaultTableResponse = new TableHistoryResponse(4L, renderedTable);
 
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponse);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTable);
 
         assertEquals(renderedTable, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
 
@@ -222,9 +255,8 @@ public class CalculatorManagerTest {
         String res = "1.71456";
         String rowExpr = "<tr><td>1</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
-        SimpleResponse defaultTableResponse = new TableHistoryResponse(4L, renderedTable);
 
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponse);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTable);
 
         assertEquals(renderedTable, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
 
@@ -238,9 +270,8 @@ public class CalculatorManagerTest {
         String res = "0";
         String rowExpr = "<tr><td>1</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
-        SimpleResponse defaultTableResponse = new TableHistoryResponse(4L, renderedTable);
 
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponse);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTable);
 
         assertEquals(renderedTable, ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML());
 
@@ -254,9 +285,8 @@ public class CalculatorManagerTest {
         String res = "0.00456E-5";
         String rowExpr = "<tr><td>1</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
-        SimpleResponse defaultTableResponse = new TableHistoryResponse(4L, renderedTable);
 
-        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(defaultTableResponse);
+        when(rendererMock.renderCalculationHistory(eq(Collections.emptyList()), eq(true))).thenReturn(renderedTable);
 
         String tableHTML = ((TableHistoryResponse) calculatorManager.provideRenderedHistoryResult(TOKEN)).getTableHTML();
         assertEquals(renderedTable, tableHTML);
@@ -381,7 +411,7 @@ public class CalculatorManagerTest {
         CalculationResponse calculationResponse = calculatorManager.processExponentialIntegralCalculation(integralReqMock, TOKEN).get();
 
         verify(integralReqMock, Mockito.times(2)).getRepeatedCalculations();
-        verify(integralReqMock, Mockito.times(3)).getNumThreads();
+        verify(integralReqMock, Mockito.times(2)).getNumThreads();
         verify(integralReqMock, Mockito.times(1)).getFunctionId();
         verify(integralReqMock, Mockito.times(2)).getLowerBound();
         verify(integralReqMock, Mockito.times(2)).getUpperBound();
@@ -469,6 +499,30 @@ public class CalculatorManagerTest {
         double lowerBound = 0;
         double upperBound = 0;
         int repeatedCalculations = -1;
+        int numThreads = 1;
+        IntegralRequest integralReqMock = PowerMockito.mock(IntegralRequest.class);
+
+        when(integralReqMock.getFunctionId()).thenReturn(functionId);
+        when(integralReqMock.getLowerBound()).thenReturn(lowerBound);
+        when(integralReqMock.getUpperBound()).thenReturn(upperBound);
+        when(integralReqMock.getNumThreads()).thenReturn(numThreads);
+        when(integralReqMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
+
+        calculatorManager.processExponentialIntegralCalculation(integralReqMock, TOKEN).get();
+
+        verify(integralReqMock, Mockito.times(1)).getRepeatedCalculations();
+        verify(integralReqMock, Mockito.times(2)).getNumThreads();
+        verify(integralReqMock, Mockito.times(1)).getFunctionId();
+        verify(integralReqMock, Mockito.times(1)).getLowerBound();
+        verify(integralReqMock, Mockito.times(1)).getUpperBound();
+    }
+
+    @Test(expected = InputMismatchException.class)
+    public void resultIntegralCalculationRepeatedCalculationsException3Test() throws ExecutionException, InterruptedException {
+        int functionId = 0;
+        double lowerBound = 0;
+        double upperBound = 0;
+        int repeatedCalculations = 1000000;
         int numThreads = 1;
         IntegralRequest integralReqMock = PowerMockito.mock(IntegralRequest.class);
 
