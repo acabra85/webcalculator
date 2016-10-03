@@ -1,12 +1,10 @@
 package com.acabra.calculator.view;
 
 import com.acabra.calculator.response.CalculationResponse;
-import com.acabra.calculator.response.TableHistoryResponse;
 import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorConstants;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,19 +40,28 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
     }
 
     private void extractRow(CalculationResponse calculationResponse, StringBuilder sb) {
-        sb.append("<tr>");
-        sb.append("<td>" + calculationResponse.getId() + "</td>");
-        sb.append("<td>" + calculationResponse.getExpression() + "</td>");
-        sb.append("<td>" + provideFormatting(calculationResponse) + "</td>");
+        sb.append("<tr><td>").append(calculationResponse.getId()).append("</td>");
+        sb.append("<td>").append(calculationResponse.getExpression()).append("</td>");
+        sb.append("<td>").append(provideFormatting(calculationResponse)).append("</td>");
         sb.append("</tr>");
     }
 
     private String provideFormatting(CalculationResponse calculationResponse) {
         String result = ResultFormatter.trimIntegerResults(Double.toString(calculationResponse.getResult()));
         if (calculationResponse.getExpression().startsWith(WebCalculatorConstants.INTEGRAL_PREFIX)) {
-            return ResultFormatter.formatResult(calculationResponse.getResult());
+            return createIntegralComparativeTable(ResultFormatter.formatResult(calculationResponse.getResult()), calculationResponse.getDescription());
         }
         return result;
+    }
+
+    private String createIntegralComparativeTable(String approximation, String actualValue) {
+        String approxLabel = "Approximated";
+        String realValLabel = "Real Value";
+        return "<div style=\"width:auto; height: 40px;\"><table class=\"integral-subtable\">"
+                + "<tr><th>" + approxLabel + "</th><td style=\"text-align: right;\">" + approximation +"</td></tr>"
+                + "<tr><th>" + realValLabel + "</th><td style=\"text-align: right;\">" + ResultFormatter.formatResult(Double.parseDouble(actualValue)) +"</td></tr>"
+        +"</table></div>";
+
     }
 
 }

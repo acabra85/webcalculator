@@ -47,3 +47,8 @@ thead th {
 button {
     cursor: pointer;
 }
+
+.integral-subtable {
+    width: 95%;
+    border-spacing: 3px
+}

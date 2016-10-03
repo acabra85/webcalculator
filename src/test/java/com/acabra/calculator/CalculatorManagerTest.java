@@ -543,7 +543,7 @@ public class CalculatorManagerTest {
 
     @Test
     public void resultSimpleArithmeticResponse1Test() throws ExecutionException, InterruptedException {
-        String expr = "6 - 10 * (2 - 5)";
+        String expr = "6 - 10 * ( 2 - 5 )";
         double res = 36;
         when(calculatorMock.solveArithmeticExpression(eq(expr))).thenReturn(res);
 

@@ -17,14 +17,16 @@ public class WebCalculatorRendererHTMLTest {
 
     private final String row1 = "<tr><td>1</td><td>aa</td><td>1.1</td></tr>";
     private final String row2 = "<tr><td>2</td><td>bb</td><td>0</td></tr>";
-    private final String row3 = "<tr><td>3</td><td>Integ</td><td>0.456</td></tr>";
-    private final String row4 = "<tr><td>4</td><td>Integ</td><td>0.04560E-6</td></tr>";
+    private String approximationLabel = "Approximated";
+    String realValLabel = "Real Value";
+    private final String row3 = "<tr><td>3</td><td>Integ</td><td><div style=\"width:auto; height: 40px;\"><table class=\"integral-subtable\"><tr><th>" + approximationLabel +"</th><td style=\"text-align: right;\">0.456</td></tr><tr><th>" + realValLabel + "</th><td style=\"text-align: right;\">0.01</td></tr></table></div></td></tr>";
+    private final String row4 = "<tr><td>4</td><td>Integ</td><td><div style=\"width:auto; height: 40px;\"><table class=\"integral-subtable\"><tr><th>" + approximationLabel + "</th><td style=\"text-align: right;\">0.04560E-6</td></tr><tr><th>" + realValLabel + "</th><td style=\"text-align: right;\">0.01</td></tr></table></div></td></tr>";
 
     private final List<CalculationResponse> listToRender = Arrays.asList(
             new CalculationResponse(1, "aa", 1.1, "dd"),
             new CalculationResponse(2, "bb", 0.0, "ee"),
-            new CalculationResponse(3, WebCalculatorConstants.INTEGRAL_PREFIX, 0.456, ""),
-            new CalculationResponse(4, WebCalculatorConstants.INTEGRAL_PREFIX, 0.0000000456, "")
+            new CalculationResponse(3, WebCalculatorConstants.INTEGRAL_PREFIX, 0.456, "0.01"),
+            new CalculationResponse(4, WebCalculatorConstants.INTEGRAL_PREFIX, 0.0000000456, "0.01")
     );
 
     @Before

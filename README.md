@@ -29,7 +29,7 @@ This enables the web application on localhost:8080 by default
 ###Postman endpoint catalogue
  1. A catalogue for postman with templates for the endpoints is available trhough this https://www.getpostman.com/collections/abdc14b0f2ea89ff1634
  2. Only required to use the option "import" in Postman Chrome extension (https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop)
-  
+
 
 
 
