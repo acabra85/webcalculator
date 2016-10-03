@@ -20,8 +20,8 @@ Approximation (inscribed rectangles)
 
 This enables the web application on localhost:8080 by default
 
-1. Download source code and run ```mvn install``` (this generates the webcalculator1.0.jar file)
-2. Run from console ```java -jar target\webcalculator-1.0.jar server webcalculator.yml```
+1. Download source code and on the projects root folder run ```mvn install``` (this generates the webcalculator1.0.jar file)
+2. Run from console on projects root folder ```java -jar target/webcalculator-1.0.jar server config/webcalculator.yml```
 
 ####More settings:
   If the desired port 8080 wants to be replaced, modify the ```server.connector.port``` property on the ```webcalculator.yml``` file.
