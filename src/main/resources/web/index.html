@@ -408,98 +408,100 @@
 
 </script>
 <div class="panel panel-default" style="align-content: center;">
-    <h1>web calculator 1.0</h1>
-    <div class="panel-body">
-        <div id="all-content">
-            <div id="calculator-container">
-                <div class="input-group input-group-lg to-center">
-                    <span class="input-group-addon" id="basic-addon1"></span>
-                    <input type="text" id="expression"
-                           name="expression" class="form-control" placeholder="" aria-describedby="basic-addon1"
-                           value="0" style="text-align:right; width: 400px" readonly/>
-                    <ul class="nav nav-tabs">
-                        <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(0)"><a href="#">Basic</a></li>
-                        <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(1)"><a href="#">Integrals</a></li>
-                        <li role="presentation"><a href="#">
-                            <button type="button" class="btn btn-info btn-xs" id="display_history" onclick="displayHistory()">History</button>
-                        </a></li>
-                        <li role="presentation" onclick="clearResult()"><a href="#">
-                            <button type="button" class="btn btn-danger btn-xs" id="clear_result">Clear</button>
-                        </a></li>
-                        <li role="presentation" onclick="removeLastCharacter()" ><a href="#">
-                            <button type="button" class="btn btn-warning btn-xs" id="remove_last"><span
-                                    class="glyphicon glyphicon-arrow-left"></span></button>
-                        </a></li>
-                    </ul>
-                    <div class="calc-buttons operation-container" id="main_calculator_panel" style="display: block;">
-                        <div class="btn-group btn-group-lg">
-                            <button type="button" class="btn btn-primary" id="b7" onclick="append(this.id, '7')">7</button>
-                            <button type="button" class="btn btn-primary" id="b8" onclick="append(this.id, '8')">8</button>
-                            <button type="button" class="btn btn-primary" id="b9" onclick="append(this.id, '9')">9</button>
-                            <button type="button" class="btn btn-primary" id="bplus" onclick="append(this.id, '+')">+</button>
-                            <button type="button" class="btn btn-primary" id="bleftB" onclick="append(this.id, '[')">[</button>
-                            <button type="button" class="btn btn-primary" id="brightB" onclick="append(this.id, ']')">]</button>
-                        </div>
-                        <div class="btn-group btn-group-lg">
-                            <button type="button" class="btn btn-primary" id="b4" onclick="append(this.id, '4')">4</button>
-                            <button type="button" class="btn btn-primary" id="b5" onclick="append(this.id, '5')">5</button>
-                            <button type="button" class="btn btn-primary" id="b6" onclick="append(this.id, '6')">6</button>
-                            <button type="button" class="btn btn-primary" id="bminus" onclick="append(this.id, '-')">-</button>
-                            <button type="button" class="btn btn-primary" id="bleftP" onclick="append(this.id, '(')">(</button>
-                            <button type="button" class="btn btn-primary" id="brightP" onclick="append(this.id, ')')">)</button>
-                        </div>
-                        <div class="btn-group btn-group-lg">
-                            <button type="button" class="btn btn-primary" id="b1" onclick="append(this.id, '1')">1</button>
-                            <button type="button" class="btn btn-primary" id="b2" onclick="append(this.id, '2')">2</button>
-                            <button type="button" class="btn btn-primary" id="b3" onclick="append(this.id, '3')">3</button>
-                            <button type="button" class="btn btn-primary" id="bmult" onclick="append(this.id, '*')">*</button>
-                            <button type="button" class="btn btn-primary" id="bleftC" onclick="append(this.id, '{')">{</button>
-                            <button type="button" class="btn btn-primary" id="brightC" onclick="append(this.id, '}')">}</button>
-                        </div>
-                        <div class="btn-group btn-group-lg">
-                            <button type="button" class="btn btn-primary" id="b0" onclick="append(this.id, '0')">0</button>
-                            <button type="button" class="btn btn-primary" id="bdot" onclick="append(this.id, '.')">.</button>
-                            <button type="button" class="btn btn-primary" id="bcalculate" onclick="calculate()">=</button>
-                            <button type="button" class="btn btn-primary" id="bdivide" onclick="append(this.id, '/')">/</button>
-                            <button type="button" class="btn btn-primary" id="bsqrt" onclick="append(this.id, 'sqrt (')">sqrt</button>
-                        </div>
-                    </div>
-                    <div class="panel-body" id="integral_calculator_panel" style="display: none">
-                        <form id="integralForm" onsubmit="requestExponentialIntegral();return false;">
-                            <div class="input-group">
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Function<span class="caret"></span></button>
-                                    <ul class="dropdown-menu">
-                                        <li onclick="useFunction(0)"><a href="#">e^x</a></li>
-                                    </ul>
-                                </div><!-- /btn-group -->
-                                <input type="text" id="selected_function" class="form-control" aria-label="..." value="e^x" readonly>
-                            </div><!-- /input-group -->
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-addon" id="sizing-addon2">Lower Bound:</span>
-                                <input type="number" class="form-control" id="lowerbound" data-toggle="tooltip" data-placement="right" title="must be lower that upper-bound" aria-describedby="sizing-addon2" value="0" step="0.01">
-                            </div>
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-addon" id="sizing-addon1">Upper Bound:</span>
-                                <input type="number" class="form-control" id="upperbound" data-toggle="tooltip" data-placement="right" title="must be higher than lower-bound" aria-describedby="sizing-addon1" value="0" step="0.01">
-                            </div>
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-addon" id="sizing-addon3">Repeated Calculations:</span>
-                                <input type="number" class="form-control" id="repeatedcalculations" data-toggle="tooltip" data-placement="right" title="must a be number between [1 and 999999]" aria-describedby="sizing-addon3" min="1" max="999999" value="1">
-                            </div>
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-addon" id="sizing-addon4">Number Threads:</span>
-                                <input type="number" class="form-control" id="numthreads" data-toggle="tooltip" data-placement="right" title="must be number between [1 and 15]" aria-describedby="sizing-addon4" min="1" max="15" value="1">
+    <div class="jumbotron">
+        <h1>Web Calculator 1.0</h1>
+        <div class="panel-body">
+            <div id="all-content">
+                <div id="calculator-container">
+                    <div class="input-group input-group-lg to-center">
+                        <span class="input-group-addon" id="basic-addon1"></span>
+                        <input type="text" id="expression"
+                               name="expression" class="form-control" placeholder="" aria-describedby="basic-addon1"
+                               value="0" style="text-align:right; width: 400px" readonly/>
+                        <ul class="nav nav-tabs">
+                            <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(0)"><a href="#">Basic</a></li>
+                            <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(1)"><a href="#">Integrals</a></li>
+                            <li role="presentation"><a href="#">
+                                <button type="button" class="btn btn-info btn-xs" id="display_history" onclick="displayHistory()">History</button>
+                            </a></li>
+                            <li role="presentation" onclick="clearResult()"><a href="#">
+                                <button type="button" class="btn btn-danger btn-xs" id="clear_result">Clear</button>
+                            </a></li>
+                            <li role="presentation" onclick="removeLastCharacter()" ><a href="#">
+                                <button type="button" class="btn btn-warning btn-xs" id="remove_last"><span
+                                        class="glyphicon glyphicon-arrow-left"></span></button>
+                            </a></li>
+                        </ul>
+                        <div class="calc-buttons operation-container" id="main_calculator_panel" style="display: block;">
+                            <div class="btn-group btn-group-lg">
+                                <button type="button" class="btn btn-primary" id="b7" onclick="append(this.id, '7')">7</button>
+                                <button type="button" class="btn btn-primary" id="b8" onclick="append(this.id, '8')">8</button>
+                                <button type="button" class="btn btn-primary" id="b9" onclick="append(this.id, '9')">9</button>
+                                <button type="button" class="btn btn-primary" id="bplus" onclick="append(this.id, '+')">+</button>
+                                <button type="button" class="btn btn-primary" id="bleftB" onclick="append(this.id, '[')">[</button>
+                                <button type="button" class="btn btn-primary" id="brightB" onclick="append(this.id, ']')">]</button>
                             </div>
                             <div class="btn-group btn-group-lg">
-                                <button type="submit" class="btn btn-primary integral-inputs" id="sendintegral">Evaluate Integral</button>
+                                <button type="button" class="btn btn-primary" id="b4" onclick="append(this.id, '4')">4</button>
+                                <button type="button" class="btn btn-primary" id="b5" onclick="append(this.id, '5')">5</button>
+                                <button type="button" class="btn btn-primary" id="b6" onclick="append(this.id, '6')">6</button>
+                                <button type="button" class="btn btn-primary" id="bminus" onclick="append(this.id, '-')">-</button>
+                                <button type="button" class="btn btn-primary" id="bleftP" onclick="append(this.id, '(')">(</button>
+                                <button type="button" class="btn btn-primary" id="brightP" onclick="append(this.id, ')')">)</button>
                             </div>
-                        </form>
+                            <div class="btn-group btn-group-lg">
+                                <button type="button" class="btn btn-primary" id="b1" onclick="append(this.id, '1')">1</button>
+                                <button type="button" class="btn btn-primary" id="b2" onclick="append(this.id, '2')">2</button>
+                                <button type="button" class="btn btn-primary" id="b3" onclick="append(this.id, '3')">3</button>
+                                <button type="button" class="btn btn-primary" id="bmult" onclick="append(this.id, '*')">*</button>
+                                <button type="button" class="btn btn-primary" id="bleftC" onclick="append(this.id, '{')">{</button>
+                                <button type="button" class="btn btn-primary" id="brightC" onclick="append(this.id, '}')">}</button>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <button type="button" class="btn btn-primary" id="b0" onclick="append(this.id, '0')">0</button>
+                                <button type="button" class="btn btn-primary" id="bdot" onclick="append(this.id, '.')">.</button>
+                                <button type="button" class="btn btn-primary" id="bcalculate" onclick="calculate()">=</button>
+                                <button type="button" class="btn btn-primary" id="bdivide" onclick="append(this.id, '/')">/</button>
+                                <button type="button" class="btn btn-primary" id="bsqrt" onclick="append(this.id, 'sqrt (')">sqrt</button>
+                            </div>
+                        </div>
+                        <div class="panel-body" id="integral_calculator_panel" style="display: none">
+                            <form id="integralForm" onsubmit="requestExponentialIntegral();return false;">
+                                <div class="input-group">
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Function<span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                            <li onclick="useFunction(0)"><a href="#">e^x</a></li>
+                                        </ul>
+                                    </div><!-- /btn-group -->
+                                    <input type="text" id="selected_function" class="form-control" aria-label="..." value="e^x" readonly>
+                                </div><!-- /input-group -->
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-addon" id="sizing-addon2">Lower Bound:</span>
+                                    <input type="number" class="form-control" id="lowerbound" data-toggle="tooltip" data-placement="right" title="must be lower that upper-bound" aria-describedby="sizing-addon2" value="0" step="0.01">
+                                </div>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-addon" id="sizing-addon1">Upper Bound:</span>
+                                    <input type="number" class="form-control" id="upperbound" data-toggle="tooltip" data-placement="right" title="must be higher than lower-bound" aria-describedby="sizing-addon1" value="0" step="0.01">
+                                </div>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-addon" id="sizing-addon3">Repeated Calculations:</span>
+                                    <input type="number" class="form-control" id="repeatedcalculations" data-toggle="tooltip" data-placement="right" title="must a be number between [1 and 999999]" aria-describedby="sizing-addon3" min="1" max="999999" value="1">
+                                </div>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-addon" id="sizing-addon4">Number Threads:</span>
+                                    <input type="number" class="form-control" id="numthreads" data-toggle="tooltip" data-placement="right" title="must be number between [1 and 15]" aria-describedby="sizing-addon4" min="1" max="15" value="1">
+                                </div>
+                                <div class="btn-group btn-group-lg">
+                                    <button type="submit" class="btn btn-primary integral-inputs" id="sendintegral">Evaluate Integral</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="error_messages" class="error-messages"></div>
                     </div>
-                    <div id="error_messages" class="error-messages"></div>
                 </div>
+                <div id="history-container" style="display: none"></div>
             </div>
-            <div id="history-container" style="display: none"></div>
         </div>
     </div>
     <div class="panel-footer">web calculator 1.0 (Agustin Cabra 2016)</div>
