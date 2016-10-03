@@ -14,7 +14,6 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,7 +29,6 @@ public class WebCalculatorResource implements AppResource {
 
     private static final Logger logger = Logger.getLogger(WebCalculatorResource.class);
     private final AtomicLong counter;
-    final static String INDEX_FILE_URI = "web/index.html";
     private static final String UTF8_ENC = "UTF-8";
     private final CalculatorManager calculatorManager;
 
@@ -48,15 +46,8 @@ public class WebCalculatorResource implements AppResource {
 
     @GET
     @Timed
-    @Produces(MediaType.TEXT_HTML)
-    public InputStream provideHomeDirectory() {
-        return WebCalculatorResource.class.getClassLoader().getResourceAsStream(INDEX_FILE_URI);
-    }
-
-    @GET
-    @Timed
     @ManagedAsync
-    @Path("history")
+    @Path("/history")
     @Consumes(MediaType.APPLICATION_JSON)
     public void retrieveHistoryResults(@Suspended final AsyncResponse asyncResponse, @QueryParam("token") String token) {
         CompletableFuture.supplyAsync(() -> {
@@ -71,7 +62,7 @@ public class WebCalculatorResource implements AppResource {
     @POST
     @Timed
     @ManagedAsync
-    @Path("integral")
+    @Path("/integral")
     @Consumes(MediaType.APPLICATION_JSON)
     public void resolveIntegral(@Suspended final AsyncResponse asyncResponse, @QueryParam("token") String token,
                                 IntegralRequestDTO integralRequestDTO) {
@@ -107,7 +98,7 @@ public class WebCalculatorResource implements AppResource {
     @Timed
     @ManagedAsync
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("token")
+    @Path("/token")
     public void provideSessionToken(@Suspended final AsyncResponse asyncResponse) {
         CompletableFuture.supplyAsync(() -> {
             try {

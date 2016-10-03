@@ -3,6 +3,7 @@ defaultName: Stranger
 applicationName: Web Calculator
 server:
   type: simple
+  rootPath: /api/*
   applicationContextPath: /
   adminContextPath: /admin
   connector:

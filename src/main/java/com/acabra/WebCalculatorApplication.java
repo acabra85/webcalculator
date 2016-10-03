@@ -6,6 +6,7 @@ import com.acabra.calculator.view.RenderType;
 import com.acabra.calculator.view.WebCalculatorRenderFactory;
 import com.acabra.health.TemplateHealthCheck;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.java8.Java8Bundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
@@ -34,6 +35,9 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
     @Override
     public void initialize(Bootstrap<WebCalculatorConfiguration> bootstrap) {
         bootstrap.addBundle(new Java8Bundle());
+
+        bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html", "html"));
     }
 
     @Override
@@ -50,6 +54,8 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
         final JerseyEnvironment env = environment.jersey();
+        env.setUrlPattern("/api/*");
+
         CalculatorManager calculatorManager = new CalculatorManager(WebCalculatorRenderFactory.createRenderer(RenderType.HTML));
         env.register(new WebCalculatorResource(calculatorManager));
 

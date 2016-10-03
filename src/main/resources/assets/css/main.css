@@ -1,0 +1,49 @@
+
+.to-center {
+    width: 275px;
+    height: auto;
+    text-align: right;
+}
+
+.calc-buttons {
+    width: 255px;
+    height: auto;
+    text-align: center;
+}
+
+#calculator-container {
+    width: 255px;
+    height: auto;
+    text-align: center;
+    float: left;
+}
+
+#history-container {
+    width: 680px;
+    height: 274px;
+    text-align: center;
+    float: right;
+    overflow: auto;
+}
+
+#all-content {
+    width: 1200px;
+    text-align: center;
+}
+
+.operation-container {
+    align-content: center;
+}
+
+.error-messages {
+    float: left;
+    width: 95%;
+    text-align: center;
+}
+
+thead th {
+    text-align: center;
+}
+button {
+    cursor: pointer;
+}
