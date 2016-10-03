@@ -32,5 +32,8 @@ This enables the web application on localhost:8080 by default
 
 
 
+## Users Manual
+
+###https://github.com/acabra85/webcalculator/wiki/WebCalculator-Manual
 
 
