@@ -4,8 +4,8 @@ import java.util.*;
 
 /**
  * Created by Agustin on 9/30/2016.
+ * A class containing the operators supported for the system.
  */
-
 public enum Operator {
     ADD(1, "+"), SUBTRACT(2, "-"), MULTIPLY(3, "*"), DIVIDE(4, "/"), SQRT(5, "@");
 

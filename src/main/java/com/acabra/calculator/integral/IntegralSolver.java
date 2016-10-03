@@ -28,7 +28,12 @@ public class IntegralSolver {
         this.functionType = IntegralFunctionFactory.evaluateFunctionType(integralRequest.getFunctionId());
     }
 
-    private static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> futures) {
+    /**
+     * Transforms a list of futures to a future containing a list of doubles
+     * @param futures the list of futures to aggregate
+     * @return a future representing the list of doubles to aggregate.
+     */
+    private static CompletableFuture<List<Double>> sequence(List<CompletableFuture<Double>> futures) {
         CompletableFuture<Void> allDoneFuture = CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
         return allDoneFuture.thenApply(v -> futures.stream()
                     .map(CompletableFuture::join)
@@ -36,6 +41,11 @@ public class IntegralSolver {
         );
     }
 
+    /**
+     * This method creates sub-integral functions and aggregates the result of the Riemann areas for each integral.
+     * @param inscribedArea indicates if the rectangle should be inscribed otherwise will be circumscribed
+     * @return A future containing the integral with the total area aggregated from the sub intervals.
+     */
     public CompletableFuture<IntegrableFunction> approximateSequenceRiemannArea(final boolean inscribedArea) {
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         List<IntegrableFunction> subRanges = IntegralSubRangeProvider.provideIntegralsOnSubRanges(lowerBound, upperBound, repeatedCalculations, functionType);

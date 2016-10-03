@@ -22,16 +22,30 @@ public class Calculator {
     public Calculator() {
     }
 
-    public Double solveArithmeticExpression(String expression) {
+    /**
+     * Method to parse and resolve an arithmetic expression
+     * @param expression the expression in infix notation.
+     * @return a double after parsing and evaluating the expression.
+     */
+    Double solveArithmeticExpression(String expression) {
         try {
             logger.info("parsing expression " + expression );
-            String parsedExpression = expression.replace("sqrt", Operator.SQRT.getLabel());
-            WebCalculatorValidation.validateArithmeticExpression(parsedExpression);
-            return solvePostFixExpression(ShuntingYard.postfix(parsedExpression));
+            return solvePostFixExpression(ShuntingYard.postfix(expression));
         } catch (Exception e) {
             logger.error(e);
             throw new InputMismatchException("invalid expression");
         }
+    }
+
+    /**
+     * Based on an integral request instantiates an Integral solver to use Riemann Areas aproximation methods
+     * to calculate the area under the graph.
+     * @param integralRequest a request of integral function
+     * @return a future representing the integrableFunction object solved.
+     */
+    CompletableFuture<IntegrableFunction> resolveIntegralApproximateRiemannSequenceRequest(IntegralRequest integralRequest) {
+        IntegralSolver integralSolver = new IntegralSolver(integralRequest);
+        return integralSolver.approximateSequenceRiemannArea(true);
     }
 
     private static double solvePostFixExpression(List<String> postFix) {
@@ -76,10 +90,5 @@ public class Calculator {
                 stack.push(Math.sqrt(stack.pop()));
                 break;
         }
-    }
-
-    public CompletableFuture<IntegrableFunction> resolveIntegralApproximateRiemannSequenceRequest(IntegralRequest integralRequest) {
-        IntegralSolver integralSolver = new IntegralSolver(integralRequest);
-        return integralSolver.approximateSequenceRiemannArea(true);
     }
 }

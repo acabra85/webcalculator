@@ -38,7 +38,7 @@ public class IntegralSubRangeProvider {
      *
      * @param upperBound the upper limit
      * @param current the current value
-     * @return Validates with accuracy of 10^-4 if upperBound is exceeded by current value
+     * @return Validates with accuracy of 10^-6 if upperBound is exceeded by current value
      */
     private static boolean isGoodEnough(double upperBound, double current) {
         return Math.abs(upperBound - current) > WebCalculatorConstants.ACCURACY_EPSILON;

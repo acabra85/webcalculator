@@ -20,6 +20,11 @@ public class WebCalculatorValidation {
         put(Operator.GROUPING_RIGHT_SYMBOLS.get(2), Operator.GROUPING_LEFT_SYMBOLS.get(2));
     }});
 
+    /**
+     * Validates that a request complies with the restrictions of the system, throws runtime
+     * exception in case criteria is not met.
+     * @param integralRequest an integral request
+     */
     public static void validateIntegralRequest(IntegralRequest integralRequest) {
         IntegralFunctionFactory.evaluateFunctionType(integralRequest.getFunctionId());
         if (integralRequest.getLowerBound() > integralRequest.getUpperBound())
@@ -33,12 +38,21 @@ public class WebCalculatorValidation {
 
     }
 
+    /**
+     * Validates that an arithmetic expression contains proper grouping and valid operations and symbols.
+     * @param arithmeticExpression the expression to be resolved
+     */
     public static void validateArithmeticExpression(String arithmeticExpression) {
         if (!validateParenthesisGroupingAndContents(arithmeticExpression)) {
             throw new InputMismatchException("invalid expression: wrong grouping");
         }
     }
 
+    /**
+     * Uses a map to inspect the amount of parenthesis that have been closed and open.
+     * @param expression the expression to be evaluated
+     * @return true if the expression has proper grouping and valid symbols
+     */
     private static boolean validateParenthesisGroupingAndContents(String expression) {
         boolean validClosing = true;
         Map<String, AtomicInteger> openParenthesisControl = provideOpenParenthesisControl();

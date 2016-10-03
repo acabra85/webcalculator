@@ -8,7 +8,6 @@ import com.acabra.health.TemplateHealthCheck;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.java8.Java8Bundle;
-import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -36,13 +35,30 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
     public void initialize(Bootstrap<WebCalculatorConfiguration> bootstrap) {
         bootstrap.addBundle(new Java8Bundle());
 
-        bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
-        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html", "html"));
+        provideResolutionForStaticAssets(bootstrap);
     }
 
     @Override
     public void run(WebCalculatorConfiguration configuration, Environment environment) throws Exception {
 
+        configureCORS(environment);
+
+        environment.jersey().setUrlPattern("/api/*");
+
+        CalculatorManager calculatorManager = new CalculatorManager(WebCalculatorRenderFactory.createRenderer(RenderType.HTML));
+
+        environment.jersey().register(new WebCalculatorResource(calculatorManager));
+
+        final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
+        environment.healthChecks().register("template", healthCheck);
+
+    }
+
+    /**
+     * Provides configuration for Cross Origin Requests
+     * @param environment the DropWizzard's enviroment
+     */
+    private void configureCORS(Environment environment) {
         final FilterRegistration.Dynamic cors = environment.servlets()
                 .addFilter("CORS", CrossOriginFilter.class);
 
@@ -52,15 +68,14 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
         cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+    }
 
-        final JerseyEnvironment env = environment.jersey();
-        env.setUrlPattern("/api/*");
-
-        CalculatorManager calculatorManager = new CalculatorManager(WebCalculatorRenderFactory.createRenderer(RenderType.HTML));
-        env.register(new WebCalculatorResource(calculatorManager));
-
-        final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
-        environment.healthChecks().register("template", healthCheck);
-
+    /**
+     * Allows static files to be served as resources
+     * @param bootstrap
+     */
+    private void provideResolutionForStaticAssets(Bootstrap<WebCalculatorConfiguration> bootstrap) {
+        bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html", "html"));
     }
 }

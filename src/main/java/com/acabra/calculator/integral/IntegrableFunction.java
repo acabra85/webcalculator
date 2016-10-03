@@ -34,7 +34,7 @@ public abstract class IntegrableFunction {
 
     /**
      * This method evaluates the integral using the
-     * integration rules for the specified function.
+     * integration techniques for the specified function.
      *
      * Recommended to cache the result of this method to be stored as result.
      * Since the bounds of this object are final the result is not meant to change.

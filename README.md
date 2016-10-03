@@ -1,4 +1,4 @@
-# WebCalculator 1.0
+# WebCalculator 1.0 (http://webmathcalculator.herokuapp.com)
 
 Basic web calculator that performs calculation on the server side.
 
@@ -14,10 +14,7 @@ Approximation (inscribed rectangles)
 ###Requirements
 
 1. Requires Java ```1.8.0_45``` or higher
-2. Internet access to download dependencies (dependencies download on index.htlm when loading):
-  a. Jquery https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js
-  b. Boostrap https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js
-  c. Bootsrap CSS https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css
+2. Browser (IE11, Chrome, IOS)
 
 ###Steps
 

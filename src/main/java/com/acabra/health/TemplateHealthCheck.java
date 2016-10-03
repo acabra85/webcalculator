@@ -5,6 +5,7 @@ import com.codahale.metrics.health.HealthCheck;
 /**
  * @author acabra
  * @created 2016-09-27
+ * This class is used to validate the template received in form of yml file.
  */
 public class TemplateHealthCheck extends HealthCheck {
     private final String template;
