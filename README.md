@@ -7,8 +7,13 @@ square root. Supports expression grouping by () [] {}.
 
 2. Calculates Area under the curve f(x) = e^x using the Riemann sequence
 Approximation (inscribed rectangles)
-[Ref. https://en.wikipedia.org/wiki/Riemann_integral.]
+[Ref. <a href="https://en.wikipedia.org/wiki/Riemann_integral" >https://en.wikipedia.org/wiki/Riemann_integral</a>]
 
 ## Deploy
+
+###Requirements
+
+1. Requires Java 1.8 or Higher
+
 
 
