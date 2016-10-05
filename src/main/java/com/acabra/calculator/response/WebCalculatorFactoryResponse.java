@@ -1,17 +1,17 @@
 package com.acabra.calculator.response;
 
-import java.util.UUID;
+import com.acabra.calculator.integral.IntegrableFunction;
 
 /**
- * Created by Agustin on 10/3/2016.
+ * Created by Agustin on 10/5/2016.
  */
 public class WebCalculatorFactoryResponse {
 
-    public static SimpleResponse createTokenResponse(long id) {
-        return new TokenResponse(id, UUID.randomUUID().toString());
+    public static CalculationResponse createCalculationResponse(long id, String expression, long responseTime, IntegrableFunction solvedIntegral, String description) {
+        return new IntegralCalculationResponse(id, expression, solvedIntegral.getSequenceRiemannRectangle(), solvedIntegral.getResult(), responseTime, description);
     }
 
-    public static SimpleResponse createTableResponse(long id, String table) {
-        return new TableHistoryResponse(id, table);
+    public static CalculationResponse createCalculationResponse(long id, String expression, double result, long responseTime, String arithmetic) {
+        return new CalculationResponse(id, expression, result, responseTime, arithmetic);
     }
 }

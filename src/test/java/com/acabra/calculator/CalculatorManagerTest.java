@@ -39,7 +39,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CalculatorManager.class, Calculator.class,
         WebCalculatorRendererHTML.class, WebCalculatorValidation.class,
-        IntegralRequest.class, WebCalculatorFactoryResponse.class,
+        IntegralRequest.class, WebCalculatorFactorySimpleResponse.class,
         TokenResponse.class, TableHistoryResponse.class})
 @PowerMockIgnore(value = {"javax.management.*"})
 public class CalculatorManagerTest {
@@ -49,13 +49,8 @@ public class CalculatorManagerTest {
     private final static String TOKEN2 = "default-token2";
     private final static String expr1 = "3 + 3";
     private final static double res1 = 6;
-    private final static String res1Str = "6";
     private final static String expr2 = "4 + 4";
     private final static double res2 = 8;
-    private final static String res2Str = "8";
-    private final static String expr3 = "sqrt ( 4 )";
-    private final static double res3 = 8;
-    private final static String res3Str = "8";
     private final static String tableHeader = "<caption>History</caption><thead><tr><th>Id.</th><th>Expression</th><th>Result</th></tr></thead>";
     private final static String rowExpr1 = "<tr><td>1</td><td>3 + 3</td><td>6</td></tr>";
     private final static String rowExpr2 = "<tr><td>2</td><td>4 + 4</td><td>8</td></tr>";
@@ -64,11 +59,6 @@ public class CalculatorManagerTest {
     private final static String renderedTable1 = "<table>" + tableHeader + "<tbody>" + rowExpr1 + "</tbody></table>";
     private final static String renderedTable2 = "<table>" + tableHeader + "<tbody>" + rowExpr1 + rowExpr2 + "</tbody></table>";
     private final static String renderedTable3 = "<table>" + tableHeader + "<tbody>" + rowExpr3 + "</tbody></table>";
-
-    private SimpleResponse defaultTableResponseEmpty = new TableHistoryResponse(0L, renderedTableEmpty);
-    private SimpleResponse defaultTableResponse1 = new TableHistoryResponse(1L, renderedTable1);
-    private SimpleResponse defaultTableResponse2 = new TableHistoryResponse(2L, renderedTable2);
-    private SimpleResponse defaultTableResponse3 = new TableHistoryResponse(3L, renderedTable3);
 
     private Calculator calculatorMock;
     private WebCalculatorRenderer rendererMock;
@@ -89,10 +79,10 @@ public class CalculatorManagerTest {
     public void provideSessionTokenTest() {
         long id = 0L;
 
-        PowerMockito.mockStatic(WebCalculatorFactoryResponse.class);
+        PowerMockito.mockStatic(WebCalculatorFactorySimpleResponse.class);
         TokenResponse tokenResponseMock = PowerMockito.mock(TokenResponse.class);
 
-        when(WebCalculatorFactoryResponse.createTokenResponse(id)).thenReturn(tokenResponseMock);
+        when(WebCalculatorFactorySimpleResponse.createTokenResponse(id)).thenReturn(tokenResponseMock);
 
         assertTrue(tokenResponseMock == calculatorManager.provideSessionToken());
 
@@ -108,8 +98,8 @@ public class CalculatorManagerTest {
 
         TableHistoryResponse tableHistoryResponseMock = PowerMockito.mock(TableHistoryResponse.class);
 
-        PowerMockito.mockStatic(WebCalculatorFactoryResponse.class);
-        when(WebCalculatorFactoryResponse.createTableResponse(id, table)).thenReturn(tableHistoryResponseMock);
+        PowerMockito.mockStatic(WebCalculatorFactorySimpleResponse.class);
+        when(WebCalculatorFactorySimpleResponse.createTableResponse(id, table)).thenReturn(tableHistoryResponseMock);
 
         when(rendererMock.renderCalculationHistory(eq(emptyList), eq(true))).thenReturn(table);
 
@@ -128,13 +118,13 @@ public class CalculatorManagerTest {
 
         CalculationResponse calculationResponse = (CalculationResponse) calculatorManager.processArithmeticCalculation(expr1, TOKEN);
 
-        assertEquals(calculationResponse.getId(), 1);
+        assertEquals(0, calculationResponse.getId());
         assertEquals(calculationResponse.getExpression(), expr1);
         assertEquals(res1,  calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
 
         CalculationResponse calculationResponse2 = (CalculationResponse) calculatorManager.processArithmeticCalculation(expr2, TOKEN);
 
-        assertEquals(2, calculationResponse2.getId());
+        assertEquals(1, calculationResponse2.getId());
         assertEquals(expr2, calculationResponse2.getExpression());
         assertEquals(res2, calculationResponse2.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
 
@@ -153,13 +143,13 @@ public class CalculatorManagerTest {
 
         List<CalculationResponse> calculationHistory = calculatorManager.provideCalculationHistory(TOKEN2);
 
-        assertEquals(calculationHistory.size(), 0);
+        assertEquals(0, calculationHistory.size());
 
         List<CalculationResponse> resultList = calculatorManager.provideCalculationHistory(TOKEN);
 
         assertEquals(resultList.size(), 2); //valid size according to number of operations on that Token
-        assertEquals(resultList.get(0).getId(), 1);
-        assertEquals(resultList.get(1).getId(), 2);
+        assertEquals(0, resultList.get(0).getId());
+        assertEquals(1, resultList.get(1).getId());
 
         verify(calculatorMock, times(2)).solveArithmeticExpression(eq(expr1));
     }
@@ -320,14 +310,15 @@ public class CalculatorManagerTest {
             e.printStackTrace();
         }
 
-        CalculationResponse calculationResponse = calculatorManager.processExponentialIntegralCalculation(integralRequestMock, TOKEN).get();
+        IntegralCalculationResponse integralCalculationResponse = (IntegralCalculationResponse) calculatorManager.processExponentialIntegralCalculation(integralRequestMock, TOKEN).get();
 
         verify(calculatorMock, Mockito.times(1)).resolveIntegralApproximateRiemannSequenceRequest(any());
         PowerMockito.verifyStatic(Mockito.times(1));
 
-        assertEquals(1.0, calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals("1.71828", calculationResponse.getDescription());
-        assertEquals(expr, calculationResponse.getExpression());
+        assertEquals(1.0, integralCalculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(1.71828, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals("Integral", integralCalculationResponse.getDescription());
+        assertEquals(expr, integralCalculationResponse.getExpression());
     }
 
     @Test
@@ -339,8 +330,9 @@ public class CalculatorManagerTest {
         int numThreads = 5;
         int repeatedCalculations = 6;
         String expr = "Integ{e^x}[0, 1] #Rep=6 #Th=5";
-        String description = "1.0";
-        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description);
+        String description = "Integral";
+        double exactIntegral = 1.0;
+        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description, exactIntegral);
     }
 
     @Test
@@ -351,9 +343,10 @@ public class CalculatorManagerTest {
         double result = 4.5399929762483885E-7;
         int numThreads = 5;
         int repeatedCalculations = 6;
+        double exactIntegral = 4.5399929762483885E-7;
         String expr = "Integ{e^x}[-10, -9.99] #Rep=6 #Th=5";
-        String description = "4.5399929762483885E-7";
-        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description);
+        String description = "Integral";
+        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description, exactIntegral);
     }
 
     @Test
@@ -364,9 +357,10 @@ public class CalculatorManagerTest {
         double result = 0.0;
         int numThreads = 5;
         int repeatedCalculations = 6;
+        double exactIntegral = 0.0;
         String expr = "Integ{e^x}[0, 0] #Rep=6 #Th=5";
-        String description = "0.0";
-        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description);
+        String description = "Integral";
+        evaluateResultFormatting(functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description, exactIntegral);
     }
 
     @Test
@@ -397,7 +391,8 @@ public class CalculatorManagerTest {
         assertEquals(expr, calculationResponse.getExpression());
     }
 
-    private void evaluateResultFormatting(int functionId, double lowerBound, double upperBound, double result, int numThreads, int repeatedCalculations, String expr, String description) throws InterruptedException, ExecutionException {
+    private void evaluateResultFormatting(int functionId, double lowerBound, double upperBound, double result, int numThreads,
+                                          int repeatedCalculations, String expr, String description, double exactIntegral) throws InterruptedException, ExecutionException {
         CompletableFuture<IntegrableFunction> integralResult = CompletableFuture.completedFuture(new ExponentialIntegral(lowerBound, upperBound, result));
         IntegralRequest integralReqMock = PowerMockito.mock(IntegralRequest.class);
 
@@ -420,6 +415,7 @@ public class CalculatorManagerTest {
         assertEquals(expr, calculationResponse.getExpression());
         assertEquals(description, calculationResponse.getDescription());
         assertEquals(result, calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(exactIntegral, ((IntegralCalculationResponse)calculationResponse).getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
 

@@ -17,14 +17,22 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
 
     }
 
+    private final String TABLE_HEADER = "<table class=\"table table-striped\">" +
+            "<caption style=\"text-align: center\"><h4>History</h4></caption><thead>" +
+            "<tr>" +
+            "<th><b>Id.</b></th>" +
+            "<th><b>Expression</b></th>" +
+            "<th><b>Result</b></th>" +
+            "<th><b>Response Time</b></th>" +
+            "</tr></thead><tbody>";
+
     @Override
     public String renderCalculationHistory(List<CalculationResponse> history, boolean descending) {
         return descending ? renderHistoryTable(reverseResults(history)) : renderHistoryTable(history);
     }
 
     private String renderHistoryTable(List<CalculationResponse> orderList) {
-        StringBuilder sb = new StringBuilder("<table class=\"table table-striped\"><caption style=\"text-align: center\"><h4>History</h4></caption>");
-        sb.append("<thead><tr></tr><th><b>Id.</b></th><th><b>Expression</b></th><th><b>Result</b></th><tr></tr></thead><tbody>");
+        StringBuilder sb = new StringBuilder(TABLE_HEADER);
         for (int i = 0; i < orderList.size(); i++) {
             extractRow(orderList.get(i), sb);
         }
@@ -43,6 +51,7 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
         sb.append("<tr><td>").append(calculationResponse.getId()).append("</td>");
         sb.append("<td>").append(calculationResponse.getExpression()).append("</td>");
         sb.append("<td>").append(provideFormatting(calculationResponse)).append("</td>");
+        sb.append("<td>").append(calculationResponse.getResponseTime()).append("</td>");
         sb.append("</tr>");
     }
 

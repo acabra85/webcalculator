@@ -21,89 +21,111 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 /**
  * Created by Agustin on 9/30/2016.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({IntegralSolver.class, IntegralSubRangeProvider.class, IntegrableFunction.class})
+@PrepareForTest({IntegralSolver.class, IntegralSubRangeProvider.class,
+        IntegrableFunction.class, IntegralRequest.class})
 @PowerMockIgnore(value = {"javax.management.*"})
 public class IntegralSolverTest {
 
     @Test
-    public void resolveIntegral1Test() throws ExecutionException, InterruptedException {
+    public void resolveIntegral1Test() throws Exception {
         double lowerBound1 = 0;
         double upperBound1 = 10;
-        double[] expectedLowerRanges = {lowerBound1, 2.5, 5.0, 7.5};
-        double[] expectedUpperRanges = {2.5, 5.0, 7.5, upperBound1};
         int repeatedCalculations = 4;
         int numThreads = 1;
         int functionId = 0;
-        double expectedResult = 22025.465794806718;
-        List<IntegrableFunction> integralSubRangesList = buildIntegralSubRanges(expectedLowerRanges, expectedUpperRanges);
+        double area = 1.0;
+        double expectedArea = 4.0;
+        double expectedIntegral = 22025.465794806718;
+        boolean inscribed = true;
 
-        PowerMockito.mockStatic(IntegralSubRangeProvider.class);
-        when(IntegralSubRangeProvider.provideIntegralsOnSubRanges(eq(lowerBound1), eq(upperBound1), eq(repeatedCalculations), eq(IntegralFunctionType.EXPONENTIAL)))
-                .thenReturn(integralSubRangesList);
+        IntegralRequest integralRequestMock = PowerMockito.mock(IntegralRequest.class);
+        IntegrableFunction integralMock = PowerMockito.mock(IntegrableFunction.class);
+        IntegralSubRangeProvider integralSubRangeProviderMock = PowerMockito.mock(IntegralSubRangeProvider.class);
 
-        IntegralSolver integralSolver = new IntegralSolver(new IntegralRequest(lowerBound1, upperBound1, repeatedCalculations, numThreads, functionId));
-        IntegrableFunction integrableFunction = integralSolver.approximateSequenceRiemannArea(true).get();
+        when(integralRequestMock.getLowerBound()).thenReturn(lowerBound1);
+        when(integralRequestMock.getUpperBound()).thenReturn(upperBound1);
+        when(integralRequestMock.getNumThreads()).thenReturn(numThreads);
+        when(integralRequestMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
+        when(integralRequestMock.getFunctionId()).thenReturn(functionId);
 
-        PowerMockito.verifyStatic(Mockito.times(1));
+        when(integralMock.solveIntegralWithRiemannSequences(eq(inscribed))).thenReturn(area);
+
+        whenNew(IntegralSubRangeProvider.class).withAnyArguments().thenReturn(integralSubRangeProviderMock);
+        when(integralSubRangeProviderMock.provideNextIntegral()).thenReturn(integralMock);
+
+        IntegralSolver integralSolver = new IntegralSolver(integralRequestMock);
+        IntegrableFunction integrableFunction = integralSolver.approximateSequenceRiemannArea(inscribed).get();
+
+        verify(integralRequestMock, times(1)).getLowerBound();
+        verify(integralRequestMock, times(1)).getUpperBound();
+        verify(integralRequestMock, times(1)).getNumThreads();
+        verify(integralRequestMock, times(1)).getRepeatedCalculations();
+        verify(integralRequestMock, times(1)).getFunctionId();
+
+        verify(integralMock, times(repeatedCalculations)).solveIntegralWithRiemannSequences(eq(inscribed));
+
+        verify(integralSubRangeProviderMock, times(repeatedCalculations)).provideNextIntegral();
 
         assertEquals(lowerBound1, integrableFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperBound1, integrableFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(expectedResult, integrableFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(expectedIntegral, integrableFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(expectedArea, integrableFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals("Integ{e^x}[0, 10]", integrableFunction.toString());
 
     }
 
     @Test
-    public void resolveIntegral2Test() throws ExecutionException, InterruptedException {
-        double lowerBound1 = 0;
-        double upperBound1 = 10;
+    public void resolveIntegral2Test() throws Exception {
+        double lowerBound1 = -8;
+        double upperBound1 = 5;
         int repeatedCalculations = 5;
         int numThreads = 5;
         int functionId = 0;
-
         double subAreaApproximated = 1.0;
-        double expectedResult = 22025.46579480671;
+        double expectedResult = 148.4128236399487;
         double expectedApproximateArea = 5.0;
-        ExponentialIntegral exponentialIntegralMock = PowerMockito.mock(ExponentialIntegral.class);
-        List<IntegrableFunction> integralSubRangesList = buildIntegralSubRangesMocks(exponentialIntegralMock, 5);
+        boolean inscribed = true;
 
-        when(exponentialIntegralMock.solveIntegralWithRiemannSequences(eq(true))).thenReturn(subAreaApproximated);
+        IntegralRequest integralRequestMock = PowerMockito.mock(IntegralRequest.class);
+        IntegrableFunction integralMock = PowerMockito.mock(IntegrableFunction.class);
+        IntegralSubRangeProvider integralSubRangeProviderMock = PowerMockito.mock(IntegralSubRangeProvider.class);
 
-        PowerMockito.mockStatic(IntegralSubRangeProvider.class);
-        when(IntegralSubRangeProvider.provideIntegralsOnSubRanges(eq(lowerBound1), eq(upperBound1), eq(repeatedCalculations), eq(IntegralFunctionType.EXPONENTIAL)))
-                .thenReturn(integralSubRangesList);
+        when(integralRequestMock.getLowerBound()).thenReturn(lowerBound1);
+        when(integralRequestMock.getUpperBound()).thenReturn(upperBound1);
+        when(integralRequestMock.getNumThreads()).thenReturn(numThreads);
+        when(integralRequestMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
+        when(integralRequestMock.getFunctionId()).thenReturn(functionId);
 
-        IntegralSolver integralSolver = new IntegralSolver(new IntegralRequest(lowerBound1, upperBound1, repeatedCalculations, numThreads, functionId));
-        IntegrableFunction integrableFunction = integralSolver.approximateSequenceRiemannArea(true).get();
+        when(integralMock.solveIntegralWithRiemannSequences(eq(inscribed))).thenReturn(subAreaApproximated);
 
-        verify(exponentialIntegralMock, times(5)).solveIntegralWithRiemannSequences(eq(true));
-        PowerMockito.verifyStatic(Mockito.times(1));
+        whenNew(IntegralSubRangeProvider.class).withAnyArguments().thenReturn(integralSubRangeProviderMock);
+        when(integralSubRangeProviderMock.provideNextIntegral()).thenReturn(integralMock);
+
+        IntegralSolver integralSolver = new IntegralSolver(integralRequestMock);
+        IntegrableFunction integrableFunction = integralSolver.approximateSequenceRiemannArea(inscribed).get();
+
+        verify(integralRequestMock, times(1)).getLowerBound();
+        verify(integralRequestMock, times(1)).getUpperBound();
+        verify(integralRequestMock, times(1)).getNumThreads();
+        verify(integralRequestMock, times(1)).getRepeatedCalculations();
+        verify(integralRequestMock, times(1)).getFunctionId();
+
+        verify(integralMock, times(repeatedCalculations)).solveIntegralWithRiemannSequences(inscribed);
+
+        verify(integralSubRangeProviderMock, times(repeatedCalculations)).provideNextIntegral();
 
         assertEquals(lowerBound1, integrableFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperBound1, integrableFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedResult, integrableFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedApproximateArea, integrableFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals("Integ{e^x}[0, 10]", integrableFunction.toString());
+        assertEquals("Integ{e^x}[-8, 5]", integrableFunction.toString());
 
     }
 
-    private List<IntegrableFunction> buildIntegralSubRangesMocks(ExponentialIntegral exponentialIntegralMock, int size) {
-        List<IntegrableFunction> subRangesStub = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            subRangesStub.add(exponentialIntegralMock);
-        }
-        return subRangesStub;
-    }
-
-    private List<IntegrableFunction> buildIntegralSubRanges(double[] expectedLowerRanges, double[] expectedUpperRanges) {
-        List<IntegrableFunction> integralSubRanges = new ArrayList<>();
-        for(int i =0; i<expectedLowerRanges.length; i++) {
-            integralSubRanges.add(new ExponentialIntegral(expectedLowerRanges[i], expectedUpperRanges[i]));
-        }
-        return integralSubRanges;
-    }
 }

@@ -8,6 +8,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 /**
  * Created by Agustin on 9/29/2016.
@@ -40,6 +42,28 @@ public class IntegralSolver {
                     .collect(Collectors.toList())
         );
     }
+//
+//    /**
+//     * This method creates sub-integral functions and aggregates the result of the Riemann areas for each integral.
+//     * @param inscribedArea indicates if the rectangle should be inscribed otherwise will be circumscribed
+//     * @return A future containing the integral with the total area aggregated from the sub intervals.
+//     */
+//    public CompletableFuture<IntegrableFunction> approximateSequenceRiemannArea(final boolean inscribedArea) {
+//        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+//        List<IntegrableFunction> subRanges = IntegralSubRangeProvider.provideIntegralsOnSubRanges(lowerBound, upperBound, repeatedCalculations, functionType);
+//        List<CompletableFuture<Double>> integralSolutionFutures = subRanges.stream()
+//                .map(integral -> CompletableFuture.supplyAsync(() -> integral.solveIntegralWithRiemannSequences(inscribedArea), executor))
+//                .collect(Collectors.toList());
+//        CompletableFuture<List<Double>> allDone = sequence(integralSolutionFutures);
+//        return allDone.thenApply(subSolutions -> {
+//            double sequenceRiemannRectangleAreaSum = subSolutions.stream()
+//                    .mapToDouble(x -> x)
+//                    .sum();
+//            IntegrableFunction integralFunction = IntegralFunctionFactory.createIntegralFunction(functionType, lowerBound, upperBound, Optional.empty());
+//            return IntegralFunctionFactory.createFullySolvedIntegralFunction(functionType, lowerBound, upperBound, integralFunction.solve(), sequenceRiemannRectangleAreaSum);
+//        } );
+//    }
+
 
     /**
      * This method creates sub-integral functions and aggregates the result of the Riemann areas for each integral.
@@ -48,10 +72,13 @@ public class IntegralSolver {
      */
     public CompletableFuture<IntegrableFunction> approximateSequenceRiemannArea(final boolean inscribedArea) {
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-        List<IntegrableFunction> subRanges = IntegralSubRangeProvider.provideIntegralsOnSubRanges(lowerBound, upperBound, repeatedCalculations, functionType);
-        List<CompletableFuture<Double>> integralSolutionFutures = subRanges.stream()
-                .map(integral -> CompletableFuture.supplyAsync(() -> integral.solveIntegralWithRiemannSequences(inscribedArea), executor))
+        final IntegralSubRangeProvider rangeProvider = new IntegralSubRangeProvider(lowerBound, upperBound, repeatedCalculations, functionType);
+        List<CompletableFuture<Double>> integralSolutionFutures = IntStream.range(0, repeatedCalculations)
+                .mapToObj(i -> CompletableFuture.supplyAsync(() -> rangeProvider.provideNextIntegral().solveIntegralWithRiemannSequences(inscribedArea), executor))
                 .collect(Collectors.toList());
+//        List<CompletableFuture<Double>> integralSolutionFutures = subRanges.stream()
+//                .map(integral -> CompletableFuture.supplyAsync(() -> integral.solveIntegralWithRiemannSequences(inscribedArea), executor))
+//                .collect(Collectors.toList());
         CompletableFuture<List<Double>> allDone = sequence(integralSolutionFutures);
         return allDone.thenApply(subSolutions -> {
             double sequenceRiemannRectangleAreaSum = subSolutions.stream()
