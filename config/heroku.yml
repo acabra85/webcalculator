@@ -12,4 +12,4 @@ server:
 logging:
 #
 #  # for performance on production left off.
-  level: OFF
+  level: INFO

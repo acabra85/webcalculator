@@ -17,7 +17,7 @@ public class WebCalculatorJobManager {
     private static final Logger logger = Logger.getLogger(WebCalculatorJobManager.class);
 
     private static final String JOB_GROUP_1 = "GROUP_1";
-    private final SimpleScheduleBuilder EVERY_10_MINUTES = simpleSchedule().withIntervalInSeconds(15).repeatForever();
+    private final SimpleScheduleBuilder EVERY_10_MINUTES = simpleSchedule().withIntervalInMinutes(10).repeatForever();
     static final String WEB_CALC_MANAGER_KEY = "webCalculatorManager";
     static final String WEB_CALC_POLICY_KEY = "webCalculatorPolicy";
 
