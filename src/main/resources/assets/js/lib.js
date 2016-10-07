@@ -302,7 +302,7 @@ function requestExponentialIntegral() {
 function validIntegralRequestData(req) {
     return req.lowerBound <= req.upperBound
         && req.numberThreads > 0 && req.numberThreads <= 15
-        && req.repeatedCalculations > 0 && req.repeatedCalculations < 1000000;
+        && req.repeatedCalculations > 0 && req.repeatedCalculations <= 2147483647;
 }
 
 function executeExponentialIntegralWithToken(receivedToken, expressionField) {
@@ -311,9 +311,10 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
         upperBound: parseFloat($('#upperbound')[0].value),
         repeatedCalculations: parseInt($('#repeatedcalculations')[0].value),
         numberThreads: parseInt($('#numthreads')[0].value),
-        functionId: integralSelectedFunction
+        functionId: integralSelectedFunction,
+        areaInscribed: false
     };
-    if (validIntegralRequestData(integralRequest)){
+    if (validIntegralRequestData(integralRequest)) {
         $.ajax({
             url : encodeURI('api/integral?token=' + receivedToken),
             type: 'POST',

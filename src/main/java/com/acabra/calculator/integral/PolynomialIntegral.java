@@ -23,14 +23,6 @@ public class PolynomialIntegral extends IntegrableFunction {
     }
 
     @Override
-    protected double solve() {
-        if (null == result) {
-            result = executeIntegration();
-        }
-        return result;
-    }
-
-    @Override
     protected double evaluate(double domainPoint) {
         double total = 0.0;
         for(int exponent = 0; exponent < order; exponent++) {
@@ -42,18 +34,6 @@ public class PolynomialIntegral extends IntegrableFunction {
     }
 
     @Override
-    protected Double calculateRiemannSequenceRectangleArea(boolean inscribed) {
-        /*TODO Areas under the x-axis should be taken in count
-               this runs on the assumption that the evaluations on all points on this
-               function are positive values on y-axis, to solve discrepancy a split
-               of ranges is required
-          */
-        double width = (upperBound - lowerBound);
-        double height = inscribed ? evaluate(lowerBound) : evaluate(upperBound);
-        return width * height;
-    }
-
-    @Override
     protected double solveIntegralWithRiemannSequences(boolean inscribedRectangle) {
         if (sequenceRiemannRectangle == null) {
             sequenceRiemannRectangle = calculateRiemannSequenceRectangleArea(inscribedRectangle);
@@ -61,7 +41,7 @@ public class PolynomialIntegral extends IntegrableFunction {
         return sequenceRiemannRectangle;
     }
 
-    private double executeIntegration() {
+    protected Double executeIntegration() {
         double total = 0.0;
         for(int i = 0; i < order; i++) {
             if (coefficients[i] != 0) {

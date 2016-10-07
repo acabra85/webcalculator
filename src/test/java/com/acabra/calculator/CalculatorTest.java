@@ -12,6 +12,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +28,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
  * Created by Agustin on 9/30/2016.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Calculator.class, IntegralSolver.class, ShuntingYard.class})
+@PrepareForTest({Calculator.class, IntegralSolver.class, ShuntingYard.class, Operator.class})
 @PowerMockIgnore(value = {"javax.management.*"})
 public class CalculatorTest {
 
@@ -41,7 +42,7 @@ public class CalculatorTest {
         IntegralSolver integralSolverMock = PowerMockito.mock(IntegralSolver.class);
 
         whenNew(IntegralSolver.class).withAnyArguments().thenReturn(integralSolverMock);
-        when(integralSolverMock.approximateSequenceRiemannArea(true)).thenReturn(concurrentIntegralResult);
+        when(integralSolverMock.approximateSequenceRiemannArea()).thenReturn(concurrentIntegralResult);
         IntegrableFunction integrableFunction = calculator.resolveIntegralApproximateRiemannSequenceRequest(null).get();
 
         assertEquals(expected, integrableFunction.getResult(), 0.00001);
@@ -60,7 +61,7 @@ public class CalculatorTest {
         IntegralSolver integralSolverMock = PowerMockito.mock(IntegralSolver.class);
 
         whenNew(IntegralSolver.class).withAnyArguments().thenReturn(integralSolverMock);
-        when(integralSolverMock.approximateSequenceRiemannArea(true)).thenReturn(concurrentIntegralResult);
+        when(integralSolverMock.approximateSequenceRiemannArea()).thenReturn(concurrentIntegralResult);
         IntegrableFunction integrableFunction = calculator.resolveIntegralApproximateRiemannSequenceRequest(null).get();
 
         assertEquals(expected, integrableFunction.getResult(), 0.00001);
@@ -76,11 +77,12 @@ public class CalculatorTest {
         double result = 6;
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expr)).thenReturn(postFixExpressionList);
 
         Double calculatorResult = calculator.solveArithmeticExpression(expr);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expr);
 
         assertEquals(result, calculatorResult, WebCalculatorConstants.ACCURACY_EPSILON);
 
@@ -93,11 +95,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = Arrays.asList("1 2 + 3 4 - + 8 +".split("\\s+"));
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
 
@@ -110,11 +113,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = ShuntingYard.postfix(expression);
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -126,11 +130,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = ShuntingYard.postfix(expression);
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -142,11 +147,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = Arrays.asList("1 2 3 4 - * + 8 1 1 + / +".split("\\s+"));
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -156,7 +162,7 @@ public class CalculatorTest {
         String expression = "1 + 2 *  ) ( 3 - 4 ) + 8 / ( 1 + 1 )";
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenThrow(NoSuchElementException.class);
+        when(ShuntingYard.postfix(expression)).thenThrow(NoSuchElementException.class);
 
         calculator.solveArithmeticExpression(expression);
     }
@@ -168,11 +174,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = Arrays.asList("6 0 /".split("\\s+"));
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -184,11 +191,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = Arrays.asList("-6 0 /".split("\\s+"));
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -200,11 +208,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = Arrays.asList("0 0 /".split("\\s+"));
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -216,11 +225,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = Arrays.asList("6 6 +".split("\\s+"));
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -232,11 +242,12 @@ public class CalculatorTest {
         List<String> postFixExpressionList = ShuntingYard.postfix(expression);
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -248,11 +259,76 @@ public class CalculatorTest {
         List<String> postFixExpressionList = ShuntingYard.postfix(expression);
 
         PowerMockito.mockStatic(ShuntingYard.class);
-        when(ShuntingYard.postfix(anyString())).thenReturn(postFixExpressionList);
+        when(ShuntingYard.postfix(expression)).thenReturn(postFixExpressionList);
 
         Double actual = calculator.solveArithmeticExpression(expression);
 
-        verifyStatic(times(1));
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test
+    public void solveArithmeticExpression4Test() {
+        String expression = "8 8";
+        int expected = 64;
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("8", "8"));
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test
+    public void solveArithmeticExpression5Test() {
+        String expression = "";
+        int expected = 80;
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("8", "8", "2", "+"));
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test
+    public void solveArithmeticExpression6Test() {
+        String expression = "100 / 10";
+        int expected = 10;
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("100", "10", "/"));
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test
+    public void solveArithmeticExpression7Test() {
+        String expression = "10 / 100";
+        double expected = 0.1;
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("10", "100", "/"));
+
+        Double actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
 
         assertEquals(expected, actual, WebCalculatorConstants.ACCURACY_EPSILON);
     }

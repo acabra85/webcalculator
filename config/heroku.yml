@@ -9,3 +9,7 @@ server:
   connector:
     type: http
     port: 8080
+logging:
+#
+#  # for performance on production left off.
+  level: OFF

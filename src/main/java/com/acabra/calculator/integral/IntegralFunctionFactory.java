@@ -9,21 +9,48 @@ import java.util.Optional;
  */
 public class IntegralFunctionFactory {
 
-    public static IntegrableFunction createIntegralFunction(IntegralFunctionType functionType, double lowerbound, double upperbound, Optional<Double> result) {
+    public static IntegrableFunction createIntegralFunction(IntegralFunctionType functionType, double lowerbound, double upperbound, Optional<Double> result, Optional<Double> approx) {
         validIntegralLimits(lowerbound, upperbound);
         switch (functionType) {
             case EXPONENTIAL:
-                return result.isPresent() ? new ExponentialIntegral(lowerbound, upperbound, result.get()) : new ExponentialIntegral(lowerbound, upperbound);
+                if (result.isPresent() && approx.isPresent()) {
+                    return createFullySolvedIntegralFunction(functionType, lowerbound, upperbound, result.get(), approx.get());
+                } else if (result.isPresent()) {
+                    return createIntegralFunctionWithResult(functionType, lowerbound, upperbound, result.get());
+                } else if (approx.isPresent()) {
+                    return createIntegralFunctionWithAreaApproximation(functionType, lowerbound, upperbound, approx.get());
+                }
+                return new ExponentialIntegral(lowerbound, upperbound);
             default:
                 throw new NoSuchElementException("function not defined in the scope of the calculator");
         }
     }
 
-    public static IntegrableFunction createFullySolvedIntegralFunction(IntegralFunctionType functionType, double lowerBound, double upperBound, double result, double sequenceRiemannRectangleAreaSum) {
+    private static IntegrableFunction createFullySolvedIntegralFunction(IntegralFunctionType functionType, double lowerBound, double upperBound, double result, double sequenceRiemannRectangleAreaSum) {
         validIntegralLimits(lowerBound, upperBound);
         switch (functionType) {
             case EXPONENTIAL:
                 return new ExponentialIntegral(lowerBound, upperBound, result, sequenceRiemannRectangleAreaSum);
+            default:
+                throw new NoSuchElementException("function not defined in the scope of the calculator");
+        }
+    }
+
+    private static IntegrableFunction createIntegralFunctionWithResult(IntegralFunctionType functionType, double lowerBound, double upperBound, double result) {
+        validIntegralLimits(lowerBound, upperBound);
+        switch (functionType) {
+            case EXPONENTIAL:
+                return new ExponentialIntegral(lowerBound, upperBound, result);
+            default:
+                throw new NoSuchElementException("function not defined in the scope of the calculator");
+        }
+    }
+
+    private static IntegrableFunction createIntegralFunctionWithAreaApproximation(IntegralFunctionType functionType, double lowerBound, double upperBound, double approximation) {
+        validIntegralLimits(lowerBound, upperBound);
+        switch (functionType) {
+            case EXPONENTIAL:
+                return new ExponentialIntegral(lowerBound, upperBound, null, approximation);
             default:
                 throw new NoSuchElementException("function not defined in the scope of the calculator");
         }
