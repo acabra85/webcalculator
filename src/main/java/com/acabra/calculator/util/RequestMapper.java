@@ -16,15 +16,29 @@ public class RequestMapper {
     public static IntegralRequest fromInternalRequest(IntegralRequestDTO integralRequest) {
         try {
             IntegralRequest.IntegralRequestBuilder builder = new IntegralRequest.IntegralRequestBuilder();
+            int repeatedCalculations = retrieveSafeMaxInteger(Long.parseLong(integralRequest.getRepeatedCalculations()));
+            int numThreads = retrieveSafeMaxInteger(Long.parseLong(integralRequest.getNumberThreads()));
             return builder.withLowerBound(Double.parseDouble(integralRequest.getLowerBound()))
                     .withUpperBound(Double.parseDouble(integralRequest.getUpperBound()))
-                    .withRepeatedCalculations(Integer.parseInt(integralRequest.getRepeatedCalculations()))
-                    .withNumThreads(Integer.parseInt(integralRequest.getNumberThreads()))
+                    .withRepeatedCalculations(repeatedCalculations)
+                    .withNumThreads(numThreads)
                     .withFunctionId(integralRequest.getFunctionId())
+                    .withAreaInscribed(integralRequest.isAreaInscribed())
                     .build();
         } catch (NumberFormatException nfe) {
             logger.error(nfe);
             throw new InputMismatchException("unable to retrieve input");
         }
+    }
+
+    private static int retrieveSafeMaxInteger(Long longValue) {
+        if (longValue >= Integer.MAX_VALUE) {
+            logger.info("Input parameters out of range please use valid request");
+            return Integer.MAX_VALUE;
+        } else if (longValue <= Integer.MIN_VALUE) {
+            logger.info("Input parameters out of range please use valid request");
+            return Integer.MIN_VALUE;
+        }
+        return Integer.parseInt(longValue.toString());
     }
 }

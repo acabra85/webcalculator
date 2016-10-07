@@ -56,4 +56,40 @@ public class RequestMapperTest {
         assertEquals(repeatedCalculations, mappedRequest.getRepeatedCalculations(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(functionId, mappedRequest.getFunctionId(), WebCalculatorConstants.ACCURACY_EPSILON);
     }
+
+
+    @Test
+    public void mapLimitsTest() {
+        String lowerBoundStr = "0";
+        String upperBoundStr = "1";
+        String numThreadsStr = "-2147483700";
+        String repeatedCalculationsStr = "2147483800";
+        double lowerBound = 0;
+        double upperBound = 1;
+        int numThreads = -2147483648;
+        double repeatedCalculations = 2147483647;
+        int functionId = 0;
+
+        IntegralRequestDTO dtoRequestMock = PowerMockito.mock(IntegralRequestDTO.class);
+
+        when(dtoRequestMock.getLowerBound()).thenReturn(lowerBoundStr);
+        when(dtoRequestMock.getUpperBound()).thenReturn(upperBoundStr);
+        when(dtoRequestMock.getNumberThreads()).thenReturn(numThreadsStr);
+        when(dtoRequestMock.getRepeatedCalculations()).thenReturn(repeatedCalculationsStr);
+        when(dtoRequestMock.getFunctionId()).thenReturn(functionId);
+
+        IntegralRequest mappedRequest = RequestMapper.fromInternalRequest(dtoRequestMock);
+
+        verify(dtoRequestMock, times(1)).getLowerBound();
+        verify(dtoRequestMock, times(1)).getUpperBound();
+        verify(dtoRequestMock, times(1)).getNumberThreads();
+        verify(dtoRequestMock, times(1)).getRepeatedCalculations();
+        verify(dtoRequestMock, times(1)).getFunctionId();
+
+        assertEquals(lowerBound, mappedRequest.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperBound, mappedRequest.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(numThreads, mappedRequest.getNumThreads(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(repeatedCalculations, mappedRequest.getRepeatedCalculations(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(functionId, mappedRequest.getFunctionId(), WebCalculatorConstants.ACCURACY_EPSILON);
+    }
 }

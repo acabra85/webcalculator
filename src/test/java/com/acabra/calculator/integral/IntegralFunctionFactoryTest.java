@@ -20,8 +20,7 @@ public class IntegralFunctionFactoryTest {
     public void createIntegralFunctionNoResultTest() {
         double lowerbound = 0;
         double upperbound = 1;
-        Optional<Double> result = Optional.empty();
-        IntegrableFunction integralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, lowerbound, upperbound, result);
+        IntegrableFunction integralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, lowerbound, upperbound, Optional.empty(), Optional.empty());
         assertEquals(lowerbound, integralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperbound, integralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
     }
@@ -32,10 +31,25 @@ public class IntegralFunctionFactoryTest {
         int upperbound = 1;
         double contentResult = 9.5;
         Optional<Double> result = Optional.of(contentResult);
-        IntegrableFunction solvedIntegralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, lowerbound, upperbound, result);
+        IntegrableFunction solvedIntegralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, lowerbound, upperbound, result, Optional.empty());
         assertEquals(lowerbound, solvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperbound, solvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(contentResult, solvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+
+    }
+
+    @Test
+    public void createIntegralFunctionResultAndApproximationTest() {
+        int lowerbound = 0;
+        int upperbound = 1;
+        double contentResult = 9.5;
+        Optional<Double> result = Optional.of(contentResult);
+        Optional<Double> approx = Optional.of(1.0);
+        IntegrableFunction solvedIntegralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, lowerbound, upperbound, result, approx);
+        assertEquals(lowerbound, solvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, solvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(contentResult, solvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(approx.get(), solvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
 
     }
 
@@ -72,7 +86,7 @@ public class IntegralFunctionFactoryTest {
         int upperbound = 1;
         double contentResult = 9.5;
         Optional<Double> result = Optional.of(contentResult);
-        IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.LOGARITHMIC, lowerbound, upperbound, result);
+        IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.LOGARITHMIC, lowerbound, upperbound, result, Optional.empty());
     }
 
     @Test(expected = InputMismatchException.class)
@@ -81,7 +95,7 @@ public class IntegralFunctionFactoryTest {
         int upperbound = 0;
         double contentResult = 9.5;
         Optional<Double> result = Optional.of(contentResult);
-        IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.LOGARITHMIC, lowerbound, upperbound, result);
+        IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.LOGARITHMIC, lowerbound, upperbound, result, Optional.empty());
     }
 
     @Test(expected = NoSuchElementException.class)

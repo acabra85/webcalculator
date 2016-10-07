@@ -1,8 +1,5 @@
 package com.acabra.calculator.domain;
 
-import com.acabra.calculator.util.ResultFormatter;
-import com.acabra.calculator.util.WebCalculatorConstants;
-
 /**
  * Created by Agustin on 9/30/2016.
  */
@@ -13,13 +10,15 @@ public class IntegralRequest {
     private final int repeatedCalculations;
     private final int numThreads;
     private final int functionId;
+    private final boolean areaInscribed;
 
-    public IntegralRequest(double lowerBound, double upperBound, int repeatedCalculations, int numThreads, int functionId) {
+    public IntegralRequest(double lowerBound, double upperBound, int repeatedCalculations, int numThreads, int functionId, boolean areaInscribed) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.repeatedCalculations = repeatedCalculations;
         this.numThreads = numThreads;
         this.functionId = functionId;
+        this.areaInscribed = areaInscribed;
     }
 
     public double getLowerBound() {
@@ -42,6 +41,10 @@ public class IntegralRequest {
         return functionId;
     }
 
+    public boolean isAreaInscribed() {
+        return areaInscribed;
+    }
+
     public static class IntegralRequestBuilder {
 
         private double lowerBound;
@@ -49,6 +52,7 @@ public class IntegralRequest {
         private int repeatedCalculations;
         private int numThreads;
         private int functionId;
+        private boolean areaInscribed;
 
         public IntegralRequestBuilder() {
         }
@@ -78,8 +82,13 @@ public class IntegralRequest {
             return this;
         }
 
+        public IntegralRequestBuilder withAreaInscribed(boolean areaInscribed) {
+            this.areaInscribed = areaInscribed;
+            return this;
+        }
+
         public IntegralRequest build() {
-            return new IntegralRequest(lowerBound, upperBound, repeatedCalculations, numThreads, functionId);
+            return new IntegralRequest(lowerBound, upperBound, repeatedCalculations, numThreads, functionId, areaInscribed);
         }
     }
 }

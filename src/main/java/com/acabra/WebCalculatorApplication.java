@@ -1,6 +1,8 @@
 package com.acabra;
 
-import com.acabra.calculator.CalculatorManager;
+import com.acabra.calculator.WebCalculatorManager;
+import com.acabra.calculator.job.WebCalculatorHistoryCleanerPolicy;
+import com.acabra.calculator.job.WebCalculatorJobManager;
 import com.acabra.calculator.resources.WebCalculatorResource;
 import com.acabra.calculator.view.RenderType;
 import com.acabra.calculator.view.WebCalculatorRenderFactory;
@@ -14,6 +16,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 
 /**
@@ -22,12 +25,42 @@ import java.util.EnumSet;
  */
 public class WebCalculatorApplication extends Application<WebCalculatorConfiguration> {
 
-    public static void main(String [] args) throws Exception {
+
+    private WebCalculatorJobManager webCalculatorJobManager;
+
+    /**
+     * Provides configuration for Cross Origin Requests
+     *
+     * @param environment the DropWizzard's enviroment
+     */
+    private void configureCORS(Environment environment) {
+        final FilterRegistration.Dynamic cors = environment.servlets()
+                .addFilter("CORS", CrossOriginFilter.class);
+
+        // Configure CORS parameters
+        cors.setInitParameter("allowedOrigins", "*");
+        cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");
+        cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
+        // Add URL mapping
+        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+    }
+
+    /**
+     * Allows static files to be served as resources
+     *
+     * @param bootstrap
+     */
+    private void provideResolutionForStaticAssets(Bootstrap<WebCalculatorConfiguration> bootstrap) {
+        bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html", "html"));
+    }
+
+    public static void main(String[] args) throws Exception {
         new WebCalculatorApplication().run(args);
     }
 
     @Override
-    public String getName(){
+    public String getName() {
         return "Web-Calculator";
     }
 
@@ -45,37 +78,30 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
 
         environment.jersey().setUrlPattern("/api/*");
 
-        CalculatorManager calculatorManager = new CalculatorManager(WebCalculatorRenderFactory.createRenderer(RenderType.HTML));
+        WebCalculatorManager webCalculatorManager = new WebCalculatorManager(WebCalculatorRenderFactory.createRenderer(RenderType.HTML));
 
-        environment.jersey().register(new WebCalculatorResource(calculatorManager));
+        environment.jersey().register(new WebCalculatorResource(webCalculatorManager));
 
+        registerHealthChecks(configuration, environment);
+
+        startJobManager(webCalculatorManager);
+
+    }
+
+    private void registerHealthChecks(WebCalculatorConfiguration configuration, Environment environment) {
         final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
         environment.healthChecks().register("template", healthCheck);
-
     }
 
-    /**
-     * Provides configuration for Cross Origin Requests
-     * @param environment the DropWizzard's enviroment
-     */
-    private void configureCORS(Environment environment) {
-        final FilterRegistration.Dynamic cors = environment.servlets()
-                .addFilter("CORS", CrossOriginFilter.class);
-
-        // Configure CORS parameters
-        cors.setInitParameter("allowedOrigins", "*");
-        cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");
-        cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
-        // Add URL mapping
-        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+    private void startJobManager(WebCalculatorManager webCalculatorManager) {
+        WebCalculatorHistoryCleanerPolicy policyCleaner = new WebCalculatorHistoryCleanerPolicy(ChronoUnit.MINUTES, 10);
+        webCalculatorJobManager = new WebCalculatorJobManager(webCalculatorManager, policyCleaner);
+        webCalculatorJobManager.start();
     }
 
-    /**
-     * Allows static files to be served as resources
-     * @param bootstrap
-     */
-    private void provideResolutionForStaticAssets(Bootstrap<WebCalculatorConfiguration> bootstrap) {
-        bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
-        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html", "html"));
+    @Override
+    protected void finalize() throws Throwable {
+        webCalculatorJobManager.shutDown();
     }
+
 }

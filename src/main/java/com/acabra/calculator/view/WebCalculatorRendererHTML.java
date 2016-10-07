@@ -1,8 +1,8 @@
 package com.acabra.calculator.view;
 
 import com.acabra.calculator.response.CalculationResponse;
+import com.acabra.calculator.response.IntegralCalculationResponse;
 import com.acabra.calculator.util.ResultFormatter;
-import com.acabra.calculator.util.WebCalculatorConstants;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +26,10 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
             "<th><b>Response Time</b></th>" +
             "</tr></thead><tbody>";
 
+    private final String APPROX_LABEL = "Approximated";
+    private final String REAL_VALUE_LABEL = "Real Value";
+    private final String ACCURACY_LABEL = "Accuracy";
+
     @Override
     public String renderCalculationHistory(List<CalculationResponse> history, boolean descending) {
         return descending ? renderHistoryTable(reverseResults(history)) : renderHistoryTable(history);
@@ -48,29 +52,34 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
     }
 
     private void extractRow(CalculationResponse calculationResponse, StringBuilder sb) {
-        sb.append("<tr><td>").append(calculationResponse.getId()).append("</td>");
-        sb.append("<td>").append(calculationResponse.getExpression()).append("</td>");
-        sb.append("<td>").append(provideFormatting(calculationResponse)).append("</td>");
-        sb.append("<td>").append(calculationResponse.getResponseTime()).append("</td>");
-        sb.append("</tr>");
+        sb.append("<tr>")
+            .append("<td>").append(calculationResponse.getId()).append("</td>")
+            .append("<td>").append(calculationResponse.getExpression()).append("</td>")
+            .append("<td>").append(provideFormatting(calculationResponse)).append("</td>")
+            .append("<td>").append(ResultFormatter.formatNanoSeconds(calculationResponse.getResponseTime())).append("</td>")
+        .append("</tr>");
     }
 
     private String provideFormatting(CalculationResponse calculationResponse) {
         String result = ResultFormatter.trimIntegerResults(Double.toString(calculationResponse.getResult()));
-        if (calculationResponse.getExpression().startsWith(WebCalculatorConstants.INTEGRAL_PREFIX)) {
-            return createIntegralComparativeTable(ResultFormatter.formatResult(calculationResponse.getResult()), calculationResponse.getDescription());
+        if (calculationResponse instanceof IntegralCalculationResponse) {
+            return createIntegralComparativeTable((IntegralCalculationResponse) calculationResponse);
         }
         return result;
     }
 
-    private String createIntegralComparativeTable(String approximation, String actualValue) {
-        String approxLabel = "Approximated";
-        String realValLabel = "Real Value";
-        return "<div style=\"width:auto; height: 40px;\"><table class=\"integral-subtable\">"
-                + "<tr><th>" + approxLabel + "</th><td style=\"text-align: right;\">" + approximation +"</td></tr>"
-                + "<tr><th>" + realValLabel + "</th><td style=\"text-align: right;\">" + ResultFormatter.formatResult(Double.parseDouble(actualValue)) +"</td></tr>"
-        +"</table></div>";
-
+    private String createIntegralComparativeTable(IntegralCalculationResponse integralCalculationResponse) {
+        String accuracyFormatted = ResultFormatter.formatPercentage(integralCalculationResponse.getAccuracy());
+        String integralFormatted = ResultFormatter.formatResult(integralCalculationResponse.getIntegralResult());
+        String approxFormatted = ResultFormatter.formatResult(integralCalculationResponse.getResult());
+        return "<div class=\"integral-detail-div\"><table class=\"integral-subtable\">"
+                + "<tr><th>" + APPROX_LABEL + "</th><td style=\"text-align: right;\">"
+                    + approxFormatted + "</td></tr>"
+                + "<tr><th>" + REAL_VALUE_LABEL + "</th><td style=\"text-align: right;\">"
+                    + integralFormatted + "</td></tr>"
+                + "<tr><th>" + ACCURACY_LABEL + "</th><td style=\"text-align: right;\">"
+                    + accuracyFormatted + "</td></tr>"
+                + "</table></div>";
     }
 
 }

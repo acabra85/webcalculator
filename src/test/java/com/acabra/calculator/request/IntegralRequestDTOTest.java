@@ -28,11 +28,13 @@ public class IntegralRequestDTOTest {
         String numberThreads = "2";
         String repeatedCalculations = "3";
         int functionId = 0;
-        IntegralRequestDTO integralRequestDTO = new IntegralRequestDTO(lowerBound, upperBound, numberThreads, repeatedCalculations, functionId);
+        boolean areaInscribed = true;
+        IntegralRequestDTO integralRequestDTO = new IntegralRequestDTO(lowerBound, upperBound, numberThreads, repeatedCalculations, functionId, areaInscribed);
         assertEquals(lowerBound, integralRequestDTO.getLowerBound());
         assertEquals(upperBound, integralRequestDTO.getUpperBound());
         assertEquals(numberThreads, integralRequestDTO.getNumberThreads());
         assertEquals(repeatedCalculations, integralRequestDTO.getRepeatedCalculations());
         assertEquals(functionId, integralRequestDTO.getFunctionId());
+        assertEquals(areaInscribed, integralRequestDTO.isAreaInscribed());
     }
 }

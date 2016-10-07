@@ -4,7 +4,6 @@ import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.integral.IntegrableFunction;
 import com.acabra.calculator.integral.IntegralSolver;
 import com.acabra.calculator.util.ShuntingYard;
-import com.acabra.calculator.util.WebCalculatorValidation;
 import org.apache.log4j.Logger;
 
 import java.util.InputMismatchException;
@@ -29,7 +28,7 @@ public class Calculator {
      */
     Double solveArithmeticExpression(String expression) {
         try {
-            logger.info("parsing expression " + expression );
+            logger.debug("parsing expression " + expression );
             return solvePostFixExpression(ShuntingYard.postfix(expression));
         } catch (Exception e) {
             logger.error(e);
@@ -45,7 +44,8 @@ public class Calculator {
      */
     CompletableFuture<IntegrableFunction> resolveIntegralApproximateRiemannSequenceRequest(IntegralRequest integralRequest) {
         IntegralSolver integralSolver = new IntegralSolver(integralRequest);
-        return integralSolver.approximateSequenceRiemannArea(true);
+        CompletableFuture<IntegrableFunction> fut1 = integralSolver.approximateSequenceRiemannArea();
+        return fut1;
     }
 
     private static double solvePostFixExpression(List<String> postFix) {
@@ -58,12 +58,12 @@ public class Calculator {
             }
         }
         double result = stack.size() == 1 ? stack.pop() : operatePendingStack(stack, Operator.MULTIPLY);
-        logger.info("postfix solved -> " + result);
+        logger.debug("postfix solved -> " + result);
         return result;
     }
 
     private static double operatePendingStack(Stack<Double> stack, Operator operator) {
-        double identity = operator == Operator.MULTIPLY || operator == Operator.DIVIDE ? 1 : 0;
+        double identity = operator == Operator.ADD || operator == Operator.SUBTRACT ? 0 : 1;
         while (!stack.isEmpty()) {
             identity = identity * stack.pop();
         }
@@ -86,9 +86,11 @@ public class Calculator {
                 double divisor = stack.pop();
                 stack.push(stack.pop() / divisor);
                 break;
-            default:
+            case SQRT:
                 stack.push(Math.sqrt(stack.pop()));
                 break;
+            default:
+                throw new UnsupportedOperationException("Invalid operator");
         }
     }
 }

@@ -43,4 +43,29 @@ public class ResultFormatterTest {
     public void formatIntegralRequest1Test() {
         assertEquals("Integ{e^x}[1, 2] #Rep=3 #Th=4", ResultFormatter.formatIntegralRequest("e^x", "1", "2", 3, 4));
     }
+
+    @Test
+    public void formatPercentage1Test() {
+        assertEquals("99.9447%", ResultFormatter.formatPercentage(99.9447));
+    }
+
+    @Test
+    public void formatPercentage2Test() {
+        assertEquals("99.997%", ResultFormatter.formatPercentage(99.997));
+    }
+
+    @Test
+    public void formatPercentage3Test() {
+        assertEquals("0.00%", ResultFormatter.formatPercentage(0.000000055));
+    }
+
+    @Test
+    public void formatNanoSeconds1Test() {
+        assertEquals("9.05s", ResultFormatter.formatNanoSeconds(9050000000L));
+    }
+
+    @Test
+    public void formatNanoSeconds2Test() {
+        assertEquals("0.004s", ResultFormatter.formatNanoSeconds(4000000L));
+    }
 }

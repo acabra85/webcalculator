@@ -49,7 +49,7 @@ public class ShuntingYard {
             output.add(stack.pop());
             sb.append(output.get(output.size() - 1)).append(' ');
         }
-        logger.info("postfix expression -> " + sb.toString());
+        logger.debug("postfix expression -> " + sb.toString());
         return output;
     }
 }

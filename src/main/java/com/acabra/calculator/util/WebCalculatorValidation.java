@@ -33,8 +33,8 @@ public class WebCalculatorValidation {
         if (numThreads < 1 || numThreads > 15)
             throw new InputMismatchException("invalid input num threads must be between [1,15]");
         int repeatedCalculations = integralRequest.getRepeatedCalculations();
-        if (repeatedCalculations < 1 || repeatedCalculations > 999999)
-            throw new InputMismatchException("invalid input repeated calculations must be> 0");
+        if (repeatedCalculations < 1 || repeatedCalculations >= Integer.MAX_VALUE)
+            throw new InputMismatchException("invalid input repeated calculations must be > 0");
 
     }
 

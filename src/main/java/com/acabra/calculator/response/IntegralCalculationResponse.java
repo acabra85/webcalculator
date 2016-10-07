@@ -13,11 +13,11 @@ public class IntegralCalculationResponse extends CalculationResponse {
     public IntegralCalculationResponse(long id, String expression, double approximation, double integralResult, long responseTime, String description) {
         super(id, expression, approximation, responseTime, description);
         this.integralResult = integralResult;
-        this.accuracy = calculateAccuracy(approximation, integralResult);
+        this.accuracy = 100.0 - calculateAccuracy(approximation, integralResult);
     }
 
     private static double calculateAccuracy(double aprox, double real) {
-        return Math.abs(real - aprox) * 100.0 / real;
+        return Math.abs(aprox - real) * 100.0 / real;
     }
 
     @JsonProperty("accuracy")

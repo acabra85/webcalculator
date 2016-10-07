@@ -42,12 +42,23 @@ public class ResultFormatter {
      * @param numberThreads the amount of threads to use
      * @return a string representation for rendering purposes
      */
-    public static String formatIntegralRequest(String label, String lowerBound, String upperBound, int repeatedCalculations, int numberThreads) {
+    public static String formatIntegralRequest(String label, String lowerBound, String upperBound, long repeatedCalculations, int numberThreads) {
         return String.format(WebCalculatorConstants.INTEGRAL_REQ_FORMAT,
                 label,
                 ResultFormatter.trimIntegerResults(lowerBound),
                 ResultFormatter.trimIntegerResults(upperBound),
                 repeatedCalculations,
                 numberThreads);
+    }
+
+    public static String formatPercentage(double accuracy) {
+        if (accuracy < WebCalculatorConstants.ACCURACY_EPSILON) {
+            return "0.00%";
+        }
+        return Double.valueOf(String.format("%.4f", accuracy)).toString() + "%";
+    }
+
+    public static String formatNanoSeconds(long nanoSecs) {
+        return Double.valueOf(String.format("%.3f", nanoSecs / 1000000000.0)) + "s";
     }
 }

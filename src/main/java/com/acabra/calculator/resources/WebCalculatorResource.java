@@ -1,6 +1,6 @@
 package com.acabra.calculator.resources;
 
-import com.acabra.calculator.CalculatorManager;
+import com.acabra.calculator.WebCalculatorManager;
 import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.MessageResponse;
 import com.acabra.calculator.response.SimpleResponse;
@@ -30,11 +30,11 @@ public class WebCalculatorResource implements AppResource {
     private static final Logger logger = Logger.getLogger(WebCalculatorResource.class);
     private final AtomicLong counter;
     private static final String UTF8_ENC = "UTF-8";
-    private final CalculatorManager calculatorManager;
+    private final WebCalculatorManager webCalculatorManager;
 
-    public WebCalculatorResource(CalculatorManager calculatorManager) {
+    public WebCalculatorResource(WebCalculatorManager webCalculatorManager) {
         this.counter = new AtomicLong();
-        this.calculatorManager = calculatorManager;
+        this.webCalculatorManager = webCalculatorManager;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class WebCalculatorResource implements AppResource {
     public void retrieveHistoryResults(@Suspended final AsyncResponse asyncResponse, @QueryParam("token") String token) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return getResponse(Response.Status.OK, "retrieved history", calculatorManager.provideRenderedHistoryResult(token));
+                return getResponse(Response.Status.OK, "retrieved history", webCalculatorManager.provideRenderedHistoryResult(token));
             }  catch (Exception e) {
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "retrieving history: " + e.getMessage(), null);
             }
@@ -68,7 +68,7 @@ public class WebCalculatorResource implements AppResource {
                                 IntegralRequestDTO integralRequestDTO) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return calculatorManager.processExponentialIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token)
+                return webCalculatorManager.processExponentialIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token)
                         .thenApply(calculationResponse -> getResponse(Response.Status.OK, "calculation performed", calculationResponse))
                         .get();
             } catch (Exception e) {
@@ -84,10 +84,10 @@ public class WebCalculatorResource implements AppResource {
                                 @QueryParam("token") String token) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                logger.info("encoded expression '" + expression + "'");
+                logger.debug("encoded expression '" + expression + "'");
                 String decodedExpression = URLDecoder.decode(expression, UTF8_ENC);
-                logger.info("decoded expression '" + decodedExpression + "'");
-                return getResponse(Response.Status.OK, "calculation performed", calculatorManager.processArithmeticCalculation(decodedExpression, token));
+                logger.debug("decoded expression '" + decodedExpression + "'");
+                return getResponse(Response.Status.OK, "calculation performed", webCalculatorManager.processArithmeticCalculation(decodedExpression, token));
             } catch (Exception e) {
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }
@@ -103,7 +103,7 @@ public class WebCalculatorResource implements AppResource {
         CompletableFuture.supplyAsync(() -> {
             try {
                 String successMessage = "token retrieved successfully";
-                return getResponse(Response.Status.OK, successMessage, calculatorManager.provideSessionToken());
+                return getResponse(Response.Status.OK, successMessage, webCalculatorManager.provideSessionToken());
             } catch (Exception e) {
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }

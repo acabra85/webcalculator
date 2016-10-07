@@ -1,8 +1,5 @@
 package com.acabra.calculator.request;
 
-import com.acabra.calculator.integral.IntegralFunctionFactory;
-import com.acabra.calculator.util.ResultFormatter;
-import com.acabra.calculator.util.WebCalculatorConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -17,16 +14,18 @@ public class IntegralRequestDTO implements SimpleRequest {
     private String numberThreads;
     private String repeatedCalculations;
     private int functionId;
+    private boolean areaInscribed;
 
     public IntegralRequestDTO() {
     }
 
-    public IntegralRequestDTO(String lowerBound, String upperBound, String numberThreads, String repeatedCalculations, int functionId) {
+    public IntegralRequestDTO(String lowerBound, String upperBound, String numberThreads, String repeatedCalculations, int functionId, boolean areaInscribed) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.numberThreads = numberThreads;
         this.repeatedCalculations = repeatedCalculations;
         this.functionId = functionId;
+        this.areaInscribed = areaInscribed;
     }
 
     @JsonProperty("lowerBound")
@@ -54,4 +53,8 @@ public class IntegralRequestDTO implements SimpleRequest {
         return functionId;
     }
 
+    @JsonProperty("areaInscribed")
+    public boolean isAreaInscribed() {
+        return areaInscribed;
+    }
 }

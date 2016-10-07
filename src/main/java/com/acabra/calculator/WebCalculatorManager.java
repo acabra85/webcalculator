@@ -10,45 +10,55 @@ import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
 import com.google.common.base.Stopwatch;
+import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by Agustin on 9/27/2016.
  * Controller of the system receives requests from the Endpoint Resource class and delegates execution and then
  * renders the results.
  */
-public class CalculatorManager {
+public class WebCalculatorManager {
 
+    private static final Logger logger = Logger.getLogger(WebCalculatorManager.class);
     private final Calculator calculator;
-    private final HashMap<String, List<CalculationResponse>> history;
+    private final ConcurrentHashMap<String, CalculationHistoryRecord> history;
     private final WebCalculatorRenderer renderer;
-    private AtomicLong counter;
+    private final AtomicLong counter;
+    private final AtomicInteger historySize;
 
-    public CalculatorManager(WebCalculatorRenderer renderer) {
-        this.history = new HashMap<>();
+    public WebCalculatorManager(WebCalculatorRenderer renderer) {
+        this.history = new ConcurrentHashMap<>(16, 0.9f, 1);
         this.calculator = new Calculator();
         this.renderer = renderer;
         this.counter = new AtomicLong();
+        this.historySize = new AtomicInteger();
     }
 
-    private void appendCalculationHistory(CalculationResponse calculationResponse, String token) {
+    private synchronized void appendCalculationHistory(CalculationResponse calculationResponse, String token) {
         if (!history.containsKey(token)) {
-            history.put(token, new ArrayList<>());
+            history.put(token, new CalculationHistoryRecord());
         }
-        history.get(token).add(calculationResponse);
+        history.get(token).append(calculationResponse);
+        historySize.incrementAndGet();
     }
 
-    private Function<IntegrableFunction, CalculationResponse> retrieveIntegralCalculationResponse(IntegralRequest integralRequest, final String token, final long responseTime) {
-        return solvedIntegral -> {
-            String expression = ResultFormatter.formatIntegralRequest(solvedIntegral.getLabel(),
+    private Function<IntegrableFunction, CalculationResponse> retrieveIntegralCalculationResponse(final IntegralRequest integralRequest, final String token, final long responseTime) {
+        return  solvedIntegral -> {
+            String expression = ResultFormatter.formatIntegralRequest(
+                    solvedIntegral.getLabel(),
                     integralRequest.getLowerBound() + "", integralRequest.getUpperBound() + "",
                     integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads());
             CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(counter.getAndIncrement(), expression, responseTime, solvedIntegral, "Integral");
@@ -109,7 +119,33 @@ public class CalculatorManager {
      * @param token
      * @return
      */
-    List<CalculationResponse> provideCalculationHistory(String token) {
-        return history.containsKey(token) && history.get(token).size() > 0 ? history.get(token) : Collections.emptyList();
+    synchronized List<CalculationResponse> provideCalculationHistory(String token) {
+        return history.containsKey(token) ? history.get(token).getCalculationHistory() : Collections.emptyList();
+    }
+
+    public CompletableFuture<Integer> cleanExpiredEntries(LocalDateTime lastRun, int expirationPolicy, ChronoUnit unit) {
+        return CompletableFuture.supplyAsync(() -> {
+            logger.info("Running cleaning ...");
+            List<String> expiredKeys = history.entrySet().stream()
+                    .filter(entry -> {
+                        long difference = Math.abs(lastRun.until(entry.getValue().getLastUsed(), unit));
+                        logger.info(entry.getKey() + "-> difference :" + difference);
+                        return difference > expirationPolicy;
+                    })
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+            expiredKeys.forEach(expiredKey -> {
+                history.remove(expiredKey);
+                historySize.decrementAndGet();});
+            return expiredKeys.size();
+        });
+    }
+
+    /**
+     * Retrieves the size of the history table
+     * @return
+     */
+    public int countHistorySize() {
+        return historySize.get();
     }
 }

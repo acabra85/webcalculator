@@ -13,7 +13,7 @@ public abstract class IntegrableFunction {
     protected final double upperBound;
     private final String label;
     protected Double result;
-    protected Double sequenceRiemannRectangle;
+    protected volatile Double sequenceRiemannRectangle;
     protected static final Logger logger = Logger.getLogger(IntegrableFunction.class);
 
     public IntegrableFunction(double lowerBound, double upperBound, String label) {
@@ -24,12 +24,20 @@ public abstract class IntegrableFunction {
         this.sequenceRiemannRectangle = null;
     }
 
-    public IntegrableFunction(double lowerBound, double upperBound, double result, String label) {
+    public IntegrableFunction(double lowerBound, double upperBound, Double result, String label) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.result = result;
         this.label = label;
         this.sequenceRiemannRectangle = null;
+    }
+
+    public IntegrableFunction(double lowerBound, double upperBound, String label, Double approximatedArea) {
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        this.sequenceRiemannRectangle = approximatedArea;
+        this.result = null;
+        this.label = label;
     }
 
     /**
@@ -41,7 +49,19 @@ public abstract class IntegrableFunction {
      *
      * @return the result of integration.
      */
-    protected abstract double solve();
+    public synchronized double solve() {
+        if (null == result) {
+            result = executeIntegration();
+        }
+        return result;
+    }
+
+    /**
+     * This method is meant to provide the integration solution using the integration
+     * techniques for this function
+     * @return the result of integration between limits
+     */
+    protected abstract Double executeIntegration();
 
     /**
      * Calculates the area of the Riemann Sequence rectangle
@@ -50,7 +70,16 @@ public abstract class IntegrableFunction {
      * @see <a href="https://en.wikipedia.org/wiki/Riemann_integral">Riemann Integral<a/>
      * @return
      */
-    protected abstract Double calculateRiemannSequenceRectangleArea(boolean inscribed);
+    public Double calculateRiemannSequenceRectangleArea(boolean inscribed) {
+        /*TODO Areas under the x-axis should be taken in count
+               this runs on the assumption that the evaluations on all points on this
+               function are positive values on y-axis, to solve discrepancy a split
+               of ranges is required
+          */
+        double width = (upperBound - lowerBound);
+        double height = inscribed ? evaluate(lowerBound) : evaluate(upperBound);
+        return width * height;
+    }
 
     /**
      * This method evaluates the integral using
@@ -85,8 +114,11 @@ public abstract class IntegrableFunction {
         return solve();
     }
 
-    public Double getSequenceRiemannRectangle() {
-        return solveIntegralWithRiemannSequences(true);
+    public synchronized Double getSequenceRiemannRectangle() {
+        if (sequenceRiemannRectangle == null ) { //if no sequence rectangle was given provide one
+            sequenceRiemannRectangle = calculateRiemannSequenceRectangleArea(true);
+        }
+        return sequenceRiemannRectangle;
     }
 
     public String getLabel() {

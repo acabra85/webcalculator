@@ -4,17 +4,16 @@ import com.acabra.calculator.util.WebCalculatorConstants;
 import com.google.common.util.concurrent.AtomicDouble;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 /**
  * Created by Agustin on 9/29/2016.
  */
-public class IntegralSubRangeProvider {
+public class IntegralSubRangeSupplier implements Supplier {
 
-    private static final Logger logger = Logger.getLogger(IntegralSubRangeProvider.class);
+    private static final Logger logger = Logger.getLogger(IntegralSubRangeSupplier.class);
     private AtomicDouble current;
     private final double rangeSize;
     private final int repeatedCalculations;
@@ -31,7 +30,7 @@ public class IntegralSubRangeProvider {
      * @param repeatedCalculations amount of repeatedCalculations to obtain the integral must be > 0
      * @param functionType the type of the integral function to create
      */
-    public IntegralSubRangeProvider(double lowerBound, double upperBound, int repeatedCalculations, IntegralFunctionType functionType) {
+    public IntegralSubRangeSupplier(double lowerBound, double upperBound, int repeatedCalculations, IntegralFunctionType functionType) {
         this.functionType = functionType;
         this.repeatedCalculations = repeatedCalculations > 0 ? repeatedCalculations : 1;
         this.lowerBound = lowerBound;
@@ -39,7 +38,7 @@ public class IntegralSubRangeProvider {
         this.rangeSize = (this.upperBound - this.lowerBound) / (1.0 * this.repeatedCalculations);
         this.current = new AtomicDouble(lowerBound);
         this.validConstruction = this.lowerBound <= this.upperBound && this.repeatedCalculations > 0;
-        logger.info("rangeSize -> " + rangeSize);
+        logger.debug("rangeSize -> " + rangeSize);
     }
 
     /**
@@ -50,13 +49,14 @@ public class IntegralSubRangeProvider {
         return Math.abs(upperBound - current.get()) > WebCalculatorConstants.ACCURACY_EPSILON;
     }
 
-    public IntegrableFunction provideNextIntegral() {
+    @Override
+    public IntegrableFunction get() {
         if (this.validConstruction && hasMoreSubRanges() && provided.get() < repeatedCalculations) {
             provided.incrementAndGet();
             if (provided.get() == repeatedCalculations) {
-                logger.info(String.format("Ending upper bound -> %.3f total delivered: %d", current.get(), provided.get()));
+                logger.debug(String.format("Ending upper bound -> %.3f total delivered: %d", current.get(), provided.get()));
             }
-            return IntegralFunctionFactory.createIntegralFunction(functionType, current.get(), current.addAndGet(rangeSize), Optional.empty());
+            return IntegralFunctionFactory.createIntegralFunction(functionType, current.get(), current.addAndGet(rangeSize), Optional.empty(), Optional.empty());
         }
         throw new NullPointerException("Unable to provide more subRanges");
     }
