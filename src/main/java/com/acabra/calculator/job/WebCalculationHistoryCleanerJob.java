@@ -17,10 +17,6 @@ public class WebCalculationHistoryCleanerJob implements Job {
     private WebCalculatorHistoryCleanerPolicy policy;
     private WebCalculatorManager webCalculatorManager;
 
-    public static void main(String ...args) {
-        logger.info("heroku worker triggered");
-    }
-
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         if (lastRun == null) {

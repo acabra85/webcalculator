@@ -26,6 +26,10 @@ public class WebCalculatorJobManager {
     private Scheduler scheduler;
     private volatile boolean started = false;
 
+    public static void main(String ...args) {
+        logger.info("heroku worker triggered");
+    }
+
     public WebCalculatorJobManager(WebCalculatorManager webCalculatorManager, WebCalculatorHistoryCleanerPolicy policyCleaner) {
         this.webCalculatorManager = webCalculatorManager;
         this.policyCleaner = policyCleaner;
