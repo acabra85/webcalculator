@@ -9,6 +9,7 @@ import com.acabra.calculator.util.RequestMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.assertj.core.api.Assertions;
 import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,6 +61,11 @@ public class WebCalculatorResourceTest {
     public void setup() throws IOException {
     }
 
+    @After
+    public void tearDown() {
+        Mockito.reset(calcManagerMock);
+    }
+
 
     @Test
     public void makeCalculationTest() {
@@ -82,7 +88,6 @@ public class WebCalculatorResourceTest {
         Assertions.assertThat(calculationResponse.getDescription()).isEqualTo("description");
 
         verify(calcManagerMock, times(1)).processArithmeticCalculation(eq("expression"), eq(TOKEN));
-        Mockito.reset(calcManagerMock);
     }
 
     @Test
@@ -97,7 +102,6 @@ public class WebCalculatorResourceTest {
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
         verify(calcManagerMock, times(1)).processArithmeticCalculation(anyString(), anyString());
-        Mockito.reset(calcManagerMock);
     }
 
     @Test
@@ -134,7 +138,6 @@ public class WebCalculatorResourceTest {
 
         PowerMockito.verifyStatic(times(1));
         RequestMapper.fromInternalRequest(anyObject());
-        Mockito.reset(calcManagerMock);
     }
 
     @Test
@@ -157,7 +160,6 @@ public class WebCalculatorResourceTest {
         verify(calcManagerMock, times(1)).processIntegralCalculation(anyObject(), anyString());
         PowerMockito.verifyStatic(times(1));
         RequestMapper.fromInternalRequest(anyObject());
-        Mockito.reset(calcManagerMock);
     }
 
     @Test
@@ -182,7 +184,6 @@ public class WebCalculatorResourceTest {
         Assertions.assertThat(tokenResponse.getToken()).isEqualTo(TOKEN);
 
         verify(calcManagerMock, times(1)).provideSessionToken();
-        Mockito.reset(calcManagerMock);
     }
 
     @Test
@@ -199,7 +200,6 @@ public class WebCalculatorResourceTest {
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
         verify(calcManagerMock, times(1)).provideSessionToken();
-        Mockito.reset(calcManagerMock);
     }
 
     @Test
@@ -226,7 +226,6 @@ public class WebCalculatorResourceTest {
         Assertions.assertThat(tableHistoryResponse.getTableHTML()).isEqualTo(renderedTable);
 
         verify(calcManagerMock, times(1)).provideRenderedHistoryResult(eq(TOKEN));
-        Mockito.reset(calcManagerMock);
     }
 
     @Test
@@ -243,7 +242,6 @@ public class WebCalculatorResourceTest {
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
 
         verify(calcManagerMock, times(1)).provideRenderedHistoryResult(anyString());
-        Mockito.reset(calcManagerMock);
     }
 
     @Test
@@ -260,6 +258,5 @@ public class WebCalculatorResourceTest {
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
         verify(calcManagerMock, times(1)).provideRenderedHistoryResult(anyString());
-        Mockito.reset(calcManagerMock);
     }
 }

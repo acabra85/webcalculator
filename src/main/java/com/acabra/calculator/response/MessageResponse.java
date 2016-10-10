@@ -1,6 +1,8 @@
 package com.acabra.calculator.response;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -8,24 +10,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @created 2016-09-27
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public class MessageResponse extends SimpleResponse {
     private String body;
     private String message;
 
-    public MessageResponse(){}
-
-    public MessageResponse(long id, final String message, String body) {
-        this.id = id;
+    @JsonCreator
+    public MessageResponse(@JsonProperty("id") long id,
+                           @JsonProperty("message") final String message,
+                           @JsonProperty("body")String body) {
+        super(id);
         this.message = message;
         this.body = body;
     }
 
-    @JsonProperty("body")
     public String getBody() {
         return body;
     }
 
-    @JsonProperty("message")
     public String getMessage() {
         return message;
     }
