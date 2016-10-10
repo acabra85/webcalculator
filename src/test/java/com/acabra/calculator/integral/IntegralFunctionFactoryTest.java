@@ -1,41 +1,32 @@
 package com.acabra.calculator.integral;
 
+import com.acabra.calculator.integral.input.IntegrableFunctionInputParametersBuilder;
+import com.acabra.calculator.integral.input.IntegrableFunctionInputParameters;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 
-import java.util.InputMismatchException;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by Agustin on 9/30/2016.
  */
 public class IntegralFunctionFactoryTest {
 
-    IntegralFunctionType exponential = IntegralFunctionType.EXPONENTIAL;
 
-    @Test
-    public void createIntegralFunctionNoResultTest() {
-        double lowerbound = 0;
-        double upperbound = 1;
-        IntegrableFunction integralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, lowerbound, upperbound, Optional.empty(), Optional.empty());
-        assertEquals(lowerbound, integralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperbound, integralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-    }
-
-    @Test
-    public void createIntegralFunctionResultTest() {
-        int lowerbound = 0;
-        int upperbound = 1;
-        double contentResult = 9.5;
-        Optional<Double> result = Optional.of(contentResult);
-        IntegrableFunction solvedIntegralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, lowerbound, upperbound, result, Optional.empty());
-        assertEquals(lowerbound, solvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperbound, solvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(contentResult, solvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-
+    @Test(expected = InputMismatchException.class)
+    public void createFunctionFailureBoundsTest() {
+        int lowerbound = 1;
+        int upperbound = 0;
+        IntegralFunctionType exponential = IntegralFunctionFactory.evaluateFunctionType(0);
+        assertNotNull(exponential);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound).build();
+        IntegralFunctionFactory.createIntegralFunction(exponential, parameters);
     }
 
     @Test
@@ -43,41 +34,88 @@ public class IntegralFunctionFactoryTest {
         int lowerbound = 0;
         int upperbound = 1;
         double contentResult = 9.5;
-        Optional<Double> result = Optional.of(contentResult);
-        Optional<Double> approx = Optional.of(1.0);
-        IntegrableFunction solvedIntegralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, lowerbound, upperbound, result, approx);
+        double approximation = 1.0;
+        IntegralFunctionType exponential = IntegralFunctionFactory.evaluateFunctionType(0);
+        assertNotNull(exponential);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withIntegrationResult(contentResult)
+                .withApproximation(approximation)
+                .build();
+        IntegrableFunction solvedIntegralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, parameters);
+        assertNotNull(solvedIntegralFunction);
         assertEquals(lowerbound, solvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperbound, solvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(contentResult, solvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(approx.get(), solvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(approximation, solvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals("Integ{e^x}[0, 1]", solvedIntegralFunction.toString());
+
+        IntegrableFunction unsolvedFunction = IntegralFunctionFactory.createIntegralFunction(exponential,
+                new IntegrableFunctionInputParametersBuilder()
+                        .withLowerBound(lowerbound)
+                        .withUpperBound(upperbound)
+                        .build());
+        assertNotNull(unsolvedFunction);
+        assertNotEquals(solvedIntegralFunction.getResult(), unsolvedFunction.getResult());
 
     }
 
     @Test
-    public void createPolynomialFunctionNonResultTest() {
-        int lowerbound = -2;
-        int upperbound = 2;
-        int order = 3;
-        double[] coefficients = {0, 0, 1};
-        Optional<Double> result = Optional.empty();
-        IntegrableFunction unsolvedIntegralFunction = IntegralFunctionFactory.createPolynomialIntegralFunction(lowerbound, upperbound, order, coefficients, result);
-        assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperbound, unsolvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-
+    public void createIntegralFunctionResultTest() {
+        int lowerbound = 0;
+        int upperbound = 1;
+        double contentResult = 9.5;
+        IntegralFunctionType exponential = IntegralFunctionFactory.evaluateFunctionType(0);
+        assertNotNull(exponential);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withIntegrationResult(contentResult)
+                .build();
+        IntegrableFunction solvedIntegralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, parameters);
+        assertNotNull(solvedIntegralFunction);
+        assertEquals(lowerbound, solvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, solvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(contentResult, solvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals("Integ{e^x}[0, 1]", solvedIntegralFunction.toString());
     }
 
     @Test
-    public void createPolynomialFunctionResultTest() {
-        int lowerbound = -2;
+    public void createIntegralFunctionApproximationTest() {
+        int lowerbound = 1;
         int upperbound = 2;
-        int order = 3;
-        double[] coefficients = {0, 0, 3};
-        Optional<Double> result = Optional.of(16.0);
-        IntegrableFunction unsolvedIntegralFunction = IntegralFunctionFactory.createPolynomialIntegralFunction(lowerbound, upperbound, order, coefficients, result);
-        assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperbound, unsolvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(result.get(), unsolvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        double approximation = 5.5;
+        IntegralFunctionType exponential = IntegralFunctionFactory.evaluateFunctionType(0);
+        assertNotNull(exponential);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withApproximation(approximation)
+                .build();
+        IntegrableFunction solvedIntegralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, parameters);
+        assertNotNull(solvedIntegralFunction);
+        assertEquals(lowerbound, solvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, solvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(approximation, solvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals("Integ{e^x}[1, 2]", solvedIntegralFunction.toString());
+    }
 
+    @Test
+    public void createIntegralFunctionNoResultNoApproximationTest() {
+        double lowerbound = 0;
+        double upperbound = 1;
+        IntegralFunctionType exponential = IntegralFunctionFactory.evaluateFunctionType(0);
+        assertNotNull(exponential);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .build();
+        IntegrableFunction integralFunction = IntegralFunctionFactory.createIntegralFunction(exponential, parameters);
+        assertNotNull(integralFunction);
+        assertEquals(lowerbound, integralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, integralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals("Integ{e^x}[0, 1]", integralFunction.toString());
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -85,21 +123,193 @@ public class IntegralFunctionFactoryTest {
         int lowerbound = 0;
         int upperbound = 1;
         double contentResult = 9.5;
-        Optional<Double> result = Optional.of(contentResult);
-        IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.LOGARITHMIC, lowerbound, upperbound, result, Optional.empty());
+        int functionId = 2;
+        IntegralFunctionType logarithmic = IntegralFunctionFactory.evaluateFunctionType(functionId);
+        assertNotNull(logarithmic);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withIntegrationResult(contentResult).build();
+        IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+    }
+
+    @Test
+    public void createIntegralFunctionInvalidTypeTest() {
+        int expectedExceptions = 4;
+        int foundExceptions = 0;
+        int logarithmicId = 2;
+        IntegralFunctionType logarithmic = IntegralFunctionFactory.evaluateFunctionType(logarithmicId);
+        assertNotNull(logarithmic);
+
+        try {
+            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                    .withLowerBound(0)
+                    .withUpperBound(1)
+                    .build();
+            IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+        } catch (NoSuchElementException nse) {
+            foundExceptions++;
+        }
+
+        try {
+            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                    .withLowerBound(0)
+                    .withUpperBound(1)
+                    .withIntegrationResult(1.0)
+                    .build();
+            IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+        } catch (NoSuchElementException nse) {
+            foundExceptions++;
+        }
+
+        try {
+            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                    .withLowerBound(0)
+                    .withUpperBound(1)
+                    .withApproximation(1.0)
+                    .build();
+            IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+        } catch (NoSuchElementException nse) {
+            foundExceptions++;
+        }
+
+        try {
+            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                    .withLowerBound(0)
+                    .withUpperBound(1)
+                    .withIntegrationResult(1.0)
+                    .withApproximation(1.0)
+                    .build();
+            IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+        } catch (NoSuchElementException nse) {
+            foundExceptions++;
+        }
+
+        assertEquals(expectedExceptions, foundExceptions);
+
+    }
+
+    @Test
+    public void createPolynomialFunctionNonResultTest() {
+        int lowerbound = -3;
+        int upperbound = -1;
+        List<Double> coefficients = Arrays.asList(0.0, 0.0, 1.0);
+        Double integralResult = 8.666666666;
+        double inscribedAreaExpected = 2.0;
+        double circumscribedAreaExpected = 18.0;
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withCoefficients(coefficients)
+                .build();
+
+        PolynomialIntegral unsolvedIntegralFunction = (PolynomialIntegral)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+
+        assertNotNull(unsolvedIntegralFunction);
+        assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, unsolvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(integralResult, unsolvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(inscribedAreaExpected, unsolvedIntegralFunction.calculateRiemannSequenceRectangleArea(true), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, unsolvedIntegralFunction.solveIntegralWithRiemannSequences(false), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, unsolvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(unsolvedIntegralFunction.getOrder(), unsolvedIntegralFunction.getCoefficients().size());
+        assertEquals("Integ{x^2}[-3, -1]", unsolvedIntegralFunction.toString());
+    }
+
+    @Test
+    public void createPolynomialFunctionResultTest() {
+        int lowerbound = 1;
+        int upperbound = 3;
+        Double integralResult = 26.0;
+        double inscribedAreaExpected = 6.0;
+        double circumscribedAreaExpected = 54.0;
+        List<Double> coefficients = Arrays.asList(0.0, 0.0, 3.0);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withCoefficients(coefficients)
+                .build();
+
+        PolynomialIntegral unsolvedIntegralFunction = (PolynomialIntegral)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+
+        assertNotNull(unsolvedIntegralFunction);
+        assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, unsolvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(integralResult, unsolvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(inscribedAreaExpected, unsolvedIntegralFunction.calculateRiemannSequenceRectangleArea(true), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, unsolvedIntegralFunction.solveIntegralWithRiemannSequences(false), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, unsolvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(unsolvedIntegralFunction.getOrder(), unsolvedIntegralFunction.getCoefficients().size());
+        assertEquals("Integ{3x^2}[1, 3]", unsolvedIntegralFunction.toString());
+
+    }
+
+    @Test
+    public void createPolynomialFunctionResult2Test() {
+        int lowerbound = 2;
+        int upperbound = 5;
+        Double integralResult = 109.5;
+        double inscribedAreaExpected = 33.0;
+        double circumscribedAreaExpected = 213.0;
+        List<Double> coefficients = Arrays.asList(1.0, -1.0, 3.0);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withCoefficients(coefficients)
+                .build();
+
+        PolynomialIntegral unsolvedIntegralFunction = (PolynomialIntegral)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+
+        assertNotNull(unsolvedIntegralFunction);
+        assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, unsolvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(integralResult, unsolvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(inscribedAreaExpected, unsolvedIntegralFunction.calculateRiemannSequenceRectangleArea(true), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, unsolvedIntegralFunction.solveIntegralWithRiemannSequences(false), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, unsolvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(unsolvedIntegralFunction.getOrder(), unsolvedIntegralFunction.getCoefficients().size());
+        assertEquals("Integ{1-x+3x^2}[2, 5]", unsolvedIntegralFunction.toString());
+
     }
 
     @Test(expected = InputMismatchException.class)
-    public void createFunctionFailure2Test() {
-        int lowerbound = 1;
-        int upperbound = 0;
-        double contentResult = 9.5;
-        Optional<Double> result = Optional.of(contentResult);
-        IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.LOGARITHMIC, lowerbound, upperbound, result, Optional.empty());
+    public void createPolynomialFunctionFailResultTest() {
+        int lowerbound = 2;
+        int upperbound = -2;
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .build();
+
+        IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void evaluateFunctionTypeTest() {
-        IntegralFunctionFactory.evaluateFunctionType(2);
+    @Test
+    public void createPolynomialFunctionResult3Test() {
+        int lowerbound = 3;
+        int upperbound = 7;
+        Double integralResult = 4.0;
+        double inscribedAreaExpected = 100.0;
+        double circumscribedAreaExpected = 564.0;
+        List<Double> coefficients = Arrays.asList(1.0, -1.0, 3.0);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withApproximation(inscribedAreaExpected)
+                .withIntegrationResult(integralResult)
+                .withCoefficients(coefficients)
+                .build();
+
+        PolynomialIntegral unsolvedIntegralFunction = (PolynomialIntegral)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+
+        assertNotNull(unsolvedIntegralFunction);
+        assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, unsolvedIntegralFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(integralResult, unsolvedIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, unsolvedIntegralFunction.calculateRiemannSequenceRectangleArea(false), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(inscribedAreaExpected, unsolvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(unsolvedIntegralFunction.getOrder(), unsolvedIntegralFunction.getCoefficients().size());
+        assertEquals("Integ{1-x+3x^2}[3, 7]", unsolvedIntegralFunction.toString());
     }
 }

@@ -35,18 +35,14 @@ public class ResultFormatter {
     /**
      * Prints using the default format defined for an integrable function and the parameters chosen
      * to make the calculation
-     * @param label the label of the function requested
-     * @param lowerBound the lower limit
-     * @param upperBound the upper limit
-     * @param repeatedCalculations how many times to split the main range to approximate results
+     * @param integralExpression the string representation of the integral
+     * @param repeatedCalculations how many times to split the main range to approximateAreaUnderCurve results
      * @param numberThreads the amount of threads to use
      * @return a string representation for rendering purposes
      */
-    public static String formatIntegralRequest(String label, String lowerBound, String upperBound, long repeatedCalculations, int numberThreads) {
+    public static String formatIntegralRequest(String integralExpression, long repeatedCalculations, int numberThreads) {
         return String.format(WebCalculatorConstants.INTEGRAL_REQ_FORMAT,
-                label,
-                ResultFormatter.trimIntegerResults(lowerBound),
-                ResultFormatter.trimIntegerResults(upperBound),
+                integralExpression,
                 repeatedCalculations,
                 numberThreads);
     }

@@ -32,7 +32,7 @@ public class IntegralSubRangeSupplierTest {
         int repeatedCalculations1 = 5;
         IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL);
         int i = 0;
-        for(i=0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
+        for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction integrableFunction = integralSubRangeSupplier.get();
             assertEquals(expectedLowerRanges[i], integrableFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
             assertEquals(expectedUpperRanges[i], integrableFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -47,7 +47,7 @@ public class IntegralSubRangeSupplierTest {
         int repeatedCalculations1 = 1;
         IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL);
         int i = 0;
-        for(i=0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
+        for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction currentIntegral = integralSubRangeSupplier.get();
             assertEquals(lowerBound1, currentIntegral.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
             assertEquals(upperBound1, currentIntegral.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -64,7 +64,7 @@ public class IntegralSubRangeSupplierTest {
         int repeatedCalculations1 = 2;
         IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL);
         int i = 0;
-        for(i=0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
+        for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction currentIntegral = integralSubRangeSupplier.get();
             assertEquals(expectedLowerRanges[i], currentIntegral.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
             assertEquals(expectedUpperRanges[i], currentIntegral.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);

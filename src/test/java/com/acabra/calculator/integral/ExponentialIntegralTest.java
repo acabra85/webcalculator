@@ -16,7 +16,7 @@ public class ExponentialIntegralTest {
         double upperBound = 1;
         double expected = 1.718281828459045;
         ExponentialIntegral unsolvedIntegral = new ExponentialIntegral(lowerBound, upperBound);
-        ExponentialIntegral solvedIntegral = new ExponentialIntegral(lowerBound, upperBound, unsolvedIntegral.solve());
+        ExponentialIntegral solvedIntegral = new ExponentialIntegral(lowerBound, upperBound, unsolvedIntegral.solve(), null);
         assertEquals(expected, solvedIntegral.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals("Integ{e^x}[0, 1]", solvedIntegral.toString());
     }
@@ -27,7 +27,7 @@ public class ExponentialIntegralTest {
         double upperBound = -9.99;
         double expected = 4.56277E-7;
         ExponentialIntegral unsolvedIntegral = new ExponentialIntegral(lowerBound, upperBound);
-        ExponentialIntegral solvedIntegral = new ExponentialIntegral(unsolvedIntegral.getLowerBound(), unsolvedIntegral.getUpperBound(), unsolvedIntegral.solve());
+        ExponentialIntegral solvedIntegral = new ExponentialIntegral(unsolvedIntegral.getLowerBound(), unsolvedIntegral.getUpperBound(), unsolvedIntegral.solve(), null);
 
         assertEquals(expected, solvedIntegral.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals("Integ{e^x}[-10, -9.99]", solvedIntegral.toString());
@@ -39,7 +39,7 @@ public class ExponentialIntegralTest {
         double upperBound = 10;
         double expected = 22026.465749406787;
         ExponentialIntegral unsolvedIntegral = new ExponentialIntegral(lowerBound, upperBound);
-        ExponentialIntegral solvedIntegral = new ExponentialIntegral(unsolvedIntegral.getLowerBound(), unsolvedIntegral.getUpperBound(), unsolvedIntegral.solve());
+        ExponentialIntegral solvedIntegral = new ExponentialIntegral(unsolvedIntegral.getLowerBound(), unsolvedIntegral.getUpperBound(), unsolvedIntegral.solve(), null);
 
         assertEquals(expected, solvedIntegral.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals("Integ{e^x}[-10, 10]", solvedIntegral.toString());

@@ -24,29 +24,59 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class WebCalculatorFactoryResponseTest {
 
     @Test
-    public void createCalculationResponse1Test() {
+    public void createIntegralCalculationResponse1Test() {
         String description = "Integral";
         String expression = "expression";
         int id = 0;
         long responseTime = 1;
         double approxArea = 1.0;
         double exactIntegral = 1.0;
+        double expectedAccuracy = 100.0;
 
         IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
         when(solvedIntegralMock.getSequenceRiemannRectangle()).thenReturn(approxArea);
         when(solvedIntegralMock.getResult()).thenReturn(exactIntegral);
 
-        CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(id, expression, responseTime, solvedIntegralMock, description);
+        IntegralCalculationResponse integralCalculationResponse = (IntegralCalculationResponse) WebCalculatorFactoryResponse.createCalculationResponse(id, expression, responseTime, solvedIntegralMock, description);
 
         verify(solvedIntegralMock, times(1)).getResult();
         verify(solvedIntegralMock, times(1)).getSequenceRiemannRectangle();
 
-        assertEquals(description, calculationResponse.getDescription());
-        assertEquals(expression, calculationResponse.getExpression());
-        assertEquals(id, calculationResponse.getId());
-        assertEquals(approxArea, calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(responseTime, calculationResponse.getResponseTime());
-        assertEquals(exactIntegral, ((IntegralCalculationResponse) calculationResponse).getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(description, integralCalculationResponse.getDescription());
+        assertEquals(expression, integralCalculationResponse.getExpression());
+        assertEquals(id, integralCalculationResponse.getId());
+        assertEquals(approxArea, integralCalculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(responseTime, integralCalculationResponse.getResponseTime());
+        assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(expectedAccuracy, integralCalculationResponse.getAccuracy(), WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test
+    public void createIntegralCalculationResponse2Test() {
+        String description = "Integral";
+        String expression = "expression";
+        int id = 0;
+        long responseTime = 1;
+        double approxArea = 1.0;
+        double exactIntegral = 2.0;
+        double expectedAccuracy = 50.0;
+
+        IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
+        when(solvedIntegralMock.getSequenceRiemannRectangle()).thenReturn(approxArea);
+        when(solvedIntegralMock.getResult()).thenReturn(exactIntegral);
+
+        IntegralCalculationResponse integralCalculationResponse = (IntegralCalculationResponse) WebCalculatorFactoryResponse.createCalculationResponse(id, expression, responseTime, solvedIntegralMock, description);
+
+        verify(solvedIntegralMock, times(1)).getResult();
+        verify(solvedIntegralMock, times(1)).getSequenceRiemannRectangle();
+
+        assertEquals(description, integralCalculationResponse.getDescription());
+        assertEquals(expression, integralCalculationResponse.getExpression());
+        assertEquals(id, integralCalculationResponse.getId());
+        assertEquals(approxArea, integralCalculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(responseTime, integralCalculationResponse.getResponseTime());
+        assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(expectedAccuracy, integralCalculationResponse.getAccuracy(), WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
     @Test

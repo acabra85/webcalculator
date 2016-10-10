@@ -1,5 +1,8 @@
 package com.acabra.calculator.integral;
 
+import com.acabra.calculator.integral.approx.NumericalMethodApproximationType;
+import com.acabra.calculator.integral.input.IntegrableFunctionInputParameters;
+
 import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -9,65 +12,38 @@ import java.util.Optional;
  */
 public class IntegralFunctionFactory {
 
-    public static IntegrableFunction createIntegralFunction(IntegralFunctionType functionType, double lowerbound, double upperbound, Optional<Double> result, Optional<Double> approx) {
-        validIntegralLimits(lowerbound, upperbound);
-        switch (functionType) {
-            case EXPONENTIAL:
-                if (result.isPresent() && approx.isPresent()) {
-                    return createFullySolvedIntegralFunction(functionType, lowerbound, upperbound, result.get(), approx.get());
-                } else if (result.isPresent()) {
-                    return createIntegralFunctionWithResult(functionType, lowerbound, upperbound, result.get());
-                } else if (approx.isPresent()) {
-                    return createIntegralFunctionWithAreaApproximation(functionType, lowerbound, upperbound, approx.get());
-                }
-                return new ExponentialIntegral(lowerbound, upperbound);
-            default:
-                throw new NoSuchElementException("function not defined in the scope of the calculator");
+    private static void validIntegralLimits(double lowerbound, double upperbound) {
+        if (lowerbound > upperbound) {
+            throw new InputMismatchException("invalid integral range");
         }
     }
 
-    private static IntegrableFunction createFullySolvedIntegralFunction(IntegralFunctionType functionType, double lowerBound, double upperBound, double result, double sequenceRiemannRectangleAreaSum) {
-        validIntegralLimits(lowerBound, upperBound);
+    private static IntegrableFunction createExponentialIntegrableFunction(IntegrableFunctionInputParameters parameters) {
+        return new ExponentialIntegral(parameters.getLowerBound(), parameters.getUpperBound(), parameters.getIntegrationResult().orElse(null), parameters.getApproximation().orElse(null));
+    }
+
+    private static IntegrableFunction createPolynomialIntegralFunction(IntegrableFunctionInputParameters parameters) {
+        return new PolynomialIntegral(parameters.getLowerBound(), parameters.getUpperBound(), parameters.getCoefficients(),
+                parameters.getIntegrationResult(), parameters.getApproximation());
+    }
+
+    public static IntegrableFunction createIntegralFunction(IntegralFunctionType functionType, IntegrableFunctionInputParameters parameters) {
+        validIntegralLimits(parameters.getLowerBound(), parameters.getUpperBound());
         switch (functionType) {
             case EXPONENTIAL:
-                return new ExponentialIntegral(lowerBound, upperBound, result, sequenceRiemannRectangleAreaSum);
+                return createExponentialIntegrableFunction(parameters);
+            case POLYNOMIAL:
+                return createPolynomialIntegralFunction(parameters);
             default:
                 throw new NoSuchElementException("function not defined in the scope of the calculator");
         }
-    }
-
-    private static IntegrableFunction createIntegralFunctionWithResult(IntegralFunctionType functionType, double lowerBound, double upperBound, double result) {
-        validIntegralLimits(lowerBound, upperBound);
-        switch (functionType) {
-            case EXPONENTIAL:
-                return new ExponentialIntegral(lowerBound, upperBound, result);
-            default:
-                throw new NoSuchElementException("function not defined in the scope of the calculator");
-        }
-    }
-
-    private static IntegrableFunction createIntegralFunctionWithAreaApproximation(IntegralFunctionType functionType, double lowerBound, double upperBound, double approximation) {
-        validIntegralLimits(lowerBound, upperBound);
-        switch (functionType) {
-            case EXPONENTIAL:
-                return new ExponentialIntegral(lowerBound, upperBound, null, approximation);
-            default:
-                throw new NoSuchElementException("function not defined in the scope of the calculator");
-        }
-    }
-
-    public static IntegrableFunction createPolynomialIntegralFunction(int lowerbound, int upperbound, int order, double[] coefficients, Optional<Double> result) {
-        validIntegralLimits(lowerbound, upperbound);
-        return !result.isPresent() ? new PolynomialIntegral(lowerbound, upperbound, order, coefficients) : new PolynomialIntegral(lowerbound, upperbound, order, coefficients, result);
     }
 
     public static IntegralFunctionType evaluateFunctionType(int functionId) {
         return IntegralFunctionType.provideType(functionId);
     }
 
-    private static void validIntegralLimits(double lowerbound, double upperbound) {
-        if (lowerbound > upperbound) {
-            throw new InputMismatchException("invalid integral range");
-        }
+    public static NumericalMethodApproximationType evaluateApproximationMethodType(int approximationMethodId) {
+        return NumericalMethodApproximationType.provideType(approximationMethodId);
     }
 }

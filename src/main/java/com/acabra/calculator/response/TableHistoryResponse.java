@@ -9,8 +9,10 @@ public class TableHistoryResponse extends SimpleResponse {
 
     protected String tableHTML;
 
+    public TableHistoryResponse() {}
+
     public TableHistoryResponse(long id, String tableHTML) {
-        super(id);
+        this.id = id;
         this.tableHTML = tableHTML;
     }
 

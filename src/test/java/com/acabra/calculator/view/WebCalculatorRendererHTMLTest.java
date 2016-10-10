@@ -18,7 +18,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.internal.verification.VerificationModeFactory.atMost;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -32,21 +31,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class WebCalculatorRendererHTMLTest {
 
 
-    private final String TABLE_OPEN = "<table class=\"table table-striped\">" +
-            "<caption style=\"text-align: center\"><h4>History</h4></caption><thead>" +
-            "<tr>" +
-            "<th><b>Id.</b></th>" +
-            "<th><b>Expression</b></th>" +
-            "<th><b>Result</b></th>" +
-            "<th><b>Response Time</b></th>" +
-            "</tr></thead><tbody>";
     private final String TABLE_CLOSE = "</tbody></table>";
-
-    private String approximationLabel = "Approximated";
-    private String realValLabel = "Real Value";
-    private String accuracyLabel = "Accuracy";
-    private static final String TABLE_DETAIL_OPEN = "<div class=\"integral-detail-div\"><table class=\"integral-subtable\">";
-    private static final String TABLE_DETAIL_CLOSE = "</table></div>";
 
     private double approx3 = 0.444;
     private String approxStr3 = "0.444";
@@ -64,30 +49,27 @@ public class WebCalculatorRendererHTMLTest {
 
     private final String row1 = "<tr><td>1</td><td>aa</td><td>1.1</td><td>0.001s</td></tr>";
     private final String row2 = "<tr><td>2</td><td>bb</td><td>0</td><td>0.001s</td></tr>";
-    private String subRow3 = TABLE_DETAIL_OPEN
-            + "<tr><th>" + approximationLabel +"</th><td style=\"text-align: right;\">" + approx3 + "</td></tr>"
-            + "<tr><th>" + realValLabel + "</th><td style=\"text-align: right;\">" + integralResult3 + "</td></tr>"
-            + "<tr><th>" + accuracyLabel + "</th><td style=\"text-align: right;\">" + percentageStr3 +"</td></tr>"
-            + TABLE_DETAIL_CLOSE;
-    private String subRow4 = TABLE_DETAIL_OPEN
-            + "<tr><th>" + approximationLabel + "</th><td style=\"text-align: right;\">" + approx4 +"</td></tr>"
-            + "<tr><th>" + realValLabel + "</th><td style=\"text-align: right;\">" + integralResult4 + "</td></tr>"
-            + "<tr><th>" + accuracyLabel + "</th><td style=\"text-align: right;\">" + percentageStr4 + "</td></tr>"
-            + TABLE_DETAIL_CLOSE;
+    private String METHOD_RIEMANN_LABEL = "Riemann";
+    private String subRow3 = String.format(WebCalculatorRendererHTML.INTEGRAL_RESULT_DETAIL_TABLE,
+            METHOD_RIEMANN_LABEL, approx3, integralResult3,
+            WebCalculatorRendererHTML.colorAccuracy(percentage3), percentageStr3);
+    private String subRow4 = String.format(WebCalculatorRendererHTML.INTEGRAL_RESULT_DETAIL_TABLE,
+            METHOD_RIEMANN_LABEL, approx4, integralResult4,
+            WebCalculatorRendererHTML.colorAccuracy(percentage4), percentageStr4);
     private final String row3 = "<tr><td>3</td><td>Integ</td><td>" + subRow3 + "</td><td>0.001s</td></tr>";
     private final String row4 = "<tr><td>4</td><td>Integ</td><td>" + subRow4 + "</td><td>0.001s</td></tr>";
 
     private final List<CalculationResponse> listToRender = Arrays.asList(
             new CalculationResponse(1, "aa", 1.1, 1L,"arithmetic1"),
             new CalculationResponse(2, "bb", 0.0, 1L, "arithmetic2"),
-            new IntegralCalculationResponse(3, WebCalculatorConstants.INTEGRAL_PREFIX, approx3, integralResult3, 1L, "Integral1"),
-            new IntegralCalculationResponse(4, WebCalculatorConstants.INTEGRAL_PREFIX, approx4, integralResult4, 1L, "Integral2")
+            new IntegralCalculationResponse(3, "Integ", approx3, integralResult3, 1L, "Riemann"),
+            new IntegralCalculationResponse(4, "Integ", approx4, integralResult4, 1L, "Riemann")
     );
 
     @Test
     public void renderTableHTMLAscendingTest() {
         WebCalculatorRendererHTML webCalculatorRendererHTML = new WebCalculatorRendererHTML();
-        String resultHTML = TABLE_OPEN + row1 + row2 + row3 + row4 + TABLE_CLOSE;
+        String resultHTML = WebCalculatorRendererHTML.TABLE_HEADER + row1 + row2 + row3 + row4 + TABLE_CLOSE;
         long secs = 1L;
 
         PowerMockito.mockStatic(ResultFormatter.class);
@@ -119,7 +101,7 @@ public class WebCalculatorRendererHTMLTest {
     @Test
     public void renderTableHTMLDescendingTest() {
         WebCalculatorRendererHTML webCalculatorRendererHTML = new WebCalculatorRendererHTML();
-        String resultHTML = TABLE_OPEN + row4 + row3 + row2 + row1 + TABLE_CLOSE;
+        String resultHTML = WebCalculatorRendererHTML.TABLE_HEADER + row4 + row3 + row2 + row1 + TABLE_CLOSE;
         long secs = 1L;
 
         PowerMockito.mockStatic(ResultFormatter.class);

@@ -10,6 +10,7 @@ var minusIndex = OPERATORS.indexOf(MINUS_SYMBOL);
 var VALID_CODES = [40, 41, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 123, 125];
 var VALID_KEYS = ['(', ')', '*', '+', MINUS_SYMBOL, '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[', ']', '{', '}'];
 var AVAILABLE_FUNCTIONS = ['e^x'];
+var AVAILABLE_APPROXIMATION_METHODS = ['Riemann Rectangles', 'Simpson\'s Rule', 'Gaussian Quadrature'];
 var ENTER_KEY = 'Enter';
 var ERROR_RESULTS = ['INFINITY', 'NAN', '-INFINITY'];
 var ENTER_CODE = 13;
@@ -26,6 +27,7 @@ var allowInteractions = true;
 var integralSubmit = null;
 var expressionField = null;
 var integralSelectedFunction = 0;
+var approximationSelectedMethod = 0;
 var inputStackSizes = [];
 
 var STACK_ADD = 0;
@@ -75,7 +77,7 @@ function displayError(errorMessage) {
 
 function retrieveSessionToken() {
     var q = $.Deferred();
-    $.post('/api/token'
+    $.post('/api/calculator/token'
     ).done(function (response) {
         result = response.body.token;
         q.resolve(result);
@@ -147,7 +149,7 @@ function append(comp, s, override) {
 
 function updateHistory() {
     var historyComponent = $('#history-container');
-    $.get(encodeURI('/api/history?token=' + token)
+    $.get(encodeURI('/api/calculator/history?token=' + token)
     ).done(function (historyResponse) {
         historyComponent.text('');
         historyComponent.append(historyResponse.body.tableHTML);
@@ -159,7 +161,7 @@ function updateHistory() {
 }
 
 function executeCalculationWithToken(expressionText, expressionField, calculatedToken) {
-    $.post(encodeURI('/api?token=' + calculatedToken + '&expression=' + expressionText)
+    $.post(encodeURI('/api/calculator?token=' + calculatedToken + '&expression=' + expressionText)
     ).done(function (calculationResponse) {
         expressionField.value = calculationResponse.body.result;
         lastButtonEqual = true;
@@ -312,11 +314,12 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
         repeatedCalculations: parseInt($('#repeatedcalculations')[0].value),
         numberThreads: parseInt($('#numthreads')[0].value),
         functionId: integralSelectedFunction,
-        areaInscribed: false
+        approximationMethodId: approximationSelectedMethod,
+        areaInscribed: approximationSelectedMethod == 0 && $('#inscribed_rectangles')[0].checked
     };
     if (validIntegralRequestData(integralRequest)) {
         $.ajax({
-            url : encodeURI('api/integral?token=' + receivedToken),
+            url : encodeURI('/api/calculator/integral?token=' + receivedToken),
             type: 'POST',
             dataType : "json",
             data:  JSON.stringify(integralRequest),
@@ -342,4 +345,9 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
 function useFunction(num) {
     $('#selected_function')[0].value = AVAILABLE_FUNCTIONS[num];
     integralSelectedFunction = num;
+}
+
+function useApproximationMethod(num) {
+    $('#selected_approximation_method')[0].value = AVAILABLE_APPROXIMATION_METHODS[num];
+    approximationSelectedMethod = num;
 }

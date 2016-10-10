@@ -1,10 +1,11 @@
 package com.acabra.calculator.integral;
 
+import com.acabra.calculator.integral.input.IntegrableFunctionInputParametersBuilder;
+import com.acabra.calculator.integral.input.IntegrableFunctionInputParameters;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import com.google.common.util.concurrent.AtomicDouble;
 import org.apache.log4j.Logger;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -56,7 +57,11 @@ public class IntegralSubRangeSupplier implements Supplier {
             if (provided.get() == repeatedCalculations) {
                 logger.debug(String.format("Ending upper bound -> %.3f total delivered: %d", current.get(), provided.get()));
             }
-            return IntegralFunctionFactory.createIntegralFunction(functionType, current.get(), current.addAndGet(rangeSize), Optional.empty(), Optional.empty());
+            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                    .withLowerBound(current.get())
+                    .withUpperBound(current.addAndGet(rangeSize))
+                    .build();
+            return IntegralFunctionFactory.createIntegralFunction(functionType, parameters);
         }
         throw new NullPointerException("Unable to provide more subRanges");
     }

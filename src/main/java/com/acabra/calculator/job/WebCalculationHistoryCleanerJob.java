@@ -25,12 +25,8 @@ public class WebCalculationHistoryCleanerJob implements Job {
         try {
             logger.info("last run " + lastRun);
             provideJobInputs(jobExecutionContext.getScheduler().getContext());
-            webCalculatorManager.cleanExpiredEntries(this.lastRun, this.policy.getExpirationInterval(), this.policy.getUnit()).thenAccept(
-                cleanedEntries -> {
-                    logger.info("total expired entries removed :" + cleanedEntries);
-                    lastRun = LocalDateTime.now();
-                }
-            );
+            webCalculatorManager.cleanExpiredEntries(this.lastRun, this.policy.getExpirationInterval(), this.policy.getUnit())
+                    .thenAccept(cleanedEntries -> lastRun = LocalDateTime.now());
         } catch (SchedulerException | NullPointerException e) {
             logger.error(e);
         }

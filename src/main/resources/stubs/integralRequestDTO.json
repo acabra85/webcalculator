@@ -1,0 +1,9 @@
+{
+  "lowerBound": "0",
+  "upperBound": "1",
+  "numberThreads": "1",
+  "repeatedCalculations": "1",
+  "functionId": 0,
+  "approximationMethodId": 0,
+  "areaInscribed": true
+}

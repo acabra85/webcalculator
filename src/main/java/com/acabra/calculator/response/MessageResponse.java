@@ -9,18 +9,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class MessageResponse extends SimpleResponse {
-    private final SimpleResponse body;
-    private final String message;
+    private String body;
+    private String message;
 
+    public MessageResponse(){}
 
-    public MessageResponse(long id, final String message, SimpleResponse body) {
-        super(id);
+    public MessageResponse(long id, final String message, String body) {
+        this.id = id;
         this.message = message;
         this.body = body;
     }
 
     @JsonProperty("body")
-    public SimpleResponse getBody() {
+    public String getBody() {
         return body;
     }
 

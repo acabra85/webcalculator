@@ -41,7 +41,7 @@ public class ResultFormatterTest {
 
     @Test
     public void formatIntegralRequest1Test() {
-        assertEquals("Integ{e^x}[1, 2] #Rep=3 #Th=4", ResultFormatter.formatIntegralRequest("e^x", "1", "2", 3, 4));
+        assertEquals("Integ{e^x}[1, 2] #Rep=3 #Th=4", ResultFormatter.formatIntegralRequest("Integ{e^x}[1, 2]", 3, 4));
     }
 
     @Test

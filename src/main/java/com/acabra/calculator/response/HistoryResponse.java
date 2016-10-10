@@ -9,10 +9,12 @@ import java.util.List;
  */
 public class HistoryResponse extends SimpleResponse {
 
-    private final List<CalculationResponse> resultList;
+    private List<CalculationResponse> resultList;
+
+    public HistoryResponse() {}
 
     public HistoryResponse(long id, List<CalculationResponse> resultsList) {
-        super(id);
+        this.id = id;
         this.resultList = resultsList;
     }
 

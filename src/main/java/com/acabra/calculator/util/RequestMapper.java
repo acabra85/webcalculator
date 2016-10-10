@@ -1,6 +1,7 @@
 package com.acabra.calculator.util;
 
 import com.acabra.calculator.domain.IntegralRequest;
+import com.acabra.calculator.domain.IntegralRequestBuilder;
 import com.acabra.calculator.request.IntegralRequestDTO;
 import org.apache.log4j.Logger;
 
@@ -15,7 +16,7 @@ public class RequestMapper {
 
     public static IntegralRequest fromInternalRequest(IntegralRequestDTO integralRequest) {
         try {
-            IntegralRequest.IntegralRequestBuilder builder = new IntegralRequest.IntegralRequestBuilder();
+            IntegralRequestBuilder builder = new IntegralRequestBuilder();
             int repeatedCalculations = retrieveSafeMaxInteger(Long.parseLong(integralRequest.getRepeatedCalculations()));
             int numThreads = retrieveSafeMaxInteger(Long.parseLong(integralRequest.getNumberThreads()));
             return builder.withLowerBound(Double.parseDouble(integralRequest.getLowerBound()))
@@ -23,6 +24,7 @@ public class RequestMapper {
                     .withRepeatedCalculations(repeatedCalculations)
                     .withNumThreads(numThreads)
                     .withFunctionId(integralRequest.getFunctionId())
+                    .withApproximationMethodId(integralRequest.getApproximationMethodId())
                     .withAreaInscribed(integralRequest.isAreaInscribed())
                     .build();
         } catch (NumberFormatException nfe) {

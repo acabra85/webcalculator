@@ -1,7 +1,9 @@
 package com.acabra.calculator;
 
+import com.acabra.calculator.domain.CalculationHistoryRecord;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.integral.IntegrableFunction;
+import com.acabra.calculator.integral.IntegralFunctionFactory;
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.calculator.response.WebCalculatorFactoryResponse;
@@ -14,9 +16,9 @@ import org.apache.log4j.Logger;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -44,24 +46,24 @@ public class WebCalculatorManager {
         this.calculator = new Calculator();
         this.renderer = renderer;
         this.counter = new AtomicLong();
-        this.historySize = new AtomicInteger();
+        this.historySize = new AtomicInteger(0);
     }
 
     private synchronized void appendCalculationHistory(CalculationResponse calculationResponse, String token) {
         if (!history.containsKey(token)) {
-            history.put(token, new CalculationHistoryRecord());
+            history.put(token, new CalculationHistoryRecord(calculationResponse));
+            historySize.incrementAndGet();
+        } else {
+            history.get(token).append(calculationResponse);
         }
-        history.get(token).append(calculationResponse);
-        historySize.incrementAndGet();
     }
 
     private Function<IntegrableFunction, CalculationResponse> retrieveIntegralCalculationResponse(final IntegralRequest integralRequest, final String token, final long responseTime) {
         return  solvedIntegral -> {
-            String expression = ResultFormatter.formatIntegralRequest(
-                    solvedIntegral.getLabel(),
-                    integralRequest.getLowerBound() + "", integralRequest.getUpperBound() + "",
+            String expression = ResultFormatter.formatIntegralRequest(solvedIntegral.toString(),
                     integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads());
-            CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(counter.getAndIncrement(), expression, responseTime, solvedIntegral, "Integral");
+            CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(counter.getAndIncrement(), expression, responseTime, solvedIntegral,
+                    IntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()).getLabel());
             appendCalculationHistory(calculationResponse, token);
             return calculationResponse;
         };
@@ -73,11 +75,13 @@ public class WebCalculatorManager {
      * @param token a session token to group history results
      * @return a future representing the integrable function solved.
      */
-    public CompletableFuture<CalculationResponse> processExponentialIntegralCalculation(final IntegralRequest integralRequest, final String token) {
+    public CompletableFuture<CalculationResponse> processIntegralCalculation(final IntegralRequest integralRequest, final String token) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         WebCalculatorValidation.validateIntegralRequest(integralRequest);
-        return calculator.resolveIntegralApproximateRiemannSequenceRequest(integralRequest)
-                .thenApply(retrieveIntegralCalculationResponse(integralRequest, token, stopwatch.elapsed(TimeUnit.NANOSECONDS)));
+        CompletableFuture<IntegrableFunction> solvedIntegrableFunctionFuture = calculator.resolveIntegralApproximateRiemannSequenceRequest(integralRequest);
+        return solvedIntegrableFunctionFuture.thenApply(
+                retrieveIntegralCalculationResponse(integralRequest, token, stopwatch.elapsed(TimeUnit.NANOSECONDS))
+        );
     }
 
     /**
@@ -120,7 +124,10 @@ public class WebCalculatorManager {
      * @return
      */
     synchronized List<CalculationResponse> provideCalculationHistory(String token) {
-        return history.containsKey(token) ? history.get(token).getCalculationHistory() : Collections.emptyList();
+        if (history.containsKey(token)) {
+            return history.get(token).getCalculationHistory();
+        }
+        throw new NoSuchElementException("No request history found with token: " + token);
     }
 
     public CompletableFuture<Integer> cleanExpiredEntries(LocalDateTime lastRun, int expirationPolicy, ChronoUnit unit) {
@@ -129,14 +136,15 @@ public class WebCalculatorManager {
             List<String> expiredKeys = history.entrySet().stream()
                     .filter(entry -> {
                         long difference = Math.abs(lastRun.until(entry.getValue().getLastUsed(), unit));
-                        logger.info(entry.getKey() + "-> difference :" + difference);
                         return difference > expirationPolicy;
                     })
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
             expiredKeys.forEach(expiredKey -> {
                 history.remove(expiredKey);
-                historySize.decrementAndGet();});
+                historySize.decrementAndGet();
+            });
+            logger.info("Cleaned entries: " + expiredKeys.size());
             return expiredKeys.size();
         });
     }

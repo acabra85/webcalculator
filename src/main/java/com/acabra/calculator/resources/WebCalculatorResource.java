@@ -3,7 +3,7 @@ package com.acabra.calculator.resources;
 import com.acabra.calculator.WebCalculatorManager;
 import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.MessageResponse;
-import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.calculator.util.JsonHelper;
 import com.acabra.calculator.util.RequestMapper;
 import com.codahale.metrics.annotation.Timed;
 import org.apache.log4j.Logger;
@@ -15,6 +15,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URLDecoder;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author acabra
  * @created 2016-09-27
  */
-@Path("/")
+@Path("/calculator")
 @Produces(MediaType.APPLICATION_JSON)
 public class WebCalculatorResource implements AppResource {
 
@@ -38,9 +39,9 @@ public class WebCalculatorResource implements AppResource {
     }
 
     @Override
-    public Response getResponse(Response.Status status, String message, SimpleResponse response) {
+    public Response getResponse(Response.Status status, String message, Object object) {
         return Response.status(status)
-                .entity(new MessageResponse(this.counter.incrementAndGet(), message, response))
+                .entity(new MessageResponse(this.counter.incrementAndGet(), message, JsonHelper.toJsonString(object)))
                 .build();
     }
 
@@ -48,12 +49,15 @@ public class WebCalculatorResource implements AppResource {
     @Timed
     @ManagedAsync
     @Path("/history")
-    @Consumes(MediaType.APPLICATION_JSON)
     public void retrieveHistoryResults(@Suspended final AsyncResponse asyncResponse, @QueryParam("token") String token) {
         CompletableFuture.supplyAsync(() -> {
             try {
                 return getResponse(Response.Status.OK, "retrieved history", webCalculatorManager.provideRenderedHistoryResult(token));
-            }  catch (Exception e) {
+            }  catch (NoSuchElementException e) {
+                logger.error(e);
+                return getResponse(Response.Status.NOT_FOUND, "retrieving history: " + e.getMessage(), null);
+            } catch (Exception e) {
+                logger.error(e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "retrieving history: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -68,13 +72,13 @@ public class WebCalculatorResource implements AppResource {
                                 IntegralRequestDTO integralRequestDTO) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return webCalculatorManager.processExponentialIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token)
-                        .thenApply(calculationResponse -> getResponse(Response.Status.OK, "calculation performed", calculationResponse))
-                        .get();
+                return webCalculatorManager.processIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token)
+                        .thenApply(integralCalculationResponse -> getResponse(Response.Status.OK, "calculation performed", integralCalculationResponse));
             } catch (Exception e) {
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
+                logger.error(e);
+                return CompletableFuture.completedFuture(getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null));
             }
-        }).thenApply(asyncResponse::resume);
+        }).thenApply(responseFuture -> responseFuture.thenApply(asyncResponse::resume));
     }
 
     @POST
@@ -87,8 +91,10 @@ public class WebCalculatorResource implements AppResource {
                 logger.debug("encoded expression '" + expression + "'");
                 String decodedExpression = URLDecoder.decode(expression, UTF8_ENC);
                 logger.debug("decoded expression '" + decodedExpression + "'");
-                return getResponse(Response.Status.OK, "calculation performed", webCalculatorManager.processArithmeticCalculation(decodedExpression, token));
+                return getResponse(Response.Status.OK, "calculation performed",
+                        webCalculatorManager.processArithmeticCalculation(decodedExpression, token));
             } catch (Exception e) {
+                logger.error(e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -105,6 +111,7 @@ public class WebCalculatorResource implements AppResource {
                 String successMessage = "token retrieved successfully";
                 return getResponse(Response.Status.OK, successMessage, webCalculatorManager.provideSessionToken());
             } catch (Exception e) {
+                logger.error(e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);

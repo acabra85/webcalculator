@@ -78,10 +78,10 @@
         <version>${pittest.version}</version>
         <configuration>
           <targetClasses>
-            <param>com.acabra.calculator*</param>
+            <param>com.acabra.calculator.*</param>
           </targetClasses>
           <targetTests>
-            <param>com.acabra.calculator*</param>
+            <param>com.acabra.calculator.*</param>
           </targetTests>
         </configuration>
       </plugin>
@@ -94,10 +94,6 @@
       <version>1.6.2</version>
       <scope>test</scope>
       <exclusions>
-        <exclusion>
-          <artifactId>junit</artifactId>
-          <groupId>junit</groupId>
-        </exclusion>
         <exclusion>
           <artifactId>powermock-module-junit4-common</artifactId>
           <groupId>org.powermock</groupId>

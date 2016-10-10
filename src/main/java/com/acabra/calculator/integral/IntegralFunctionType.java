@@ -22,6 +22,8 @@ public enum IntegralFunctionType {
                 return EXPONENTIAL;
             case 1:
                 return POLYNOMIAL;
+            case 2:
+                return LOGARITHMIC;
             default:
                 throw new NoSuchElementException("unable to find function type");
         }

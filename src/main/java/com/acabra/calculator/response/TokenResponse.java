@@ -7,10 +7,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class TokenResponse extends SimpleResponse {
 
-    private final String token;
+    private String token;
+
+    public TokenResponse() {}
 
     public TokenResponse(long id, String token) {
-        super(id);
+        this.id = id;
         this.token = token;
     }
 

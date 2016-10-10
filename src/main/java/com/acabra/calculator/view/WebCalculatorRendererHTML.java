@@ -13,11 +13,13 @@ import java.util.stream.IntStream;
  */
 public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
 
-    public WebCalculatorRendererHTML() {
 
-    }
+    private static final String APPROX_METHOD_LABEL = "Method";
+    private static final String APPROX_LABEL = "Approximated";
+    private static final String REAL_VALUE_LABEL = "Real Value";
+    private static final String ACCURACY_LABEL = "Accuracy";
 
-    private final String TABLE_HEADER = "<table class=\"table table-striped\">" +
+    protected static final String TABLE_HEADER = "<table class=\"table table-striped\">" +
             "<caption style=\"text-align: center\"><h4>History</h4></caption><thead>" +
             "<tr>" +
             "<th><b>Id.</b></th>" +
@@ -26,9 +28,14 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
             "<th><b>Response Time</b></th>" +
             "</tr></thead><tbody>";
 
-    private final String APPROX_LABEL = "Approximated";
-    private final String REAL_VALUE_LABEL = "Real Value";
-    private final String ACCURACY_LABEL = "Accuracy";
+    protected static final String INTEGRAL_RESULT_DETAIL_TABLE = "<div class=\"integral-detail-div\"><table class=\"integral-subtable\">"
+            + "<tr><th>" + APPROX_METHOD_LABEL + "</th><td class=\"integral-subtable-result\">%s</td></tr>"
+            + "<tr><th>" + APPROX_LABEL + "</th><td class=\"integral-subtable-result\">%s</td></tr>"
+            + "<tr><th>" + REAL_VALUE_LABEL + "</th><td class=\"integral-subtable-result\">%s</td></tr>"
+            + "<tr><th>" + ACCURACY_LABEL + "</th><td class=\"integral-subtable-result%s\">%s</td></tr>"
+            + "</table></div>";
+
+    public WebCalculatorRendererHTML() {}
 
     @Override
     public String renderCalculationHistory(List<CalculationResponse> history, boolean descending) {
@@ -72,14 +79,18 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
         String accuracyFormatted = ResultFormatter.formatPercentage(integralCalculationResponse.getAccuracy());
         String integralFormatted = ResultFormatter.formatResult(integralCalculationResponse.getIntegralResult());
         String approxFormatted = ResultFormatter.formatResult(integralCalculationResponse.getResult());
-        return "<div class=\"integral-detail-div\"><table class=\"integral-subtable\">"
-                + "<tr><th>" + APPROX_LABEL + "</th><td style=\"text-align: right;\">"
-                    + approxFormatted + "</td></tr>"
-                + "<tr><th>" + REAL_VALUE_LABEL + "</th><td style=\"text-align: right;\">"
-                    + integralFormatted + "</td></tr>"
-                + "<tr><th>" + ACCURACY_LABEL + "</th><td style=\"text-align: right;\">"
-                    + accuracyFormatted + "</td></tr>"
-                + "</table></div>";
+        return String.format(INTEGRAL_RESULT_DETAIL_TABLE, integralCalculationResponse.getDescription(),
+                approxFormatted, integralFormatted, colorAccuracy(integralCalculationResponse.getAccuracy()),
+                accuracyFormatted);
+    }
+
+    protected static String colorAccuracy(double accuracy) {
+        if (accuracy < 90) {
+            return " not-accurate-result";
+        } else if (accuracy > 98.5) {
+            return " accurate-result";
+        }
+        return "";
     }
 
 }

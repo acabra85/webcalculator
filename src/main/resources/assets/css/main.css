@@ -20,7 +20,7 @@
 
 #history-container {
     width: 680px;
-    height: 274px;
+    height: 500px;
     text-align: center;
     float: right;
     overflow: auto;
@@ -56,4 +56,16 @@ button {
 .integral-detail-div {
     width: 200px;
     height:auto;
+}
+
+.integral-subtable-result {
+    text-align: right;
+}
+
+.accurate-result {
+    color: green;
+}
+
+.not-accurate-result {
+    color: red;
 }

@@ -15,16 +15,18 @@ public class IntegralRequestDTO implements SimpleRequest {
     private String repeatedCalculations;
     private int functionId;
     private boolean areaInscribed;
+    private int approximationMethodId;
 
     public IntegralRequestDTO() {
     }
 
-    public IntegralRequestDTO(String lowerBound, String upperBound, String numberThreads, String repeatedCalculations, int functionId, boolean areaInscribed) {
+    public IntegralRequestDTO(String lowerBound, String upperBound, String numberThreads, String repeatedCalculations, int functionId, int approximationMethodId, boolean areaInscribed) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.numberThreads = numberThreads;
         this.repeatedCalculations = repeatedCalculations;
         this.functionId = functionId;
+        this.approximationMethodId = approximationMethodId;
         this.areaInscribed = areaInscribed;
     }
 
@@ -56,5 +58,10 @@ public class IntegralRequestDTO implements SimpleRequest {
     @JsonProperty("areaInscribed")
     public boolean isAreaInscribed() {
         return areaInscribed;
+    }
+
+    @JsonProperty("approximationMethodId")
+    public int getApproximationMethodId() {
+        return approximationMethodId;
     }
 }

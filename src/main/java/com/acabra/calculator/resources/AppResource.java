@@ -1,8 +1,6 @@
 package com.acabra.calculator.resources;
 
 
-import com.acabra.calculator.response.SimpleResponse;
-
 import javax.ws.rs.core.Response;
 
 /**
@@ -18,5 +16,5 @@ public interface AppResource {
      * @param body the body containing the answer
      * @return a well formed http response
      */
-    Response getResponse(Response.Status status, String message, SimpleResponse body);
+    Response getResponse(Response.Status status, String message, Object body);
 }

@@ -33,6 +33,7 @@ public class RequestMapperTest {
         double numThreads = 2;
         double repeatedCalculations = 3;
         int functionId = 0;
+        int approximationMethodId = 0;
 
         IntegralRequestDTO dtoRequestMock = PowerMockito.mock(IntegralRequestDTO.class);
 
@@ -41,6 +42,7 @@ public class RequestMapperTest {
         when(dtoRequestMock.getNumberThreads()).thenReturn(numThreadsStr);
         when(dtoRequestMock.getRepeatedCalculations()).thenReturn(repeatedCalculationsStr);
         when(dtoRequestMock.getFunctionId()).thenReturn(functionId);
+        when(dtoRequestMock.getApproximationMethodId()).thenReturn(approximationMethodId);
 
         IntegralRequest mappedRequest = RequestMapper.fromInternalRequest(dtoRequestMock);
 
@@ -49,12 +51,14 @@ public class RequestMapperTest {
         verify(dtoRequestMock, times(1)).getNumberThreads();
         verify(dtoRequestMock, times(1)).getRepeatedCalculations();
         verify(dtoRequestMock, times(1)).getFunctionId();
+        verify(dtoRequestMock, times(1)).getApproximationMethodId();
 
         assertEquals(lowerBound, mappedRequest.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperBound, mappedRequest.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(numThreads, mappedRequest.getNumThreads(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(repeatedCalculations, mappedRequest.getRepeatedCalculations(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(functionId, mappedRequest.getFunctionId(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(functionId, mappedRequest.getFunctionId());
+        assertEquals(approximationMethodId, mappedRequest.getApproximationMethodId());
     }
 
 
@@ -69,6 +73,7 @@ public class RequestMapperTest {
         int numThreads = -2147483648;
         double repeatedCalculations = 2147483647;
         int functionId = 0;
+        int approximationMethodId = 0;
 
         IntegralRequestDTO dtoRequestMock = PowerMockito.mock(IntegralRequestDTO.class);
 
@@ -77,6 +82,7 @@ public class RequestMapperTest {
         when(dtoRequestMock.getNumberThreads()).thenReturn(numThreadsStr);
         when(dtoRequestMock.getRepeatedCalculations()).thenReturn(repeatedCalculationsStr);
         when(dtoRequestMock.getFunctionId()).thenReturn(functionId);
+        when(dtoRequestMock.getApproximationMethodId()).thenReturn(approximationMethodId);
 
         IntegralRequest mappedRequest = RequestMapper.fromInternalRequest(dtoRequestMock);
 
@@ -85,11 +91,13 @@ public class RequestMapperTest {
         verify(dtoRequestMock, times(1)).getNumberThreads();
         verify(dtoRequestMock, times(1)).getRepeatedCalculations();
         verify(dtoRequestMock, times(1)).getFunctionId();
+        verify(dtoRequestMock, times(1)).getApproximationMethodId();
 
         assertEquals(lowerBound, mappedRequest.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperBound, mappedRequest.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(numThreads, mappedRequest.getNumThreads(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(repeatedCalculations, mappedRequest.getRepeatedCalculations(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(functionId, mappedRequest.getFunctionId(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(functionId, mappedRequest.getFunctionId());
+        assertEquals(approximationMethodId, mappedRequest.getApproximationMethodId());
     }
 }

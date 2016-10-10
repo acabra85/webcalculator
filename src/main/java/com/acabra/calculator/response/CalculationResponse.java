@@ -7,13 +7,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class CalculationResponse extends SimpleResponse {
 
-    private final String expression;
-    private final double result;
-    private final String description;
-    private final long responseTime;
+    private String expression;
+    protected double result;
+    private String description;
+    private long responseTime;
+
+    public CalculationResponse() {
+    }
 
     public CalculationResponse(long id, String expression, double result, long responseTime, String description) {
-        super(id);
+        this.id = id;
         this.expression = expression;
         this.result = result;
         this.description = description;

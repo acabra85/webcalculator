@@ -9,16 +9,22 @@ public class IntegralRequest {
     private final double upperBound;
     private final int repeatedCalculations;
     private final int numThreads;
+    private final int approximationMethodId;
     private final int functionId;
     private final boolean areaInscribed;
 
-    public IntegralRequest(double lowerBound, double upperBound, int repeatedCalculations, int numThreads, int functionId, boolean areaInscribed) {
+    public IntegralRequest(double lowerBound, double upperBound, int repeatedCalculations, int numThreads, int functionId, int approximationMethodId, boolean areaInscribed) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.repeatedCalculations = repeatedCalculations;
         this.numThreads = numThreads;
         this.functionId = functionId;
         this.areaInscribed = areaInscribed;
+        this.approximationMethodId = approximationMethodId;
+    }
+
+    public int getApproximationMethodId() {
+        return approximationMethodId;
     }
 
     public double getLowerBound() {
@@ -45,50 +51,4 @@ public class IntegralRequest {
         return areaInscribed;
     }
 
-    public static class IntegralRequestBuilder {
-
-        private double lowerBound;
-        private double upperBound;
-        private int repeatedCalculations;
-        private int numThreads;
-        private int functionId;
-        private boolean areaInscribed;
-
-        public IntegralRequestBuilder() {
-        }
-
-        public IntegralRequestBuilder withLowerBound(double lowerBound) {
-            this.lowerBound = lowerBound;
-            return this;
-        }
-
-        public IntegralRequestBuilder withUpperBound(double upperBound) {
-            this.upperBound = upperBound;
-            return this;
-        }
-
-        public IntegralRequestBuilder withRepeatedCalculations(int repeatedCalculations) {
-            this.repeatedCalculations = repeatedCalculations;
-            return this;
-        }
-
-        public IntegralRequestBuilder withNumThreads(int numThreads) {
-            this.numThreads = numThreads;
-            return this;
-        }
-
-        public IntegralRequestBuilder withFunctionId(int functionId) {
-            this.functionId = functionId;
-            return this;
-        }
-
-        public IntegralRequestBuilder withAreaInscribed(boolean areaInscribed) {
-            this.areaInscribed = areaInscribed;
-            return this;
-        }
-
-        public IntegralRequest build() {
-            return new IntegralRequest(lowerBound, upperBound, repeatedCalculations, numThreads, functionId, areaInscribed);
-        }
-    }
 }

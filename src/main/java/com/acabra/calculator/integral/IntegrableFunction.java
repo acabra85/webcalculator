@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class IntegrableFunction {
 
-    private static final String STRING_REPRESENTATION_FORMAT = "Integ{%s}[%s, %s]";
+    protected static final String STRING_REPRESENTATION_FORMAT = "Integ{%s}[%s, %s]";
     protected final double lowerBound;
     protected final double upperBound;
     private final String label;
@@ -16,28 +16,12 @@ public abstract class IntegrableFunction {
     protected volatile Double sequenceRiemannRectangle;
     protected static final Logger logger = Logger.getLogger(IntegrableFunction.class);
 
-    public IntegrableFunction(double lowerBound, double upperBound, String label) {
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
-        this.label = label;
-        this.result = null;
-        this.sequenceRiemannRectangle = null;
-    }
-
     public IntegrableFunction(double lowerBound, double upperBound, Double result, String label) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.result = result;
         this.label = label;
         this.sequenceRiemannRectangle = null;
-    }
-
-    public IntegrableFunction(double lowerBound, double upperBound, String label, Double approximatedArea) {
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
-        this.sequenceRiemannRectangle = approximatedArea;
-        this.result = null;
-        this.label = label;
     }
 
     /**
@@ -77,7 +61,9 @@ public abstract class IntegrableFunction {
                of ranges is required
           */
         double width = (upperBound - lowerBound);
-        double height = inscribed ? evaluate(lowerBound) : evaluate(upperBound);
+        double evaluatedLower = Math.abs(evaluate(lowerBound));
+        double evaluatedUpper = Math.abs(evaluate(upperBound));
+        double height = inscribed ? Math.min(evaluatedLower, evaluatedUpper) : Math.max(evaluatedLower, evaluatedUpper);
         return width * height;
     }
 
@@ -121,13 +107,10 @@ public abstract class IntegrableFunction {
         return sequenceRiemannRectangle;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
     @Override
     public String toString() {
-        return String.format(STRING_REPRESENTATION_FORMAT, label,
+        return String.format(STRING_REPRESENTATION_FORMAT,
+                IntegralFunctionType.EXPONENTIAL.getLabel(),
                 ResultFormatter.trimIntegerResults(lowerBound + ""),
                 ResultFormatter.trimIntegerResults(upperBound + ""));
     }

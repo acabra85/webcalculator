@@ -44,7 +44,7 @@ public class Calculator {
      */
     CompletableFuture<IntegrableFunction> resolveIntegralApproximateRiemannSequenceRequest(IntegralRequest integralRequest) {
         IntegralSolver integralSolver = new IntegralSolver(integralRequest);
-        CompletableFuture<IntegrableFunction> fut1 = integralSolver.approximateSequenceRiemannArea();
+        CompletableFuture<IntegrableFunction> fut1 = integralSolver.approximateAreaUnderCurve();
         return fut1;
     }
 

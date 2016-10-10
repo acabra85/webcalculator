@@ -27,6 +27,7 @@ public class WebCalculatorValidation {
      */
     public static void validateIntegralRequest(IntegralRequest integralRequest) {
         IntegralFunctionFactory.evaluateFunctionType(integralRequest.getFunctionId());
+        IntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId());
         if (integralRequest.getLowerBound() > integralRequest.getUpperBound())
             throw new InputMismatchException("invalid input lower bound higher than upper bound");
         int numThreads = integralRequest.getNumThreads();

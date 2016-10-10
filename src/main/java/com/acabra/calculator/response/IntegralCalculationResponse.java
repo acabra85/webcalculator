@@ -7,21 +7,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class IntegralCalculationResponse extends CalculationResponse {
 
-    private final double accuracy;
-    private final double integralResult;
+    private Double accuracy;
+    private double integralResult;
+
+    public IntegralCalculationResponse() {}
 
     public IntegralCalculationResponse(long id, String expression, double approximation, double integralResult, long responseTime, String description) {
         super(id, expression, approximation, responseTime, description);
         this.integralResult = integralResult;
-        this.accuracy = 100.0 - calculateAccuracy(approximation, integralResult);
     }
 
-    private static double calculateAccuracy(double aprox, double real) {
-        return Math.abs(aprox - real) * 100.0 / real;
+    private static double calculateAccuracy(double approx, double real) {
+        return 100.0 - Math.abs(approx - real) * 100.0 / real;
     }
 
     @JsonProperty("accuracy")
-    public double getAccuracy() {
+    public synchronized double getAccuracy() {
+        if (null == accuracy) {
+            this.accuracy = result!=integralResult ? calculateAccuracy(result, integralResult) : 100;
+        }
         return accuracy;
     }
 

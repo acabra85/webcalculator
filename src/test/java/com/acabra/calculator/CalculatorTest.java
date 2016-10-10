@@ -12,13 +12,12 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -37,37 +36,40 @@ public class CalculatorTest {
     @Test
     public void solveExponentialIntegralExpression() throws Exception {
         double expected = 1.71828;
-        CompletableFuture<IntegrableFunction> concurrentIntegralResult = CompletableFuture.completedFuture(new ExponentialIntegral(0, 1, expected));
+        CompletableFuture<IntegrableFunction> concurrentIntegralResult = CompletableFuture.completedFuture(new ExponentialIntegral(0, 1, expected, null));
 
         IntegralSolver integralSolverMock = PowerMockito.mock(IntegralSolver.class);
 
         whenNew(IntegralSolver.class).withAnyArguments().thenReturn(integralSolverMock);
-        when(integralSolverMock.approximateSequenceRiemannArea()).thenReturn(concurrentIntegralResult);
-        IntegrableFunction integrableFunction = calculator.resolveIntegralApproximateRiemannSequenceRequest(null).get();
-
-        assertEquals(expected, integrableFunction.getResult(), 0.00001);
-
-        verifyNew(IntegralSolver.class).withArguments(eq(null));
-        verify(integralSolverMock, times(1));
+        when(integralSolverMock.approximateAreaUnderCurve()).thenReturn(concurrentIntegralResult);
+        resolveAndVerifyIntegral(calculator.resolveIntegralApproximateRiemannSequenceRequest(null), expected, integralSolverMock);
     }
 
     @Test
     public void solvePolynomialIntegralExpression() throws Exception {
         double expected = 1.71828;
-        double[] coefficients = {0, 2};
+        List<Double> coefficients = Arrays.asList(0.0, 2.0);
         CompletableFuture<IntegrableFunction> concurrentIntegralResult =
-                CompletableFuture.completedFuture(new PolynomialIntegral(0, 1, 2, coefficients, Optional.of(expected)));
+                CompletableFuture.completedFuture(new PolynomialIntegral(0, 1, coefficients, Optional.of(expected), Optional.empty()));
 
         IntegralSolver integralSolverMock = PowerMockito.mock(IntegralSolver.class);
 
         whenNew(IntegralSolver.class).withAnyArguments().thenReturn(integralSolverMock);
-        when(integralSolverMock.approximateSequenceRiemannArea()).thenReturn(concurrentIntegralResult);
-        IntegrableFunction integrableFunction = calculator.resolveIntegralApproximateRiemannSequenceRequest(null).get();
+        when(integralSolverMock.approximateAreaUnderCurve()).thenReturn(concurrentIntegralResult);
+        resolveAndVerifyIntegral(calculator.resolveIntegralApproximateRiemannSequenceRequest(null), expected, integralSolverMock);
 
-        assertEquals(expected, integrableFunction.getResult(), 0.00001);
+    }
 
-        verifyNew(IntegralSolver.class).withArguments(eq(null));
+    private void resolveAndVerifyIntegral(CompletableFuture<IntegrableFunction> future, double expected, IntegralSolver integralSolverMock) throws ExecutionException, InterruptedException {
+        IntegrableFunction integrableFunction = future.get();
+        assertEquals(expected, integrableFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        try {
+            verifyNew(IntegralSolver.class).withArguments(eq(null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         verify(integralSolverMock, times(1));
+
     }
 
     @Test
