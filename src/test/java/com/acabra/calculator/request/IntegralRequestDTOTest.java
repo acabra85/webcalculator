@@ -2,6 +2,8 @@ package com.acabra.calculator.request;
 
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -30,7 +32,7 @@ public class IntegralRequestDTOTest {
         int functionId = 0;
         boolean areaInscribed = true;
         int approximationMethodId = 0;
-        IntegralRequestDTO integralRequestDTO = new IntegralRequestDTO(lowerBound, upperBound, numberThreads, repeatedCalculations, functionId, approximationMethodId, areaInscribed);
+        IntegralRequestDTO integralRequestDTO = new IntegralRequestDTO(lowerBound, upperBound, numberThreads, repeatedCalculations, functionId, approximationMethodId, areaInscribed, Collections.emptyList());
         assertEquals(lowerBound, integralRequestDTO.getLowerBound());
         assertEquals(upperBound, integralRequestDTO.getUpperBound());
         assertEquals(numberThreads, integralRequestDTO.getNumberThreads());

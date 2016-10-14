@@ -3,7 +3,6 @@ package com.acabra.calculator.view;
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.IntegralCalculationResponse;
 import com.acabra.calculator.util.ResultFormatter;
-import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -60,10 +59,10 @@ public class WebCalculatorRendererHTMLTest {
     private final String row4 = "<tr><td>4</td><td>Integ</td><td>" + subRow4 + "</td><td>0.001s</td></tr>";
 
     private final List<CalculationResponse> listToRender = Arrays.asList(
-            new CalculationResponse(1, "aa", 1.1, 1L,"arithmetic1"),
-            new CalculationResponse(2, "bb", 0.0, 1L, "arithmetic2"),
-            new IntegralCalculationResponse(3, "Integ", approx3, integralResult3, 1L, "Riemann"),
-            new IntegralCalculationResponse(4, "Integ", approx4, integralResult4, 1L, "Riemann")
+            new CalculationResponse(1, true, "aa", "1.1", 1L,"arithmetic1"),
+            new CalculationResponse(2, true, "bb", "0.0", 1L, "arithmetic2"),
+            new IntegralCalculationResponse(3, false, "Integ", approx3, integralResult3, 1L, "Riemann"),
+            new IntegralCalculationResponse(4, false, "Integ", approx4, integralResult4, 1L, "Riemann")
     );
 
     @Test

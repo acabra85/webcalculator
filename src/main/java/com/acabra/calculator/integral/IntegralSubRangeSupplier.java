@@ -6,6 +6,7 @@ import com.acabra.calculator.util.WebCalculatorConstants;
 import com.google.common.util.concurrent.AtomicDouble;
 import org.apache.log4j.Logger;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -23,6 +24,7 @@ public class IntegralSubRangeSupplier implements Supplier {
     private final IntegralFunctionType functionType;
     private final boolean validConstruction;
     private final AtomicInteger provided = new AtomicInteger();
+    private final List<Double> coefficients;
 
     /**
      *
@@ -31,7 +33,7 @@ public class IntegralSubRangeSupplier implements Supplier {
      * @param repeatedCalculations amount of repeatedCalculations to obtain the integral must be > 0
      * @param functionType the type of the integral function to create
      */
-    public IntegralSubRangeSupplier(double lowerBound, double upperBound, int repeatedCalculations, IntegralFunctionType functionType) {
+    public IntegralSubRangeSupplier(double lowerBound, double upperBound, int repeatedCalculations, IntegralFunctionType functionType, List<Double> coefficients) {
         this.functionType = functionType;
         this.repeatedCalculations = repeatedCalculations > 0 ? repeatedCalculations : 1;
         this.lowerBound = lowerBound;
@@ -39,6 +41,7 @@ public class IntegralSubRangeSupplier implements Supplier {
         this.rangeSize = (this.upperBound - this.lowerBound) / (1.0 * this.repeatedCalculations);
         this.current = new AtomicDouble(lowerBound);
         this.validConstruction = this.lowerBound <= this.upperBound && this.repeatedCalculations > 0;
+        this.coefficients = coefficients;
         logger.debug("rangeSize -> " + rangeSize);
     }
 
@@ -60,6 +63,7 @@ public class IntegralSubRangeSupplier implements Supplier {
             IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
                     .withLowerBound(current.get())
                     .withUpperBound(current.addAndGet(rangeSize))
+                    .withCoefficients(coefficients)
                     .build();
             return IntegralFunctionFactory.createIntegralFunction(functionType, parameters);
         }

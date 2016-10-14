@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 @PowerMockIgnore(value = {"javax.management.*"})
 public class CalculationHistoryRecordTest {
 
-    private static long WAIT_LENGTH = 1000L;
+    private static long WAIT_LENGTH = 100L;
 
     private CalculationResponse calculationResponseMock;
 

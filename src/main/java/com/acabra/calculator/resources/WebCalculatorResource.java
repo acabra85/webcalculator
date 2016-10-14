@@ -2,7 +2,7 @@ package com.acabra.calculator.resources;
 
 import com.acabra.calculator.WebCalculatorManager;
 import com.acabra.calculator.request.IntegralRequestDTO;
-import com.acabra.calculator.response.MessageResponse;
+import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.JsonHelper;
 import com.acabra.calculator.util.RequestMapper;
 import com.codahale.metrics.annotation.Timed;
@@ -25,12 +25,19 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Path("/calculator")
 @Produces(MediaType.APPLICATION_JSON)
-public class WebCalculatorResource implements AppResource {
+public class WebCalculatorResource implements AppResource{
 
 
     private static final Logger logger = Logger.getLogger(WebCalculatorResource.class);
+    /**
+     *
+     */
     private final AtomicLong counter;
     private static final String UTF8_ENC = "UTF-8";
+
+    /**
+     *
+     */
     private final WebCalculatorManager webCalculatorManager;
 
     public WebCalculatorResource(WebCalculatorManager webCalculatorManager) {
@@ -39,12 +46,17 @@ public class WebCalculatorResource implements AppResource {
     }
 
     @Override
-    public Response getResponse(Response.Status status, String message, Object object) {
+    public Response getResponse(Response.Status status, String message, SimpleResponse object) {
         return Response.status(status)
-                .entity(new MessageResponse(this.counter.incrementAndGet(), message, JsonHelper.toJsonString(object)))
+                .entity(new MessageResponse<>(counter.getAndIncrement(), !status.equals(Response.Status.OK), message, object))
                 .build();
     }
 
+    /**
+     *
+     * @param asyncResponse
+     * @param token
+     */
     @GET
     @Timed
     @ManagedAsync
@@ -63,6 +75,12 @@ public class WebCalculatorResource implements AppResource {
         }).thenApply(asyncResponse::resume);
     }
 
+    /**
+     *
+     * @param asyncResponse
+     * @param token
+     * @param integralRequestDTO
+     */
     @POST
     @Timed
     @ManagedAsync
@@ -72,11 +90,16 @@ public class WebCalculatorResource implements AppResource {
                                 IntegralRequestDTO integralRequestDTO) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return webCalculatorManager.processIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token)
-                        .thenApply(integralCalculationResponse -> getResponse(Response.Status.OK, "calculation performed", integralCalculationResponse));
+                CompletableFuture<CalculationResponse> integralFuture = webCalculatorManager.processIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token);
+                return integralFuture.thenApply(integralResponse -> {
+                    if (integralResponse.isFailure()) {
+                        return getResponse(Response.Status.INTERNAL_SERVER_ERROR, integralResponse.getDescription(), null);
+                    }
+                    return getResponse(Response.Status.OK, "calculation performed", integralResponse);
+                });
             } catch (Exception e) {
                 logger.error(e);
-                return CompletableFuture.completedFuture(getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null));
+                return CompletableFuture.completedFuture(getResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage(), null));
             }
         }).thenApply(responseFuture -> responseFuture.thenApply(asyncResponse::resume));
     }
@@ -91,8 +114,7 @@ public class WebCalculatorResource implements AppResource {
                 logger.debug("encoded expression '" + expression + "'");
                 String decodedExpression = URLDecoder.decode(expression, UTF8_ENC);
                 logger.debug("decoded expression '" + decodedExpression + "'");
-                return getResponse(Response.Status.OK, "calculation performed",
-                        webCalculatorManager.processArithmeticCalculation(decodedExpression, token));
+                return getResponse(Response.Status.OK, "calculation performed", webCalculatorManager.processArithmeticCalculation(decodedExpression, token));
             } catch (Exception e) {
                 logger.error(e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);

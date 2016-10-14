@@ -11,17 +11,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CalculationResponse extends SimpleResponse {
 
     private final String expression;
-    protected final double result;
+    protected final String result;
     private final String description;
     private final long responseTime;
 
     @JsonCreator
     public CalculationResponse(@JsonProperty("id") long id,
+                               @JsonProperty("failure") boolean failure,
                                @JsonProperty("expression") String expression,
-                               @JsonProperty("result") double result,
+                               @JsonProperty("result") String result,
                                @JsonProperty("responseTime") long responseTime,
                                @JsonProperty("description") String description) {
-        super(id);
+        super(id, failure);
         this.expression = expression;
         this.result = result;
         this.description = description;
@@ -32,7 +33,7 @@ public class CalculationResponse extends SimpleResponse {
         return expression;
     }
 
-    public double getResult() {
+    public String getResult() {
         return result;
     }
 
@@ -43,4 +44,5 @@ public class CalculationResponse extends SimpleResponse {
     public long getResponseTime() {
         return responseTime;
     }
+
 }

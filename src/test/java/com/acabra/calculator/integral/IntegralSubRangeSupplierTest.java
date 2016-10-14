@@ -8,6 +8,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -30,7 +32,7 @@ public class IntegralSubRangeSupplierTest {
         double[] expectedLowerRanges = {lowerBound1, -8.0, -6.0, -4.0, -2.0};
         double[] expectedUpperRanges = {-8.0, -6.0, -4.0, -2.0, upperBound1};
         int repeatedCalculations1 = 5;
-        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL);
+        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL, Collections.emptyList());
         int i = 0;
         for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction integrableFunction = integralSubRangeSupplier.get();
@@ -45,7 +47,7 @@ public class IntegralSubRangeSupplierTest {
         double lowerBound1 = -10;
         double upperBound1 = -0.0;
         int repeatedCalculations1 = 1;
-        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL);
+        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL, Collections.emptyList());
         int i = 0;
         for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction currentIntegral = integralSubRangeSupplier.get();
@@ -62,7 +64,7 @@ public class IntegralSubRangeSupplierTest {
         double[] expectedLowerRanges = {lowerBound1, 0.0};
         double[] expectedUpperRanges = {0.0, upperBound1};
         int repeatedCalculations1 = 2;
-        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL);
+        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL, Collections.emptyList());
         int i = 0;
         for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction currentIntegral = integralSubRangeSupplier.get();

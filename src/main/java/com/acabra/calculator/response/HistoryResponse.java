@@ -17,7 +17,7 @@ public class HistoryResponse extends SimpleResponse {
     @JsonCreator
     public HistoryResponse(@JsonProperty("id") long id,
                            @JsonProperty("resultList") List<CalculationResponse> resultsList) {
-        super(id);
+        super(id, false);
         this.resultList = resultsList;
     }
 

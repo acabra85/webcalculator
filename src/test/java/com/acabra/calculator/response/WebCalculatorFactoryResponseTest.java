@@ -1,6 +1,5 @@
 package com.acabra.calculator.response;
 
-import com.acabra.calculator.integral.ExponentialIntegral;
 import com.acabra.calculator.integral.IntegrableFunction;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class WebCalculatorFactoryResponseTest {
         assertEquals(description, integralCalculationResponse.getDescription());
         assertEquals(expression, integralCalculationResponse.getExpression());
         assertEquals(id, integralCalculationResponse.getId());
-        assertEquals(approxArea, integralCalculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(approxArea+"", integralCalculationResponse.getResult());
         assertEquals(responseTime, integralCalculationResponse.getResponseTime());
         assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedAccuracy, integralCalculationResponse.getAccuracy(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -73,7 +72,7 @@ public class WebCalculatorFactoryResponseTest {
         assertEquals(description, integralCalculationResponse.getDescription());
         assertEquals(expression, integralCalculationResponse.getExpression());
         assertEquals(id, integralCalculationResponse.getId());
-        assertEquals(approxArea, integralCalculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(approxArea+"", integralCalculationResponse.getResult());
         assertEquals(responseTime, integralCalculationResponse.getResponseTime());
         assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedAccuracy, integralCalculationResponse.getAccuracy(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -87,12 +86,12 @@ public class WebCalculatorFactoryResponseTest {
         long responseTime = 1;
         int result = 10;
 
-        CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(id, expression, result, responseTime, description);
+        CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(id, expression, result+"", responseTime, description);
 
         assertEquals(id, calculationResponse.getId());
         assertEquals(responseTime, calculationResponse.getResponseTime());
         assertEquals(description, calculationResponse.getDescription());
         assertEquals(expression, calculationResponse.getExpression());
-        assertEquals(result, calculationResponse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(result+"", calculationResponse.getResult());
     }
 }

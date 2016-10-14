@@ -9,8 +9,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.concurrent.CompletableFuture;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -144,7 +142,7 @@ public class IntegralSolverTest {
         boolean inscribed = true;
 
         IntegralRequest integralRequestMock = PowerMockito.mock(IntegralRequest.class);
-        IntegrableFunction expFunction = new ExponentialIntegral(lowerBound1, upperBound1);
+        IntegrableFunction expFunction = new FExponential(lowerBound1, upperBound1, null, null);
         IntegralSubRangeSupplier integralSubRangeSupplierMock = PowerMockito.mock(IntegralSubRangeSupplier.class);
 
         when(integralRequestMock.getLowerBound()).thenReturn(lowerBound1);

@@ -3,6 +3,8 @@ package com.acabra.calculator.request;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 /**
  * Created by Agustin on 9/28/2016.
  */
@@ -16,11 +18,12 @@ public class IntegralRequestDTO implements SimpleRequest {
     private int functionId;
     private boolean areaInscribed;
     private int approximationMethodId;
+    private List<Double> coefficients;
 
     public IntegralRequestDTO() {
     }
 
-    public IntegralRequestDTO(String lowerBound, String upperBound, String numberThreads, String repeatedCalculations, int functionId, int approximationMethodId, boolean areaInscribed) {
+    public IntegralRequestDTO(String lowerBound, String upperBound, String numberThreads, String repeatedCalculations, int functionId, int approximationMethodId, boolean areaInscribed, List<Double> coefficients) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.numberThreads = numberThreads;
@@ -28,6 +31,7 @@ public class IntegralRequestDTO implements SimpleRequest {
         this.functionId = functionId;
         this.approximationMethodId = approximationMethodId;
         this.areaInscribed = areaInscribed;
+        this.coefficients = coefficients;
     }
 
     @JsonProperty("lowerBound")
@@ -63,5 +67,10 @@ public class IntegralRequestDTO implements SimpleRequest {
     @JsonProperty("approximationMethodId")
     public int getApproximationMethodId() {
         return approximationMethodId;
+    }
+
+    @JsonProperty("coefficients")
+    public List<Double> getCoefficients() {
+        return coefficients;
     }
 }

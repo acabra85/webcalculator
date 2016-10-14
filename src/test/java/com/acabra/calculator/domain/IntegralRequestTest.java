@@ -3,6 +3,7 @@ package com.acabra.calculator.domain;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -21,7 +22,7 @@ public class IntegralRequestTest {
         int functionId = 0;
         int approximationMethodId = 0;
         boolean areaInscribed = true;
-        IntegralRequest integralRequest = new IntegralRequest(lowerBound, upperBound, repeatedCalculations, numThreads, functionId, approximationMethodId, areaInscribed);
+        IntegralRequest integralRequest = new IntegralRequest(lowerBound, upperBound, repeatedCalculations, numThreads, functionId, approximationMethodId, areaInscribed, Collections.emptyList());
 
         assertEquals(approximationMethodId, integralRequest.getApproximationMethodId());
         assertEquals(lowerBound, integralRequest.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);

@@ -8,13 +8,17 @@ import org.apache.log4j.Logger;
  */
 public abstract class IntegrableFunction {
 
+    protected static final Logger logger = Logger.getLogger(IntegrableFunction.class);
     protected static final String STRING_REPRESENTATION_FORMAT = "Integ{%s}[%s, %s]";
+
     protected final double lowerBound;
     protected final double upperBound;
     private final String label;
+    protected final Interval requestedIntegrationRange; //Stores the integration requested in constructor by the boundaries.
     protected Double result;
     protected volatile Double sequenceRiemannRectangle;
-    protected static final Logger logger = Logger.getLogger(IntegrableFunction.class);
+    protected volatile Double evaluatedLower;
+    protected volatile Double evaluatedUpper;
 
     public IntegrableFunction(double lowerBound, double upperBound, Double result, String label) {
         this.lowerBound = lowerBound;
@@ -22,7 +26,17 @@ public abstract class IntegrableFunction {
         this.result = result;
         this.label = label;
         this.sequenceRiemannRectangle = null;
+        this.requestedIntegrationRange = new Interval(true, Math.min(this.lowerBound, this.upperBound), true, Math.max(this.lowerBound, this.upperBound));
+        evaluatedLower = null;
+        evaluatedUpper = null;
+        validateBounds();
     }
+
+    /**
+     * Implement this method that verifies that both limits are within
+     * functions doamin
+     */
+    protected abstract void validateBounds();
 
     /**
      * This method evaluates the integral using the
@@ -56,15 +70,19 @@ public abstract class IntegrableFunction {
      */
     public Double calculateRiemannSequenceRectangleArea(boolean inscribed) {
         /*TODO Areas under the x-axis should be taken in count
-               this runs on the assumption that the evaluations on all points on this
-               function are positive values on y-axis, to solve discrepancy a split
-               of ranges is required
+               this runs on the assumption that the area evaluated is fully under the x-axis or either
+               above the x-axis, to solve discrepancy split intervals and make proper area subtraction.
           */
-        double width = (upperBound - lowerBound);
-        double evaluatedLower = Math.abs(evaluate(lowerBound));
-        double evaluatedUpper = Math.abs(evaluate(upperBound));
-        double height = inscribed ? Math.min(evaluatedLower, evaluatedUpper) : Math.max(evaluatedLower, evaluatedUpper);
-        return width * height;
+        double width = Math.abs(upperBound - lowerBound);
+        double evLower = Math.abs(this.evaluatedLower);
+        double evUpper = Math.abs(this.evaluatedUpper);
+        double min = Math.min(evLower, evUpper);
+        double max = Math.max(evLower, evUpper);
+        double height = inscribed ? min : max;
+        double signLower = this.evaluatedLower >= 0 ? 1.0 : -1.0;
+        double signUpper = this.evaluatedUpper >= 0 ? 1.0 : -1.0;
+        double sign = inscribed ? (min == evLower ? signLower : signUpper) : (max == evLower ? signLower : signUpper);
+        return width * height * (sign);
     }
 
     /**
@@ -110,7 +128,7 @@ public abstract class IntegrableFunction {
     @Override
     public String toString() {
         return String.format(STRING_REPRESENTATION_FORMAT,
-                IntegralFunctionType.EXPONENTIAL.getLabel(),
+                label,
                 ResultFormatter.trimIntegerResults(lowerBound + ""),
                 ResultFormatter.trimIntegerResults(upperBound + ""));
     }

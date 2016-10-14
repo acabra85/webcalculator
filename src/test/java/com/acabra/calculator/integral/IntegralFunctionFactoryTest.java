@@ -16,19 +16,6 @@ import static org.junit.Assert.assertNotNull;
  */
 public class IntegralFunctionFactoryTest {
 
-
-    @Test(expected = InputMismatchException.class)
-    public void createFunctionFailureBoundsTest() {
-        int lowerbound = 1;
-        int upperbound = 0;
-        IntegralFunctionType exponential = IntegralFunctionFactory.evaluateFunctionType(0);
-        assertNotNull(exponential);
-        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
-                .withLowerBound(lowerbound)
-                .withUpperBound(upperbound).build();
-        IntegralFunctionFactory.createIntegralFunction(exponential, parameters);
-    }
-
     @Test
     public void createIntegralFunctionResultAndApproximationTest() {
         int lowerbound = 0;
@@ -118,35 +105,20 @@ public class IntegralFunctionFactoryTest {
         assertEquals("Integ{e^x}[0, 1]", integralFunction.toString());
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void createFunctionFailure1Test() {
-        int lowerbound = 0;
-        int upperbound = 1;
-        double contentResult = 9.5;
-        int functionId = 2;
-        IntegralFunctionType logarithmic = IntegralFunctionFactory.evaluateFunctionType(functionId);
-        assertNotNull(logarithmic);
-        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
-                .withLowerBound(lowerbound)
-                .withUpperBound(upperbound)
-                .withIntegrationResult(contentResult).build();
-        IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
-    }
-
     @Test
     public void createIntegralFunctionInvalidTypeTest() {
         int expectedExceptions = 4;
         int foundExceptions = 0;
-        int logarithmicId = 2;
-        IntegralFunctionType logarithmic = IntegralFunctionFactory.evaluateFunctionType(logarithmicId);
-        assertNotNull(logarithmic);
+        int inverseFunctionId = 3;
+        IntegralFunctionType inverse = IntegralFunctionFactory.evaluateFunctionType(inverseFunctionId);
+        assertNotNull(inverse);
 
         try {
             IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
                     .withLowerBound(0)
                     .withUpperBound(1)
                     .build();
-            IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+            IntegralFunctionFactory.createIntegralFunction(inverse, parameters);
         } catch (NoSuchElementException nse) {
             foundExceptions++;
         }
@@ -157,7 +129,7 @@ public class IntegralFunctionFactoryTest {
                     .withUpperBound(1)
                     .withIntegrationResult(1.0)
                     .build();
-            IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+            IntegralFunctionFactory.createIntegralFunction(inverse, parameters);
         } catch (NoSuchElementException nse) {
             foundExceptions++;
         }
@@ -168,7 +140,7 @@ public class IntegralFunctionFactoryTest {
                     .withUpperBound(1)
                     .withApproximation(1.0)
                     .build();
-            IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+            IntegralFunctionFactory.createIntegralFunction(inverse, parameters);
         } catch (NoSuchElementException nse) {
             foundExceptions++;
         }
@@ -180,7 +152,7 @@ public class IntegralFunctionFactoryTest {
                     .withIntegrationResult(1.0)
                     .withApproximation(1.0)
                     .build();
-            IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+            IntegralFunctionFactory.createIntegralFunction(inverse, parameters);
         } catch (NoSuchElementException nse) {
             foundExceptions++;
         }
@@ -203,7 +175,7 @@ public class IntegralFunctionFactoryTest {
                 .withCoefficients(coefficients)
                 .build();
 
-        PolynomialIntegral unsolvedIntegralFunction = (PolynomialIntegral)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+        FPolynomial unsolvedIntegralFunction = (FPolynomial)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
 
         assertNotNull(unsolvedIntegralFunction);
         assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -230,7 +202,7 @@ public class IntegralFunctionFactoryTest {
                 .withCoefficients(coefficients)
                 .build();
 
-        PolynomialIntegral unsolvedIntegralFunction = (PolynomialIntegral)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+        FPolynomial unsolvedIntegralFunction = (FPolynomial)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
 
         assertNotNull(unsolvedIntegralFunction);
         assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -258,7 +230,7 @@ public class IntegralFunctionFactoryTest {
                 .withCoefficients(coefficients)
                 .build();
 
-        PolynomialIntegral unsolvedIntegralFunction = (PolynomialIntegral)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+        FPolynomial unsolvedIntegralFunction = (FPolynomial)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
 
         assertNotNull(unsolvedIntegralFunction);
         assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -269,19 +241,6 @@ public class IntegralFunctionFactoryTest {
         assertEquals(circumscribedAreaExpected, unsolvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(unsolvedIntegralFunction.getOrder(), unsolvedIntegralFunction.getCoefficients().size());
         assertEquals("Integ{1-x+3x^2}[2, 5]", unsolvedIntegralFunction.toString());
-
-    }
-
-    @Test(expected = InputMismatchException.class)
-    public void createPolynomialFunctionFailResultTest() {
-        int lowerbound = 2;
-        int upperbound = -2;
-        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
-                .withLowerBound(lowerbound)
-                .withUpperBound(upperbound)
-                .build();
-
-        IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
 
     }
 
@@ -301,7 +260,7 @@ public class IntegralFunctionFactoryTest {
                 .withCoefficients(coefficients)
                 .build();
 
-        PolynomialIntegral unsolvedIntegralFunction = (PolynomialIntegral)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
+        FPolynomial unsolvedIntegralFunction = (FPolynomial)IntegralFunctionFactory.createIntegralFunction(IntegralFunctionType.POLYNOMIAL, parameters);
 
         assertNotNull(unsolvedIntegralFunction);
         assertEquals(lowerbound, unsolvedIntegralFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -311,5 +270,95 @@ public class IntegralFunctionFactoryTest {
         assertEquals(inscribedAreaExpected, unsolvedIntegralFunction.getSequenceRiemannRectangle(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(unsolvedIntegralFunction.getOrder(), unsolvedIntegralFunction.getCoefficients().size());
         assertEquals("Integ{1-x+3x^2}[3, 7]", unsolvedIntegralFunction.toString());
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void createPolynomialFunctionFailResultTest() {
+        int lowerbound = 2;
+        Double upperbound = Double.POSITIVE_INFINITY;
+        IntegralFunctionType polynomial = IntegralFunctionFactory.evaluateFunctionType(1);
+        assertNotNull(polynomial);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .build();
+
+        IntegralFunctionFactory.createIntegralFunction(polynomial, parameters);
+
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void createExponentialFunctionFailResultTest() {
+        int lowerbound = 1;
+        Double upperbound = Double.POSITIVE_INFINITY;
+        IntegralFunctionType exponential = IntegralFunctionFactory.evaluateFunctionType(0);
+        assertNotNull(exponential);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound).build();
+        IntegralFunctionFactory.createIntegralFunction(exponential, parameters);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void createLogarithmicFunctionFailResultTest() {
+        int lowerbound = 1;
+        Double upperbound = Double.POSITIVE_INFINITY;
+        IntegralFunctionType logarithmic = IntegralFunctionFactory.evaluateFunctionType(2);
+        assertNotNull(logarithmic);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound).build();
+        IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void createLogarithmicFunctionFailResult2Test() {
+        int lowerbound = -1;
+        int upperbound = 1;
+        double contentResult = 9.5;
+        int functionId = 2;
+        IntegralFunctionType logarithmic = IntegralFunctionFactory.evaluateFunctionType(functionId);
+        assertNotNull(logarithmic);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .withIntegrationResult(contentResult).build();
+        IntegralFunctionFactory.createIntegralFunction(logarithmic, parameters);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void createPolynomialFunctionFailResult2Test() {
+        double lowerbound = Double.NEGATIVE_INFINITY;
+        Double upperbound = 1.0;
+        IntegralFunctionType polynomial = IntegralFunctionFactory.evaluateFunctionType(1);
+        assertNotNull(polynomial);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound)
+                .build();
+
+        IntegralFunctionFactory.createIntegralFunction(polynomial, parameters);
+
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void createExponentialFunctionFailResult2Test() {
+        double lowerbound = Double.NEGATIVE_INFINITY;
+        Double upperbound = 1.0;
+        IntegralFunctionType exponential = IntegralFunctionFactory.evaluateFunctionType(0);
+        assertNotNull(exponential);
+        IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
+                .withLowerBound(lowerbound)
+                .withUpperBound(upperbound).build();
+        IntegralFunctionFactory.createIntegralFunction(exponential, parameters);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void retrieveApproximationMethod() {
+        assertNotNull(IntegralFunctionFactory.evaluateApproximationMethodType(0));
+        assertNotNull(IntegralFunctionFactory.evaluateApproximationMethodType(1));
+        assertNotNull(IntegralFunctionFactory.evaluateApproximationMethodType(2));
+        assertNotNull(IntegralFunctionFactory.evaluateApproximationMethodType(3));
+        assertNotNull(IntegralFunctionFactory.evaluateApproximationMethodType(4));
     }
 }

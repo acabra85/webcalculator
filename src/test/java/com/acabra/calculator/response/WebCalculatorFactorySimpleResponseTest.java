@@ -22,8 +22,8 @@ public class WebCalculatorFactorySimpleResponseTest {
     public void createTableResponseTest() {
         long id = 0L;
         String tablehtml = "tablehtml";
-        TableHistoryResponse tableResponse = (TableHistoryResponse) WebCalculatorFactorySimpleResponse.createTableResponse(id, tablehtml);
+        RenderedHistoryResponse tableResponse = (RenderedHistoryResponse) WebCalculatorFactorySimpleResponse.createTableResponse(id, tablehtml);
         assertEquals(id, tableResponse.getId());
-        assertEquals(tablehtml, tableResponse.getTableHTML());
+        assertEquals(tablehtml, tableResponse.getRenderedTable());
     }
 }

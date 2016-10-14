@@ -15,7 +15,7 @@ public class TokenResponse extends SimpleResponse {
     @JsonCreator
     public TokenResponse(@JsonProperty("id") long id,
                          @JsonProperty("token")String token) {
-        super(id);
+        super(id, false);
         this.token = token;
     }
 

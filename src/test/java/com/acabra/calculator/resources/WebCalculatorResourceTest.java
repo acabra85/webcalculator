@@ -2,10 +2,12 @@ package com.acabra.calculator.resources;
 
 import com.acabra.calculator.WebCalculatorManager;
 import com.acabra.calculator.domain.IntegralRequest;
+import com.acabra.calculator.integral.IntegralSubRangeSupplier;
 import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.JsonHelper;
 import com.acabra.calculator.util.RequestMapper;
+import com.acabra.calculator.view.WebCalculatorRendererHTML;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.assertj.core.api.Assertions;
 import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
@@ -21,9 +23,11 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 
@@ -34,7 +38,8 @@ import static org.mockito.Mockito.*;
  * Created by Agustin on 10/10/2016.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({RequestMapper.class, WebCalculatorManager.class, WebCalculatorResource.class})
+@PrepareForTest({RequestMapper.class, WebCalculatorManager.class, WebCalculatorResource.class,
+        IntegralSubRangeSupplier.class})
 @PowerMockIgnore(value = {"javax.management.*"})
 public class WebCalculatorResourceTest {
 
@@ -42,13 +47,13 @@ public class WebCalculatorResourceTest {
 
     private static final String TOKEN = "TOKEN";
     private static WebCalculatorResource webCalculatorResource = new WebCalculatorResource(calcManagerMock);
-    private static CalculationResponse failedArithmeticResponse = new CalculationResponse(-1L, "", Double.NaN, -1L, "");
-    private static IntegralCalculationResponse failedIntegralResponse = new IntegralCalculationResponse(-1L, "", Double.NaN, Double.NaN, -1L, "");
-    private CalculationResponse arithmeticResponseStub = new CalculationResponse(1L, "expression", 0.0, 2L, "description");
-    private IntegralCalculationResponse integralCalculationStub = new IntegralCalculationResponse(1L, "integralexpr", 9.0, 5.0, 3L, "descriptionIntegral");
+    private static CalculationResponse failedArithmeticResponse = new CalculationResponse(-1L, true, "", Double.toString(Double.NaN), -1L, "");
+    private static IntegralCalculationResponse failedIntegralResponse = new IntegralCalculationResponse(-1L, true, "", Double.NaN, Double.NaN, -1L, "");
+    private CalculationResponse arithmeticResponseStub = new CalculationResponse(1L, true, "expression", "0.0", 2L, "description");
+    private IntegralCalculationResponse integralCalculationStub = new IntegralCalculationResponse(1L, false, "integralexpr", 9.0, 5.0, 3L, "descriptionIntegral");
     private CompletableFuture<CalculationResponse> integralFutureStub = CompletableFuture.completedFuture(integralCalculationStub);
     private IntegralRequestDTO integralRequestDTOStub = null;
-    private IntegralRequest integralRequestStub = new IntegralRequest(0, 1, 1, 1, 0, 0, true);
+    private IntegralRequest integralRequestStub = new IntegralRequest(0, 1, 1, 1, 0, 0, true, Collections.emptyList());
 
 
     @Rule
@@ -77,9 +82,7 @@ public class WebCalculatorResourceTest {
                 .request(MediaType.APPLICATION_JSON).post(null);
 
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        String jsonBody = post.readEntity(MessageResponse.class).getBody();
-        CalculationResponse calculationResponse = JsonHelper.fromJsonString(jsonBody, CalculationResponse.class).orElse(failedArithmeticResponse);
+        CalculationResponse calculationResponse = post.readEntity(new GenericType<MessageResponse<CalculationResponse>>(){}).getBody();
 
         Assertions.assertThat(calculationResponse.getId()).isNotEqualTo(failedArithmeticResponse.getId());
         Assertions.assertThat(calculationResponse.getId()).isEqualTo(1L);
@@ -121,9 +124,7 @@ public class WebCalculatorResourceTest {
 
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        MessageResponse messageResponse = post.readEntity(MessageResponse.class);
-        String jsonBody = messageResponse.getBody();
-        IntegralCalculationResponse integralCalculationResponse = JsonHelper.fromJsonString(jsonBody, IntegralCalculationResponse.class).orElse(failedIntegralResponse);
+        IntegralCalculationResponse integralCalculationResponse = post.readEntity(new GenericType<MessageResponse<IntegralCalculationResponse>>(){}).getBody();
 
         Assertions.assertThat(integralCalculationResponse.getId()).isNotEqualTo(failedIntegralResponse);
         Assertions.assertThat(integralCalculationResponse.getIntegralResult()).isEqualTo(integralCalculationStub.getIntegralResult());
@@ -177,8 +178,7 @@ public class WebCalculatorResourceTest {
 
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        TokenResponse tokenResponse = JsonHelper.fromJsonString(post.readEntity(MessageResponse.class).getBody(),
-                TokenResponse.class).orElse(failedTokenResponse);
+        TokenResponse tokenResponse = post.readEntity(new GenericType<MessageResponse<TokenResponse>>(){}).getBody();
 
         Assertions.assertThat(tokenResponse.getId()).isNotEqualTo(failedTokenResponse);
         Assertions.assertThat(tokenResponse.getToken()).isEqualTo(TOKEN);
@@ -205,10 +205,10 @@ public class WebCalculatorResourceTest {
     @Test
     public void provideRenderedHistoryResultTest() {
 
-        TableHistoryResponse failedHistoryResponseStub = new TableHistoryResponse(-1L, "");
+        RenderedHistoryResponse failedHistoryResponseStub = new RenderedHistoryResponse(-1L, "");
 
         String renderedTable = "renderedTable";
-        TableHistoryResponse historyResponseStub = new TableHistoryResponse(1L, renderedTable);
+        RenderedHistoryResponse historyResponseStub = new RenderedHistoryResponse(1L, renderedTable);
         when(calcManagerMock.provideRenderedHistoryResult(eq(TOKEN))).thenReturn(historyResponseStub);
 
         Response post = RULE.getJerseyTest()
@@ -219,11 +219,10 @@ public class WebCalculatorResourceTest {
 
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        TableHistoryResponse tableHistoryResponse = JsonHelper.fromJsonString(post.readEntity(MessageResponse.class).getBody(),
-                TableHistoryResponse.class).orElse(failedHistoryResponseStub);
+        RenderedHistoryResponse tableHistoryResponse = post.readEntity(new GenericType<MessageResponse<RenderedHistoryResponse>>(){}).getBody();
 
         Assertions.assertThat(tableHistoryResponse.getId()).isNotEqualTo(failedHistoryResponseStub);
-        Assertions.assertThat(tableHistoryResponse.getTableHTML()).isEqualTo(renderedTable);
+        Assertions.assertThat(tableHistoryResponse.getRenderedTable()).isEqualTo(renderedTable);
 
         verify(calcManagerMock, times(1)).provideRenderedHistoryResult(eq(TOKEN));
     }

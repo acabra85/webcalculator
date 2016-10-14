@@ -1,1 +1,1 @@
-web:    java -jar target\webcalculator-1.1.jar server config\webcalculator.yml
+web:    java -jar target\webcalculator-1.2.jar server config\webcalculator.yml

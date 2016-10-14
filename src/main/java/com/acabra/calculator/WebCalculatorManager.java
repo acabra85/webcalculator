@@ -2,12 +2,11 @@ package com.acabra.calculator;
 
 import com.acabra.calculator.domain.CalculationHistoryRecord;
 import com.acabra.calculator.domain.IntegralRequest;
+import com.acabra.calculator.integral.FExponential;
 import com.acabra.calculator.integral.IntegrableFunction;
 import com.acabra.calculator.integral.IntegralFunctionFactory;
-import com.acabra.calculator.response.CalculationResponse;
-import com.acabra.calculator.response.SimpleResponse;
-import com.acabra.calculator.response.WebCalculatorFactoryResponse;
-import com.acabra.calculator.response.WebCalculatorFactorySimpleResponse;
+import com.acabra.calculator.integral.WebCalculatorCompletableFutureUtils;
+import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
@@ -24,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,12 +60,32 @@ public class WebCalculatorManager {
 
     private Function<IntegrableFunction, CalculationResponse> retrieveIntegralCalculationResponse(final IntegralRequest integralRequest, final String token, final long responseTime) {
         return  solvedIntegral -> {
+            CalculationResponse calculationResponse;
             String expression = ResultFormatter.formatIntegralRequest(solvedIntegral.toString(),
                     integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads());
-            CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(counter.getAndIncrement(), expression, responseTime, solvedIntegral,
-                    IntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()).getLabel());
+            calculationResponse = WebCalculatorFactoryResponse
+                    .createCalculationResponse(counter.getAndIncrement(), expression, responseTime, solvedIntegral,
+                            IntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()).getLabel());
             appendCalculationHistory(calculationResponse, token);
             return calculationResponse;
+        };
+    }
+
+
+    private BiFunction<
+            CompletableFuture<IntegrableFunction>,
+            Throwable,
+            CompletableFuture<CalculationResponse>> provideBiFunctionHandler(final IntegralRequest integralRequest, String token, Stopwatch stopwatch) {
+        return (solvedIntegral, exception) -> {
+            if (exception != null) {
+                logger.error(exception);
+                String expression = ResultFormatter.formatIntegralRequest(solvedIntegral.toString(),
+                        integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads());
+                CalculationResponse failed = WebCalculatorFactoryResponse.createFailedCalculationResponse(counter.getAndIncrement(),
+                        expression, token, stopwatch.elapsed(TimeUnit.NANOSECONDS), exception.getCause().getMessage());
+                return CompletableFuture.completedFuture(failed);
+            }
+            return solvedIntegral.thenApply(retrieveIntegralCalculationResponse(integralRequest, token, stopwatch.elapsed(TimeUnit.NANOSECONDS)));
         };
     }
 
@@ -78,10 +98,10 @@ public class WebCalculatorManager {
     public CompletableFuture<CalculationResponse> processIntegralCalculation(final IntegralRequest integralRequest, final String token) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         WebCalculatorValidation.validateIntegralRequest(integralRequest);
-        CompletableFuture<IntegrableFunction> solvedIntegrableFunctionFuture = calculator.resolveIntegralApproximateRiemannSequenceRequest(integralRequest);
-        return solvedIntegrableFunctionFuture.thenApply(
-                retrieveIntegralCalculationResponse(integralRequest, token, stopwatch.elapsed(TimeUnit.NANOSECONDS))
-        );
+        CompletableFuture<IntegrableFunction> future = calculator.approximateAreaUnderCurve(integralRequest);
+        return WebCalculatorCompletableFutureUtils.withFallbackDifferentResponse(future,
+                provideBiFunctionHandler(integralRequest, token, stopwatch),
+                x -> x.thenApply(retrieveIntegralCalculationResponse(integralRequest, token, stopwatch.elapsed(TimeUnit.NANOSECONDS))));
     }
 
     /**
@@ -94,7 +114,7 @@ public class WebCalculatorManager {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         String parsedExpression = expression.replace("sqrt", Operator.SQRT.getLabel());
         WebCalculatorValidation.validateArithmeticExpression(parsedExpression);
-        CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(counter.getAndIncrement(), expression, calculator.solveArithmeticExpression(parsedExpression), stopwatch.elapsed(TimeUnit.NANOSECONDS), "Arithmetic");
+        CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createCalculationResponse(counter.getAndIncrement(), expression, calculator.solveArithmeticExpression(parsedExpression).toString(), stopwatch.elapsed(TimeUnit.NANOSECONDS), "Arithmetic");
         appendCalculationHistory(calculationResponse, token);
         return calculationResponse;
     }
@@ -102,7 +122,7 @@ public class WebCalculatorManager {
     /**
      * Retrieves a history rendered response of requests made with the specified token
      * @param token the token used for the requests
-     * @return  a TableHistoryResponse object containing the rendered result.
+     * @return  a RenderedHistoryResponse object containing the rendered result.
      */
     public SimpleResponse provideRenderedHistoryResult(String token) {
         List<CalculationResponse> calculationResponseList = provideCalculationHistory(token);

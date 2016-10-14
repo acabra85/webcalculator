@@ -1,5 +1,6 @@
 package com.acabra.calculator.integral.input;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +46,8 @@ public class IntegrableFunctionInputParametersBuilder {
     }
 
     public IntegrableFunctionInputParameters build(){
-        return new IntegrableFunctionInputParameters(this.lowerBound, this.upperBound, this.coefficients,
+        return new IntegrableFunctionInputParameters(this.lowerBound, this.upperBound,
+                this.coefficients == null ? Optional.of(Collections.emptyList()) : Optional.of(this.coefficients),
                 this.approximation == null ? Optional.empty() : Optional.of(this.approximation),
                 this.integrationResult == null ? Optional.empty() : Optional.of(this.integrationResult));
     }

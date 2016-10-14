@@ -12,6 +12,6 @@ public class WebCalculatorFactorySimpleResponse {
     }
 
     public static SimpleResponse createTableResponse(long id, String table) {
-        return new TableHistoryResponse(id, table);
+        return new RenderedHistoryResponse(id, table);
     }
 }

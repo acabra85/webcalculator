@@ -3,6 +3,7 @@ package com.acabra.calculator.util;
 import com.acabra.calculator.Operator;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.integral.IntegralFunctionFactory;
+import com.acabra.calculator.integral.IntegralFunctionType;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
@@ -28,15 +29,12 @@ public class WebCalculatorValidation {
     public static void validateIntegralRequest(IntegralRequest integralRequest) {
         IntegralFunctionFactory.evaluateFunctionType(integralRequest.getFunctionId());
         IntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId());
-        if (integralRequest.getLowerBound() > integralRequest.getUpperBound())
-            throw new InputMismatchException("invalid input lower bound higher than upper bound");
         int numThreads = integralRequest.getNumThreads();
         if (numThreads < 1 || numThreads > 15)
             throw new InputMismatchException("invalid input num threads must be between [1,15]");
         int repeatedCalculations = integralRequest.getRepeatedCalculations();
         if (repeatedCalculations < 1 || repeatedCalculations >= Integer.MAX_VALUE)
             throw new InputMismatchException("invalid input repeated calculations must be > 0");
-
     }
 
     /**

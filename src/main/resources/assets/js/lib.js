@@ -9,12 +9,13 @@ var sqrtIndex = OPERATORS.indexOf(SQRT_SYMBOL);
 var minusIndex = OPERATORS.indexOf(MINUS_SYMBOL);
 var VALID_CODES = [40, 41, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 123, 125];
 var VALID_KEYS = ['(', ')', '*', '+', MINUS_SYMBOL, '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[', ']', '{', '}'];
-var AVAILABLE_FUNCTIONS = ['e^x'];
+var AVAILABLE_FUNCTIONS = ['e^x', 'x^n', 'ln(x)'];
 var AVAILABLE_APPROXIMATION_METHODS = ['Riemann Rectangles', 'Simpson\'s Rule', 'Gaussian Quadrature'];
 var ENTER_KEY = 'Enter';
 var ERROR_RESULTS = ['INFINITY', 'NAN', '-INFINITY'];
 var ENTER_CODE = 13;
 var ESC_KEY = 27;
+
 
 var token = "";
 var lastButtonEqual = true;
@@ -29,10 +30,14 @@ var expressionField = null;
 var integralSelectedFunction = 0;
 var approximationSelectedMethod = 0;
 var inputStackSizes = [];
+var divPolynomialOptions = null;
+var coefficientsFieldSelector = null;
 
 var STACK_ADD = 0;
 var STACK_REMOVE = 1;
 var STACK_EMPTY = 2;
+var functionsElement = null;
+var methodsElement = null;
 
 function operateStack(operation, num) {
     if (operation === STACK_ADD) {
@@ -45,6 +50,33 @@ function operateStack(operation, num) {
         return -1;
     }
     return -2;
+}
+
+function initIntegralSelectedFunction() {
+    if (functionsElement === null) {
+        functionsElement = $('#selected_function');
+    }
+    return functionsElement;
+}
+
+function initApproximationMethodsElement() {
+    if (methodsElement === null) {
+        methodsElement = $('#selected_approximation_method');
+    }
+    return methodsElement;
+}
+
+function initCoefficientsField() {
+    if (coefficientsFieldSelector === null) {
+        coefficientsFieldSelector = $('#coefficients');
+    }
+    return coefficientsFieldSelector;
+}
+
+function initPolynomialOptions() {
+    if (divPolynomialOptions === null) {
+        divPolynomialOptions = $('#polynomial_options');
+    }
 }
 
 function initIntegralSubmit() {
@@ -147,12 +179,21 @@ function append(comp, s, override) {
     }
 }
 
+
+var historyComponent = null;
+function initHistoryComponent() {
+    if(historyComponent === null) {
+        historyComponent = $('#history-container'); 
+    }
+    return historyComponent;
+}
+
 function updateHistory() {
-    var historyComponent = $('#history-container');
+    var historyComponent = initHistoryComponent();
     $.get(encodeURI('/api/calculator/history?token=' + token)
     ).done(function (historyResponse) {
         historyComponent.text('');
-        historyComponent.append(historyResponse.body.tableHTML);
+        historyComponent.append(historyResponse.body.renderedTable);
     }).fail(function (failedResponse) {
         displayError(failedResponse.responseJSON.message);
     }).always(function () {
@@ -166,10 +207,10 @@ function executeCalculationWithToken(expressionText, expressionField, calculated
         expressionField.value = calculationResponse.body.result;
         lastButtonEqual = true;
         operateStack(STACK_EMPTY);
+        updateHistory();
     }).fail(function (failedResponse) {
         displayError(failedResponse.responseJSON.message);
-    }).always(function () {
-        updateHistory();
+        allowInteractions = true;
     });
 }
 
@@ -270,6 +311,46 @@ function evaluateKeyPressed(eventCaptured) {
     }
 }
 
+var prevInputSpace = false;
+var prevInputMinus = false;
+var prevNumber = false;
+
+initCoefficientsField().keypress( function(e) {
+    var chr = String.fromCharCode(e.which);
+    var index = ' -0123456789'.indexOf(chr);
+    if(index < 0) {
+        return false;
+    } else if (index === 0 && prevInputSpace) {
+        return false;
+    } else if (index === 1 && prevInputMinus) {
+        return false;
+    } else if (index === 0 && prevInputMinus) {
+        return false;
+    } else if (index > 1 || index === 1 && (prevNumber || prevInputSpace) || index === 0 && prevNumber) {
+        prevInputSpace = index === 0;
+        prevInputMinus = index === 1;
+        prevNumber = index > 1;
+        return true;
+    } else {
+        return false;
+    }
+});
+
+initCoefficientsField().keyup( function(e) {
+    if ((e.which === 8 || e.which == 46) && e.target.value.length > 0) {
+        var chr = e.target.value.charAt(e.target.value.length-1);
+        var index = ' -0123456789'.indexOf(chr);
+        prevInputSpace = index === 0;
+        prevInputMinus = index === 1;
+        prevNumber = index > 1;
+    }
+    if (e.target.value.length === 0) {
+        prevInputSpace = false;
+        prevInputMinus = false;
+        prevNumber = false;
+    }
+});
+
 function toggleBasicIntegralPanels(num) {
     initCalculationPanels();
     if (activePanel !== num) {
@@ -301,13 +382,30 @@ function requestExponentialIntegral() {
     }
 }
 
+function hasOnlyNumbers(list) {
+    var i = 0;
+    var onlyNumbers = true;
+    for(i = 0; i < list.length && onlyNumbers;i++) {
+        try {
+            parseFloat(list[i]);
+        }catch (e) {
+            onlyNumbers = false;
+        }
+    }
+    return onlyNumbers;
+}
 function validIntegralRequestData(req) {
-    return req.lowerBound <= req.upperBound
-        && req.numberThreads > 0 && req.numberThreads <= 15
-        && req.repeatedCalculations > 0 && req.repeatedCalculations <= 2147483647;
+    return req.numberThreads > 0 && req.numberThreads <= 15
+        && req.repeatedCalculations > 0 && req.repeatedCalculations <= 2147483647
+        && hasOnlyNumbers(req.coefficients);
 }
 
-function executeExponentialIntegralWithToken(receivedToken, expressionField) {
+function retrieveJsonArray(value) {
+    var coefficients = JSON.parse(value);
+    return coefficients.constructor === Array ? coefficients : [];
+}
+function buildIntegralRequest() {
+    initCoefficientsField();
     var integralRequest = {
         lowerBound: parseFloat($('#lowerbound')[0].value),
         upperBound: parseFloat($('#upperbound')[0].value),
@@ -315,8 +413,13 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
         numberThreads: parseInt($('#numthreads')[0].value),
         functionId: integralSelectedFunction,
         approximationMethodId: approximationSelectedMethod,
-        areaInscribed: approximationSelectedMethod == 0 && $('#inscribed_rectangles')[0].checked
+        areaInscribed: approximationSelectedMethod == 0 && $('#inscribed_rectangles')[0].checked,
+        coefficients: integralSelectedFunction == 1 ? retrieveJsonArray('[' + coefficientsFieldSelector[0].value + ']') : []
     };
+    return integralRequest;
+}
+function executeExponentialIntegralWithToken(receivedToken, expressionField) {
+    var integralRequest = buildIntegralRequest();
     if (validIntegralRequestData(integralRequest)) {
         $.ajax({
             url : encodeURI('/api/calculator/integral?token=' + receivedToken),
@@ -327,12 +430,12 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
                 'Content-Type': 'application/json'
             }
         }).fail(function (response) {
-            displayError('unable to calculate integral ' + response.messsage);
+            displayError('calculating integral: ' + response.responseJSON.message);
+            allowInteractions = true;
         }).done(function (integralResponse) {
             console.log(integralResponse.body.description + ' => ' + integralResponse.body.result + ' #' + integralRequest.repeatedCalculations);
             expressionField.value = integralResponse.body.result;
             lastButtonEqual = true;
-        }).always(function () {
             updateHistory();
         });
     } else {
@@ -341,13 +444,24 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
     }
 
 }
+function displayOptions(num) {
+    initPolynomialOptions();
+    if (AVAILABLE_FUNCTIONS[num] === 'x^n') {
+        divPolynomialOptions.fadeIn();
+    } else{
+        divPolynomialOptions.fadeOut();
+    }
+
+    
+}
 
 function useFunction(num) {
-    $('#selected_function')[0].value = AVAILABLE_FUNCTIONS[num];
+    initIntegralSelectedFunction()[0].value = AVAILABLE_FUNCTIONS[num];
     integralSelectedFunction = num;
+    displayOptions(num);
 }
 
 function useApproximationMethod(num) {
-    $('#selected_approximation_method')[0].value = AVAILABLE_APPROXIMATION_METHODS[num];
+    initApproximationMethodsElement()[0].value = AVAILABLE_APPROXIMATION_METHODS[num];
     approximationSelectedMethod = num;
 }

@@ -1,5 +1,8 @@
 package com.acabra.calculator.domain;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Created by Agustin on 9/30/2016.
  */
@@ -12,8 +15,10 @@ public class IntegralRequest {
     private final int approximationMethodId;
     private final int functionId;
     private final boolean areaInscribed;
+    private List<Double> coefficients;
 
-    public IntegralRequest(double lowerBound, double upperBound, int repeatedCalculations, int numThreads, int functionId, int approximationMethodId, boolean areaInscribed) {
+    public IntegralRequest(double lowerBound, double upperBound, int repeatedCalculations, int numThreads, int functionId, int approximationMethodId, boolean areaInscribed,
+                           List<Double> coefficients) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.repeatedCalculations = repeatedCalculations;
@@ -21,6 +26,7 @@ public class IntegralRequest {
         this.functionId = functionId;
         this.areaInscribed = areaInscribed;
         this.approximationMethodId = approximationMethodId;
+        this.coefficients = coefficients;
     }
 
     public int getApproximationMethodId() {
@@ -51,4 +57,7 @@ public class IntegralRequest {
         return areaInscribed;
     }
 
+    public List<Double> getCoefficients() {
+        return coefficients;
+    }
 }

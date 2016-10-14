@@ -11,20 +11,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public class MessageResponse extends SimpleResponse {
-    private String body;
+public class MessageResponse<T> extends SimpleResponse {
+    private T body;
     private String message;
 
     @JsonCreator
     public MessageResponse(@JsonProperty("id") long id,
+                           @JsonProperty("failure") final boolean failure,
                            @JsonProperty("message") final String message,
-                           @JsonProperty("body")String body) {
-        super(id);
+                           @JsonProperty("body") T body) {
+        super(id, failure);
         this.message = message;
         this.body = body;
     }
 
-    public String getBody() {
+    public T getBody() {
         return body;
     }
 

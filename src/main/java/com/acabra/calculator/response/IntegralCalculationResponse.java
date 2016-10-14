@@ -15,12 +15,13 @@ public class IntegralCalculationResponse extends CalculationResponse {
 
     @JsonCreator
     public IntegralCalculationResponse(@JsonProperty("id") long id,
+                                       @JsonProperty("failure") boolean failure,
                                        @JsonProperty("expression") String expression,
                                        @JsonProperty("result") double result,
                                        @JsonProperty("integralResult") double integralResult,
                                        @JsonProperty("responseTime") long responseTime,
                                        @JsonProperty("description") String description) {
-        super(id, expression, result, responseTime, description);
+        super(id, failure, expression, result +"", responseTime, description);
         this.integralResult = integralResult;
         this.accuracy = result!=integralResult ? calculateAccuracy(result, integralResult) : 100;
     }

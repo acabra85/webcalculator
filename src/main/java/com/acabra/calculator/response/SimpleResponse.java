@@ -12,13 +12,19 @@ import java.io.Serializable;
 public abstract class SimpleResponse implements Serializable {
 
     protected final long id;
+    protected final boolean failure;
+
+    @JsonCreator
+    protected SimpleResponse(@JsonProperty("id") long id, @JsonProperty("failure") boolean failure){
+        this.id = id;
+        this.failure = failure;
+    }
 
     public long getId() {
         return id;
     }
 
-    @JsonCreator
-    protected SimpleResponse(@JsonProperty("id") long id){
-        this.id = id;
+    public boolean isFailure() {
+        return failure;
     }
 }

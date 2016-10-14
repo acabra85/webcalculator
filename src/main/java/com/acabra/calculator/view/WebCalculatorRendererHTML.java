@@ -68,7 +68,7 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
     }
 
     private String provideFormatting(CalculationResponse calculationResponse) {
-        String result = ResultFormatter.trimIntegerResults(Double.toString(calculationResponse.getResult()));
+        String result = ResultFormatter.trimIntegerResults(calculationResponse.getResult());
         if (calculationResponse instanceof IntegralCalculationResponse) {
             return createIntegralComparativeTable((IntegralCalculationResponse) calculationResponse);
         }
@@ -78,7 +78,7 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
     private String createIntegralComparativeTable(IntegralCalculationResponse integralCalculationResponse) {
         String accuracyFormatted = ResultFormatter.formatPercentage(integralCalculationResponse.getAccuracy());
         String integralFormatted = ResultFormatter.formatResult(integralCalculationResponse.getIntegralResult());
-        String approxFormatted = ResultFormatter.formatResult(integralCalculationResponse.getResult());
+        String approxFormatted = ResultFormatter.formatResult(Double.valueOf(integralCalculationResponse.getResult()));
         return String.format(INTEGRAL_RESULT_DETAIL_TABLE, integralCalculationResponse.getDescription(),
                 approxFormatted, integralFormatted, colorAccuracy(integralCalculationResponse.getAccuracy()),
                 accuracyFormatted);

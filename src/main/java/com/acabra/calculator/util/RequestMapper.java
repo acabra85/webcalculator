@@ -14,18 +14,19 @@ public class RequestMapper {
 
     private static final Logger logger = Logger.getLogger(RequestMapper.class);
 
-    public static IntegralRequest fromInternalRequest(IntegralRequestDTO integralRequest) {
+    public static IntegralRequest fromInternalRequest(IntegralRequestDTO integralRequestDTO) {
         try {
             IntegralRequestBuilder builder = new IntegralRequestBuilder();
-            int repeatedCalculations = retrieveSafeMaxInteger(Long.parseLong(integralRequest.getRepeatedCalculations()));
-            int numThreads = retrieveSafeMaxInteger(Long.parseLong(integralRequest.getNumberThreads()));
-            return builder.withLowerBound(Double.parseDouble(integralRequest.getLowerBound()))
-                    .withUpperBound(Double.parseDouble(integralRequest.getUpperBound()))
+            int repeatedCalculations = retrieveSafeMaxInteger(Long.parseLong(integralRequestDTO.getRepeatedCalculations()));
+            int numThreads = retrieveSafeMaxInteger(Long.parseLong(integralRequestDTO.getNumberThreads()));
+            return builder.withLowerBound(Double.parseDouble(integralRequestDTO.getLowerBound()))
+                    .withUpperBound(Double.parseDouble(integralRequestDTO.getUpperBound()))
                     .withRepeatedCalculations(repeatedCalculations)
                     .withNumThreads(numThreads)
-                    .withFunctionId(integralRequest.getFunctionId())
-                    .withApproximationMethodId(integralRequest.getApproximationMethodId())
-                    .withAreaInscribed(integralRequest.isAreaInscribed())
+                    .withFunctionId(integralRequestDTO.getFunctionId())
+                    .withApproximationMethodId(integralRequestDTO.getApproximationMethodId())
+                    .withAreaInscribed(integralRequestDTO.isAreaInscribed())
+                    .withCoefficients(integralRequestDTO.getCoefficients())
                     .build();
         } catch (NumberFormatException nfe) {
             logger.error(nfe);

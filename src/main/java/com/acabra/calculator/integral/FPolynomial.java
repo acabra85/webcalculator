@@ -9,21 +9,34 @@ import java.util.Optional;
 /**
  * Created by Agustin on 9/30/2016.
  */
-public class PolynomialIntegral extends IntegrableFunction {
+public class FPolynomial extends IntegrableFunction {
 
+    private static final FunctionDomain DOMAIN = FunctionDomainFactory.REAL_NUMBERS;
     private final int order;
     private final List<Double> coefficients;
-    protected final String stringRepresentation;
+    protected String stringRepresentation;
 
-    public PolynomialIntegral(double lowerbound, double upperbound, List<Double> coefficients, Optional<Double> integrationResult, Optional<Double> approximation) {
-        super(lowerbound, upperbound, integrationResult.orElse(null), IntegralFunctionType.POLYNOMIAL.getLabel());
+    public FPolynomial(double lowerBound, double upperBound, List<Double> coefficients, Optional<Double> integrationResult, Optional<Double> approximation) {
+        super(lowerBound, upperBound, integrationResult.orElse(null), IntegralFunctionType.POLYNOMIAL.getLabel());
         this.sequenceRiemannRectangle = approximation.orElse(null);
         this.coefficients = Collections.unmodifiableList(coefficients);
         this.order = this.coefficients.size();
-        this.stringRepresentation = provideStringRepresentation(coefficients);
+        this.evaluatedLower = runEvaluation(this.lowerBound);
+        this.evaluatedUpper = runEvaluation(this.upperBound);
     }
 
-    private String provideStringRepresentation(List<Double> coefficients) {
+    @Override
+    protected void validateBounds() {
+        if (!DOMAIN.belongsDomain(this.lowerBound) || !DOMAIN.belongsDomain(this.upperBound)
+                || DOMAIN.doesRangeContainsNonDomainPoints(this.requestedIntegrationRange)) {
+            throw new UnsupportedOperationException("unable to create function, bounds not in function's domain");
+        }
+    }
+
+    private String provideStringRepresentation() {
+        if(coefficients.isEmpty()) {
+            return "0";
+        }
         StringBuilder sb = new StringBuilder();
         boolean appended = false;
         for (int exp = 0; exp < coefficients.size(); exp++) {
@@ -54,6 +67,17 @@ public class PolynomialIntegral extends IntegrableFunction {
 
     @Override
     protected double evaluate(double domainPoint) {
+        if (0 == order) {
+            return 0.0;
+        }
+        return inFunctionsDomain(domainPoint) ?
+                domainPoint == upperBound ? evaluatedUpper :
+                        domainPoint == lowerBound ? evaluatedLower :
+                                runEvaluation(domainPoint) :
+                Double.NaN;
+    }
+
+    private double runEvaluation(double domainPoint) {
         double total = 0.0;
         for(int exponent = 0; exponent < order; exponent++) {
             if (coefficients.get(exponent) != 0) {
@@ -82,8 +106,8 @@ public class PolynomialIntegral extends IntegrableFunction {
         return total;
     }
 
-    private double evaluateIntegral(double limit, double coefficient, int newExponent) {
-        return Math.pow(limit, newExponent) * coefficient / newExponent;
+    private double evaluateIntegral(double domainPoint, double coefficient, int newExponent) {
+        return Math.pow(domainPoint, newExponent) * coefficient / newExponent;
     }
 
     public int getOrder() {
@@ -97,8 +121,19 @@ public class PolynomialIntegral extends IntegrableFunction {
     @Override
     public String toString() {
         return String.format(STRING_REPRESENTATION_FORMAT,
-                stringRepresentation,
+                getStringRepresentation(),
                 ResultFormatter.trimIntegerResults(lowerBound + ""),
                 ResultFormatter.trimIntegerResults(upperBound + ""));
+    }
+
+    public synchronized String getStringRepresentation() {
+        if (null == stringRepresentation) {
+            stringRepresentation = provideStringRepresentation();
+        }
+        return stringRepresentation;
+    }
+
+    public static boolean inFunctionsDomain(double val) {
+        return DOMAIN.belongsDomain(val);
     }
 }
