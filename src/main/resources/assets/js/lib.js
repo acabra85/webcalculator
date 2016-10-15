@@ -38,6 +38,10 @@ var STACK_REMOVE = 1;
 var STACK_EMPTY = 2;
 var functionsElement = null;
 var methodsElement = null;
+var prevInputSpace = false;
+var prevInputMinus = false;
+var prevNumber = false;
+var regexSpaces = new RegExp(' ', 'g');
 
 function operateStack(operation, num) {
     if (operation === STACK_ADD) {
@@ -311,10 +315,6 @@ function evaluateKeyPressed(eventCaptured) {
     }
 }
 
-var prevInputSpace = false;
-var prevInputMinus = false;
-var prevNumber = false;
-
 initCoefficientsField().keypress( function(e) {
     var chr = String.fromCharCode(e.which);
     var index = ' -0123456789'.indexOf(chr);
@@ -401,9 +401,11 @@ function validIntegralRequestData(req) {
 }
 
 function retrieveJsonArray(value) {
-    var coefficients = JSON.parse(value);
+    var valueAsArray = value.length > 0 ? (value.indexOf(' ') >= 0 ? value.trim().replace(regexSpaces, ',') : value.trim ) : '';
+    var coefficients = JSON.parse('[' + valueAsArray + ']');
     return coefficients.constructor === Array ? coefficients : [];
 }
+
 function buildIntegralRequest() {
     initCoefficientsField();
     var integralRequest = {
@@ -414,7 +416,7 @@ function buildIntegralRequest() {
         functionId: integralSelectedFunction,
         approximationMethodId: approximationSelectedMethod,
         areaInscribed: approximationSelectedMethod == 0 && $('#inscribed_rectangles')[0].checked,
-        coefficients: integralSelectedFunction == 1 ? retrieveJsonArray('[' + coefficientsFieldSelector[0].value + ']') : []
+        coefficients: integralSelectedFunction == 1 ? retrieveJsonArray(coefficientsFieldSelector[0].value) : []
     };
     return integralRequest;
 }
