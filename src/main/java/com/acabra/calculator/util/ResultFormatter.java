@@ -10,7 +10,7 @@ public class ResultFormatter {
     /**
      * Provides formatting of double values to present the information for rendering purposes.
      * @param result a double value to be formatted
-     * @return a string representing the formated approximation.
+     * @return a string representing the formated result.
      */
     public static String formatResult(double result) {
         if (result == 0) {
@@ -24,8 +24,8 @@ public class ResultFormatter {
 
     /**
      * Removes the trailing zeros for integer values.
-     * @param result a string containing a approximation
-     * @return the approximation value without trailing zeros.
+     * @param result a string containing a result
+     * @return the result value without trailing zeros.
      */
     public static String trimIntegerResults(String result) {
         return result.endsWith(".0") ? result.substring(0, result.length() - 2) : result;

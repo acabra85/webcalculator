@@ -46,7 +46,7 @@ public class IntegralSolver {
     }
 
     /**
-     * This method creates sub-integral functions and aggregates the approximation of the Riemann areas for each integral.
+     * This method creates sub-integral functions and aggregates the result of the Riemann areas for each integral.
      * @return A future containing the integral with the total area aggregated from the sub intervals.
      */
     public CompletableFuture<IntegrableFunction> approximateAreaUnderCurve() {
@@ -67,7 +67,7 @@ public class IntegralSolver {
             case SIMPSON:
                 return new SimpsonSolver(lowerLimit, upperLimit, coefficients, functionType).approximate(repeatedCalculations, executor);
             default:
-                throw new NoSuchElementException("unable to solve using given approximation method");
+                throw new NoSuchElementException("unable to solve using given result method");
         }
 
     }

@@ -457,7 +457,7 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
             }
         }).done(function (integralResponse) {
             console.log(integralResponse.body.description + ' => ' + integralResponse.body.result + ' #' + integralRequest.repeatedCalculations);
-            expressionField.value = integralResponse.body.approximation;
+            expressionField.value = integralResponse.body.result;
             lastButtonEqual = true;
             updateHistory();
         }).fail(function (response) {

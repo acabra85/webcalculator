@@ -62,14 +62,6 @@ button {
     text-align: right;
 }
 
-.accurate-approximation {
-    color: green;
-}
-
-.not-accurate-approximation {
-    color: red;
-}
-
 .detail-method-text {
     font-size: x-small;
 }

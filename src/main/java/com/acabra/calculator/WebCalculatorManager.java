@@ -89,7 +89,7 @@ public class WebCalculatorManager {
     }
 
     /**
-     * Validates the integral request and request the calculator object to provide the approximation
+     * Validates the integral request and request the calculator object to provide the result
      * @param integralRequest a integrable function request
      * @param token a session token to group history results
      * @return a future representing the integrable function solved.
@@ -121,7 +121,7 @@ public class WebCalculatorManager {
     /**
      * Retrieves a history rendered response of requests made with the specified token
      * @param token the token used for the requests
-     * @return  a RenderedHistoryResponse object containing the rendered approximation.
+     * @return  a RenderedHistoryResponse object containing the rendered result.
      */
     public SimpleResponse provideRenderedHistoryResponse(String token) {
         List<CalculationResponse> calculationResponseList = provideRawHistory(token);

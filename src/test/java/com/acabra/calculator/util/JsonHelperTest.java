@@ -37,7 +37,7 @@ public class JsonHelperTest {
 
         CalculationResponse actual = deserialized.get();
 
-        assertEquals(aprox, actual.getApproximation());
+        assertEquals(aprox, actual.getResult());
         assertEquals(desc, actual.getDescription());
         assertEquals(id, actual.getId());
         assertEquals(responseTime, actual.getResponseTime());

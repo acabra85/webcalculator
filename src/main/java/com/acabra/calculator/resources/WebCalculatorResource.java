@@ -139,7 +139,7 @@ public class WebCalculatorResource implements AppResource{
                 return getResponse(Response.Status.OK, "calculation performed", webCalculatorManager.processArithmeticCalculation(decodedExpression, token));
             } catch (Exception e) {
                 logger.error(e);
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating approximation: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
     }
@@ -156,7 +156,7 @@ public class WebCalculatorResource implements AppResource{
                 return getResponse(Response.Status.OK, successMessage, webCalculatorManager.provideSessionToken());
             } catch (Exception e) {
                 logger.error(e);
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating approximation: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "calculating result: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
     }

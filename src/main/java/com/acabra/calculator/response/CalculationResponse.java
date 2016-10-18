@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CalculationResponse extends SimpleResponse {
 
     private final String expression;
-    protected final String approximation;
+    protected final String result;
     private final String description;
     private final long responseTime;
 
@@ -24,7 +24,7 @@ public class CalculationResponse extends SimpleResponse {
                                @JsonProperty("description") String description) {
         super(id, failure);
         this.expression = expression;
-        this.approximation = result;
+        this.result = result;
         this.description = description;
         this.responseTime = responseTime;
     }
@@ -33,8 +33,8 @@ public class CalculationResponse extends SimpleResponse {
         return expression;
     }
 
-    public String getApproximation() {
-        return approximation;
+    public String getResult() {
+        return result;
     }
 
     public String getDescription() {

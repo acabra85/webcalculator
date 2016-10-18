@@ -27,7 +27,7 @@ public class IntegralCalculationResponseTest {
         assertEquals(responseTime, response.getResponseTime());
         assertEquals(expression, response.getExpression());
         assertEquals(description, response.getDescription());
-        assertEquals(result, Double.valueOf(response.getApproximation()), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(result, Double.valueOf(response.getResult()), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(integralResult, response.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
@@ -48,7 +48,7 @@ public class IntegralCalculationResponseTest {
         assertEquals(responseTime, response.getResponseTime());
         assertEquals(expression, response.getExpression());
         assertEquals(description, response.getDescription());
-        assertEquals(result, Double.valueOf(response.getApproximation()), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(result, Double.valueOf(response.getResult()), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(integralResult, response.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
     }
 }

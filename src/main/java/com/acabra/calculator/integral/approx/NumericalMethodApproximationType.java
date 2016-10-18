@@ -25,7 +25,7 @@ public enum NumericalMethodApproximationType {
             case 2:
                 return GAUSS;
             default:
-                throw new NoSuchElementException("unable to find approximation method methodId");
+                throw new NoSuchElementException("unable to find result method methodId");
         }
     }
 

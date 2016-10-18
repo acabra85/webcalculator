@@ -19,7 +19,15 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
     private static final String REAL_VALUE_LABEL = "Real Value";
     private static final String ACCURACY_LABEL = "Accuracy";
 
-    protected static final String TABLE_HEADER = "<table class=\"table table-striped\">" +
+    private static final String ACCURATE_CLASS = "accurate-approximation";
+    private static final String NOT_ACCURATE_CLASS = "not-accurate-approximation";
+
+    private static final String TABLE_CSS = "<style>"
+            + "." + NOT_ACCURATE_CLASS + " {color: red;}\n"
+            + "." + ACCURATE_CLASS + " {color: green;}\n"
+            + "</style>";
+
+    protected static final String TABLE_HEADER = TABLE_CSS +"<table class=\"table table-striped\">" +
             "<caption style=\"text-align: center\"><h4>History</h4></caption><thead>" +
             "<tr>" +
             "<th><b>Id.</b></th>" +
@@ -29,10 +37,10 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
             "</tr></thead><tbody>";
 
     protected static final String INTEGRAL_RESULT_DETAIL_TABLE = "<div class=\"integral-detail-div\"><table class=\"integral-subtable\">"
-            + "<tr><th>" + APPROX_METHOD_LABEL + "</th><td class=\"integral-subtable-approximation\">%s</td></tr>"
-            + "<tr><th>" + APPROX_LABEL + "</th><td class=\"integral-subtable-approximation\">%s</td></tr>"
-            + "<tr><th>" + REAL_VALUE_LABEL + "</th><td class=\"integral-subtable-approximation\">%s</td></tr>"
-            + "<tr><th>" + ACCURACY_LABEL + "</th><td class=\"integral-subtable-approximation%s\">%s</td></tr>"
+            + "<tr><th>" + APPROX_METHOD_LABEL + "</th><td class=\"integral-subtable-result\">%s</td></tr>"
+            + "<tr><th>" + APPROX_LABEL + "</th><td class=\"integral-subtable-result\">%s</td></tr>"
+            + "<tr><th>" + REAL_VALUE_LABEL + "</th><td class=\"integral-subtable-result\">%s</td></tr>"
+            + "<tr><th>" + ACCURACY_LABEL + "</th><td class=\"integral-subtable-result %s\">%s</td></tr>"
             + "</table></div>";
 
     public WebCalculatorRendererHTML() {}
@@ -68,17 +76,16 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
     }
 
     private String provideFormatting(CalculationResponse calculationResponse) {
-        String result = ResultFormatter.trimIntegerResults(calculationResponse.getApproximation());
         if (calculationResponse instanceof IntegralCalculationResponse) {
             return createIntegralComparativeTable((IntegralCalculationResponse) calculationResponse);
         }
-        return result;
+        return ResultFormatter.trimIntegerResults(calculationResponse.getResult());
     }
 
     private String createIntegralComparativeTable(IntegralCalculationResponse integralCalculationResponse) {
         String accuracyFormatted = ResultFormatter.formatPercentage(integralCalculationResponse.getAccuracy());
         String integralFormatted = ResultFormatter.formatResult(integralCalculationResponse.getIntegralResult());
-        String approxFormatted = ResultFormatter.formatResult(Double.valueOf(integralCalculationResponse.getApproximation()));
+        String approxFormatted = ResultFormatter.formatResult(Double.valueOf(integralCalculationResponse.getResult()));
         return String.format(INTEGRAL_RESULT_DETAIL_TABLE, integralCalculationResponse.getDescription(),
                 approxFormatted, integralFormatted, colorAccuracy(integralCalculationResponse.getAccuracy()),
                 accuracyFormatted);
@@ -86,9 +93,9 @@ public class WebCalculatorRendererHTML implements WebCalculatorRenderer {
 
     protected static String colorAccuracy(double accuracy) {
         if (accuracy < 90) {
-            return " not-accurate-approximation";
+            return NOT_ACCURATE_CLASS;
         } else if (accuracy > 98.5) {
-            return " accurate-approximation";
+            return ACCURATE_CLASS;
         }
         return "";
     }

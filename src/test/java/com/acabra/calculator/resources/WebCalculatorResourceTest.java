@@ -130,7 +130,7 @@ public class WebCalculatorResourceTest {
         Assertions.assertThat(integralCalculationResponse.getAccuracy()).isEqualTo(integralCalculationStub.getAccuracy());
         Assertions.assertThat(integralCalculationResponse.getId()).isEqualTo(integralCalculationStub.getId());
         Assertions.assertThat(integralCalculationResponse.getResponseTime()).isEqualTo(integralCalculationStub.getResponseTime());
-        Assertions.assertThat(integralCalculationResponse.getApproximation()).isEqualTo(integralCalculationStub.getApproximation());
+        Assertions.assertThat(integralCalculationResponse.getResult()).isEqualTo(integralCalculationStub.getResult());
         Assertions.assertThat(integralCalculationResponse.getDescription()).isEqualTo(integralCalculationStub.getDescription());
         Assertions.assertThat(integralCalculationResponse.getExpression()).isEqualTo(integralCalculationStub.getExpression());
 

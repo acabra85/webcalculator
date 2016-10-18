@@ -44,7 +44,7 @@ public class WebCalculatorFactoryResponseTest {
         assertEquals(description, integralCalculationResponse.getDescription());
         assertEquals(expression, integralCalculationResponse.getExpression());
         assertEquals(id, integralCalculationResponse.getId());
-        assertEquals(approxArea+"", integralCalculationResponse.getApproximation());
+        assertEquals(approxArea+"", integralCalculationResponse.getResult());
         assertEquals(responseTime, integralCalculationResponse.getResponseTime());
         assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedAccuracy, integralCalculationResponse.getAccuracy(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -72,7 +72,7 @@ public class WebCalculatorFactoryResponseTest {
         assertEquals(description, integralCalculationResponse.getDescription());
         assertEquals(expression, integralCalculationResponse.getExpression());
         assertEquals(id, integralCalculationResponse.getId());
-        assertEquals(approxArea+"", integralCalculationResponse.getApproximation());
+        assertEquals(approxArea+"", integralCalculationResponse.getResult());
         assertEquals(responseTime, integralCalculationResponse.getResponseTime());
         assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedAccuracy, integralCalculationResponse.getAccuracy(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -92,7 +92,7 @@ public class WebCalculatorFactoryResponseTest {
         assertEquals(responseTime, calculationResponse.getResponseTime());
         assertEquals(description, calculationResponse.getDescription());
         assertEquals(expression, calculationResponse.getExpression());
-        assertEquals(result+"", calculationResponse.getApproximation());
+        assertEquals(result+"", calculationResponse.getResult());
     }
 
     @Test
@@ -109,6 +109,6 @@ public class WebCalculatorFactoryResponseTest {
         assertEquals(responseTime, calculationResponse.getResponseTime());
         assertEquals(description, calculationResponse.getDescription());
         assertEquals(expression, calculationResponse.getExpression());
-        assertEquals(result, calculationResponse.getApproximation());
+        assertEquals(result, calculationResponse.getResult());
     }
 }

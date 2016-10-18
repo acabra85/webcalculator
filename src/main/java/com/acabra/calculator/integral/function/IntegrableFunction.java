@@ -47,10 +47,10 @@ public abstract class IntegrableFunction {
      * This method evaluates the integral using the
      * integration techniques for the specified function.
      *
-     * Recommended to cache the approximation of this method to be stored as approximation.
-     * Since the bounds of this object are final the approximation is not meant to change.
+     * Recommended to cache the result of this method to be stored as result.
+     * Since the bounds of this object are final the result is not meant to change.
      *
-     * @return the approximation of integration.
+     * @return the result of integration.
      */
     public synchronized double solve() {
         if (null == result) {
@@ -65,7 +65,7 @@ public abstract class IntegrableFunction {
     /**
      * This method is meant to provide the integration solution using the integration
      * techniques for this function
-     * @return the approximation of integration between limits
+     * @return the result of integration between limits
      */
     protected abstract Double executeIntegration();
 
