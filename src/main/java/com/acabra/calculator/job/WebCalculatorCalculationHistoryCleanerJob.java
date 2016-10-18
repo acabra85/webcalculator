@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 /**
  * Created by Agustin on 10/6/2016.
  */
-public class WebCalculationHistoryCleanerJob implements Job {
+public class WebCalculatorCalculationHistoryCleanerJob implements Job {
 
-    private static final Logger logger = Logger.getLogger(WebCalculationHistoryCleanerJob.class);
+    private static final Logger logger = Logger.getLogger(WebCalculatorCalculationHistoryCleanerJob.class);
 
     private LocalDateTime lastRun = null;
     private WebCalculatorHistoryCleanerPolicy policy;
@@ -42,5 +42,9 @@ public class WebCalculationHistoryCleanerJob implements Job {
         if (this.policy == null || this.webCalculatorManager == null){
             throw new NullPointerException("unable to retrieve cleaner job inputs");
         }
+    }
+
+    public LocalDateTime getLastRun() {
+        return lastRun;
     }
 }

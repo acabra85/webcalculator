@@ -1,13 +1,16 @@
-package com.acabra.calculator.integral;
+package com.acabra.calculator.integral.function;
 
+import com.acabra.calculator.integral.Interval;
+import com.acabra.calculator.integral.function.FunctionDomain;
+import com.acabra.calculator.integral.function.FunctionDomainFactory;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -196,6 +199,23 @@ public class FunctionDomainTest {
             }
         }
         assertEquals(2, exceptions);
+    }
+
+    @Test
+    public void differentFunctionTest() {
+        FunctionDomain domain  = new FunctionDomainFactory.DomainBuilder().withValue(5.0).build();
+        assertTrue(domain.belongsDomain(5.0));
+        assertFalse(domain.belongsDomain(1.0));
+    }
+
+    @Test(expected = InputMismatchException.class)
+    public void wrongDefinitionDomainTest() {
+        new FunctionDomainFactory.DomainBuilder().withValue(5.0).withValue(Double.NaN).build();
+    }
+
+    @Test(expected = InputMismatchException.class)
+    public void wrongDefinitionDomain2Test() {
+        new FunctionDomainFactory.DomainBuilder().withValue(5.0).exceptValue(Double.NaN).build();
     }
 
 }

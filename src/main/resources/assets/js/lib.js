@@ -3,14 +3,17 @@
  */
 
 var SQRT_SYMBOL = 'sqrt (';
+var POLINOMIAL_FUNCTION_STR = 'x^n';
 var MINUS_SYMBOL = '-';
 var OPERATORS = ['+', '*', '/', MINUS_SYMBOL, '[', ']', '{', '}', '(', ')', SQRT_SYMBOL];
 var sqrtIndex = OPERATORS.indexOf(SQRT_SYMBOL);
 var minusIndex = OPERATORS.indexOf(MINUS_SYMBOL);
 var VALID_CODES = [40, 41, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 91, 93, 123, 125];
 var VALID_KEYS = ['(', ')', '*', '+', MINUS_SYMBOL, '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[', ']', '{', '}'];
-var AVAILABLE_FUNCTIONS = ['e^x', 'x^n', 'ln(x)'];
-var AVAILABLE_APPROXIMATION_METHODS = ['Riemann Rectangles', 'Simpson\'s Rule', 'Gaussian Quadrature'];
+var AVAILABLE_FUNCTIONS = ['e^x', POLINOMIAL_FUNCTION_STR, 'ln(x)', '1/x'];
+var SIMPSONS_METHOD_STR = 'Simpson\'s Rule (Cavalieri and Gregory)';
+var RIEMANN_METHOD_STR = 'Riemann Rectangles';
+var AVAILABLE_APPROXIMATION_METHODS = [RIEMANN_METHOD_STR, SIMPSONS_METHOD_STR, 'Gaussian Quadrature'];
 var ENTER_KEY = 'Enter';
 var ERROR_RESULTS = ['INFINITY', 'NAN', '-INFINITY'];
 var ENTER_CODE = 13;
@@ -31,6 +34,7 @@ var integralSelectedFunction = 0;
 var approximationSelectedMethod = 0;
 var inputStackSizes = [];
 var divPolynomialOptions = null;
+var divMethodOptions = null;
 var coefficientsFieldSelector = null;
 
 var STACK_ADD = 0;
@@ -80,6 +84,12 @@ function initCoefficientsField() {
 function initPolynomialOptions() {
     if (divPolynomialOptions === null) {
         divPolynomialOptions = $('#polynomial_options');
+    }
+}
+
+function initApproximationOptions() {
+    if (divMethodOptions === null) {
+        divMethodOptions = $('#method_options');
     }
 }
 
@@ -194,7 +204,7 @@ function initHistoryComponent() {
 
 function updateHistory() {
     var historyComponent = initHistoryComponent();
-    $.get(encodeURI('/api/calculator/history?token=' + token)
+    $.get(encodeURI('/api/calculator/renderedhistory?token=' + token)
     ).done(function (historyResponse) {
         historyComponent.text('');
         historyComponent.append(historyResponse.body.renderedTable);
@@ -395,9 +405,23 @@ function hasOnlyNumbers(list) {
     return onlyNumbers;
 }
 function validIntegralRequestData(req) {
-    return req.numberThreads > 0 && req.numberThreads <= 15
-        && req.repeatedCalculations > 0 && req.repeatedCalculations <= 2147483647
-        && hasOnlyNumbers(req.coefficients);
+    var amountThreads = req.numberThreads > 0 && req.numberThreads <= 15;
+    var repeatedCalculations = req.repeatedCalculations > 0 && req.repeatedCalculations <= 2147483647;
+    var validCoefficients = hasOnlyNumbers(req.coefficients);
+    var validRepeatedCalculationsForMethod = AVAILABLE_APPROXIMATION_METHODS[req.approximationMethodId] === SIMPSONS_METHOD_STR ? req.repeatedCalculations%2==0 : true;
+    if (!amountThreads) {
+        displayError('invalid integral request, the amount of threads is invalid must be in range [1, 15]');
+    }
+    if (amountThreads && !repeatedCalculations) {
+        displayError('invalid integral request, the amount of repeatedCalculations is invalid must be in range [1, 2147483647]');
+    }
+    if (amountThreads && repeatedCalculations && !validCoefficients) {
+        displayError('invalid integral request, the coefficients must contain only numbers');
+    }
+    if (amountThreads && repeatedCalculations && validCoefficients && !validRepeatedCalculationsForMethod) {
+        displayError('invalid integral request, repeated calculations for ' + SIMPSONS_METHOD_STR + ' must be an even number');
+    }
+    return amountThreads && repeatedCalculations && validCoefficients && validRepeatedCalculationsForMethod;
 }
 
 function retrieveJsonArray(value) {
@@ -409,8 +433,8 @@ function retrieveJsonArray(value) {
 function buildIntegralRequest() {
     initCoefficientsField();
     var integralRequest = {
-        lowerBound: parseFloat($('#lowerbound')[0].value),
-        upperBound: parseFloat($('#upperbound')[0].value),
+        lowerLimit: parseFloat($('#lowerbound')[0].value),
+        upperLimit: parseFloat($('#upperbound')[0].value),
         repeatedCalculations: parseInt($('#repeatedcalculations')[0].value),
         numberThreads: parseInt($('#numthreads')[0].value),
         functionId: integralSelectedFunction,
@@ -431,24 +455,24 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
             headers: {
                 'Content-Type': 'application/json'
             }
+        }).done(function (integralResponse) {
+            console.log(integralResponse.body.description + ' => ' + integralResponse.body.result + ' #' + integralRequest.repeatedCalculations);
+            expressionField.value = integralResponse.body.approximation;
+            lastButtonEqual = true;
+            updateHistory();
         }).fail(function (response) {
             displayError('calculating integral: ' + response.responseJSON.message);
             allowInteractions = true;
-        }).done(function (integralResponse) {
-            console.log(integralResponse.body.description + ' => ' + integralResponse.body.result + ' #' + integralRequest.repeatedCalculations);
-            expressionField.value = integralResponse.body.result;
-            lastButtonEqual = true;
-            updateHistory();
         });
     } else {
-        displayError('invalid integral request, please verify the constraints for the fields');
+        //displayError('invalid integral request, please verify the constraints for the fields');
         allowInteractions = true;
     }
 
 }
-function displayOptions(num) {
+function displayFunctionOptions(num) {
     initPolynomialOptions();
-    if (AVAILABLE_FUNCTIONS[num] === 'x^n') {
+    if (AVAILABLE_FUNCTIONS[num] === POLINOMIAL_FUNCTION_STR) {
         divPolynomialOptions.fadeIn();
     } else{
         divPolynomialOptions.fadeOut();
@@ -460,10 +484,19 @@ function displayOptions(num) {
 function useFunction(num) {
     initIntegralSelectedFunction()[0].value = AVAILABLE_FUNCTIONS[num];
     integralSelectedFunction = num;
-    displayOptions(num);
+    displayFunctionOptions(num);
 }
+function displayApproximationMethodOptions(num) {
+    initApproximationOptions();
+    if (AVAILABLE_APPROXIMATION_METHODS[num] === RIEMANN_METHOD_STR) {
+        divMethodOptions.fadeIn();
+    } else {
+        divMethodOptions.fadeOut();
+    }
 
+}
 function useApproximationMethod(num) {
     initApproximationMethodsElement()[0].value = AVAILABLE_APPROXIMATION_METHODS[num];
     approximationSelectedMethod = num;
+    displayApproximationMethodOptions(num);
 }

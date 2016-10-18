@@ -23,11 +23,11 @@ public class IntegrableFunctionInputParameters {
         this.integrationResult = integrationResult;
     }
 
-    public double getLowerBound() {
+    public double getLowerLimit() {
         return lowerBound;
     }
 
-    public double getUpperBound() {
+    public double getUpperLimit() {
         return upperBound;
     }
 

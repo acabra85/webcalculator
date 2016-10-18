@@ -76,20 +76,21 @@
                                             <li onclick="useFunction(0)"><a href="#">e^x</a></li>
                                             <li onclick="useFunction(1)"><a href="#">x^n</a></li>
                                             <li onclick="useFunction(2)"><a href="#">ln(x)</a></li>
+                                            <li onclick="useFunction(3)"><a href="#">1/x</a></li>
                                         </ul>
                                     </div><!-- /btn-group -->
                                     <input type="text" id="selected_function" class="form-control" aria-label="..." value="e^x" readonly>
                                 </div><!-- /input-group -->
                                 <div class="input-group">
                                     <div class="input-group-btn">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Method<span class="caret"></span></button>
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Approx. Method<span class="caret"></span></button>
                                         <ul class="dropdown-menu">
-                                            <li onclick="useApproximationMethod(0)"><a href="#">Riemann Approximation</a></li>
-                                            <!--<li onclick="useApproximationMethod(1)"><a href="#">Simpson's Rule</a></li>-->
+                                            <li onclick="useApproximationMethod(0)"><a href="#">Riemann Rectangles</a></li>
+                                            <li onclick="useApproximationMethod(1)"><a href="#">Simpson's Rule</a></li>
                                             <!--<li onclick="useApproximationMethod(2)"><a href="#">Gaussian Quadrature</a></li>-->
                                         </ul>
                                     </div><!-- /btn-group -->
-                                    <input type="text" id="selected_approximation_method" class="form-control" aria-label="..." value="Riemann Rectangles" readonly>
+                                    <input type="text" id="selected_approximation_method" class="form-control detail-method-text" aria-label="..." value="Riemann Rectangles" readonly>
                                 </div><!-- /input-group -->
                                 <div id="method_options" style="display: block; text-align: left">
                                     <label><input type="checkbox" id="inscribed_rectangles" value="" checked>Inscribed Rectangles</label>

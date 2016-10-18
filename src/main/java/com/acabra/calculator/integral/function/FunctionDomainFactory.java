@@ -1,4 +1,6 @@
-package com.acabra.calculator.integral;
+package com.acabra.calculator.integral.function;
+
+import com.acabra.calculator.integral.Interval;
 
 import java.util.*;
 
@@ -33,6 +35,9 @@ public class FunctionDomainFactory {
         }
 
         private Interval createSinglePoint(double val) {
+            if(Double.isNaN(val) || Double.isInfinite(val)) {
+                throw new InputMismatchException("invalid value to include");
+            }
             return new Interval(true, val, true, val);
         }
 

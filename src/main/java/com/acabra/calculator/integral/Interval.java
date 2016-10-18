@@ -20,6 +20,14 @@ public class Interval {
         validateInterval();
     }
 
+    public Interval(double lowerLimit, double upperLimit) {
+        lowerLimitClosed = true;
+        upperLimitClosed = true;
+        this.lowerLimit = lowerLimit;
+        this.upperLimit = upperLimit;
+        validateInterval();
+    }
+
     private void validateInterval() {
         if (lowerLimit == Double.NEGATIVE_INFINITY && lowerLimitClosed
                 || upperLimit == Double.POSITIVE_INFINITY && upperLimitClosed
@@ -30,6 +38,14 @@ public class Interval {
         if(Double.isNaN(lowerLimit) || Double.isNaN(upperLimit)) {
             throw new InputMismatchException("range with NaN value");
         }
+    }
+
+    public double getLowerLimit() {
+        return lowerLimit;
+    }
+
+    public double getUpperLimit() {
+        return upperLimit;
     }
 
     private boolean isLowerBoundContained(Interval range) {

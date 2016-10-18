@@ -16,8 +16,8 @@ public class IntegralRequestDTOTest {
     public void creationEmptyTest() {
         IntegralRequestDTO integralRequestDTO = new IntegralRequestDTO();
         int defaultValue = 0;
-        assertNull(integralRequestDTO.getLowerBound());
-        assertNull(integralRequestDTO.getUpperBound());
+        assertNull(integralRequestDTO.getLowerLimit());
+        assertNull(integralRequestDTO.getUpperLimit());
         assertNull(integralRequestDTO.getNumberThreads());
         assertNull(integralRequestDTO.getRepeatedCalculations());
         assertEquals(defaultValue, integralRequestDTO.getFunctionId());
@@ -33,8 +33,8 @@ public class IntegralRequestDTOTest {
         boolean areaInscribed = true;
         int approximationMethodId = 0;
         IntegralRequestDTO integralRequestDTO = new IntegralRequestDTO(lowerBound, upperBound, numberThreads, repeatedCalculations, functionId, approximationMethodId, areaInscribed, Collections.emptyList());
-        assertEquals(lowerBound, integralRequestDTO.getLowerBound());
-        assertEquals(upperBound, integralRequestDTO.getUpperBound());
+        assertEquals(lowerBound, integralRequestDTO.getLowerLimit());
+        assertEquals(upperBound, integralRequestDTO.getUpperLimit());
         assertEquals(numberThreads, integralRequestDTO.getNumberThreads());
         assertEquals(repeatedCalculations, integralRequestDTO.getRepeatedCalculations());
         assertEquals(functionId, integralRequestDTO.getFunctionId());

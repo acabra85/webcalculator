@@ -4,7 +4,6 @@ import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 
 import java.util.Collections;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,8 +24,8 @@ public class IntegralRequestTest {
         IntegralRequest integralRequest = new IntegralRequest(lowerBound, upperBound, repeatedCalculations, numThreads, functionId, approximationMethodId, areaInscribed, Collections.emptyList());
 
         assertEquals(approximationMethodId, integralRequest.getApproximationMethodId());
-        assertEquals(lowerBound, integralRequest.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperBound, integralRequest.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(lowerBound, integralRequest.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperBound, integralRequest.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(repeatedCalculations, integralRequest.getRepeatedCalculations());
         assertEquals(numThreads, integralRequest.getNumThreads());
         assertEquals(functionId, integralRequest.getFunctionId());

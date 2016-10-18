@@ -37,8 +37,8 @@ public class RequestMapperTest {
 
         IntegralRequestDTO dtoRequestMock = PowerMockito.mock(IntegralRequestDTO.class);
 
-        when(dtoRequestMock.getLowerBound()).thenReturn(lowerBoundStr);
-        when(dtoRequestMock.getUpperBound()).thenReturn(upperBoundStr);
+        when(dtoRequestMock.getLowerLimit()).thenReturn(lowerBoundStr);
+        when(dtoRequestMock.getUpperLimit()).thenReturn(upperBoundStr);
         when(dtoRequestMock.getNumberThreads()).thenReturn(numThreadsStr);
         when(dtoRequestMock.getRepeatedCalculations()).thenReturn(repeatedCalculationsStr);
         when(dtoRequestMock.getFunctionId()).thenReturn(functionId);
@@ -46,15 +46,15 @@ public class RequestMapperTest {
 
         IntegralRequest mappedRequest = RequestMapper.fromInternalRequest(dtoRequestMock);
 
-        verify(dtoRequestMock, times(1)).getLowerBound();
-        verify(dtoRequestMock, times(1)).getUpperBound();
+        verify(dtoRequestMock, times(1)).getLowerLimit();
+        verify(dtoRequestMock, times(1)).getUpperLimit();
         verify(dtoRequestMock, times(1)).getNumberThreads();
         verify(dtoRequestMock, times(1)).getRepeatedCalculations();
         verify(dtoRequestMock, times(1)).getFunctionId();
         verify(dtoRequestMock, times(1)).getApproximationMethodId();
 
-        assertEquals(lowerBound, mappedRequest.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperBound, mappedRequest.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(lowerBound, mappedRequest.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperBound, mappedRequest.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(numThreads, mappedRequest.getNumThreads(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(repeatedCalculations, mappedRequest.getRepeatedCalculations(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(functionId, mappedRequest.getFunctionId());
@@ -77,8 +77,8 @@ public class RequestMapperTest {
 
         IntegralRequestDTO dtoRequestMock = PowerMockito.mock(IntegralRequestDTO.class);
 
-        when(dtoRequestMock.getLowerBound()).thenReturn(lowerBoundStr);
-        when(dtoRequestMock.getUpperBound()).thenReturn(upperBoundStr);
+        when(dtoRequestMock.getLowerLimit()).thenReturn(lowerBoundStr);
+        when(dtoRequestMock.getUpperLimit()).thenReturn(upperBoundStr);
         when(dtoRequestMock.getNumberThreads()).thenReturn(numThreadsStr);
         when(dtoRequestMock.getRepeatedCalculations()).thenReturn(repeatedCalculationsStr);
         when(dtoRequestMock.getFunctionId()).thenReturn(functionId);
@@ -86,15 +86,15 @@ public class RequestMapperTest {
 
         IntegralRequest mappedRequest = RequestMapper.fromInternalRequest(dtoRequestMock);
 
-        verify(dtoRequestMock, times(1)).getLowerBound();
-        verify(dtoRequestMock, times(1)).getUpperBound();
+        verify(dtoRequestMock, times(1)).getLowerLimit();
+        verify(dtoRequestMock, times(1)).getUpperLimit();
         verify(dtoRequestMock, times(1)).getNumberThreads();
         verify(dtoRequestMock, times(1)).getRepeatedCalculations();
         verify(dtoRequestMock, times(1)).getFunctionId();
         verify(dtoRequestMock, times(1)).getApproximationMethodId();
 
-        assertEquals(lowerBound, mappedRequest.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperBound, mappedRequest.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(lowerBound, mappedRequest.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperBound, mappedRequest.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(numThreads, mappedRequest.getNumThreads(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(repeatedCalculations, mappedRequest.getRepeatedCalculations(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(functionId, mappedRequest.getFunctionId());

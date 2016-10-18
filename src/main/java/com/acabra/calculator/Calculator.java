@@ -1,7 +1,7 @@
 package com.acabra.calculator;
 
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.IntegrableFunction;
+import com.acabra.calculator.integral.function.IntegrableFunction;
 import com.acabra.calculator.integral.IntegralSolver;
 import com.acabra.calculator.util.ShuntingYard;
 import org.apache.log4j.Logger;
@@ -59,22 +59,15 @@ public class Calculator {
                 operateAndUpdate(stack, Operator.OPERATOR_MAP.get(item));
             }
         }
-        BigDecimal result = stack.size() == 1 ? stack.pop() : operatePendingStack(stack, Operator.MULTIPLY);
+        BigDecimal result = stack.size() == 1 ? stack.pop() : operatePendingStack(stack);
         logger.debug("postfix solved -> " + result);
         return result;
     }
 
-    private static BigDecimal operatePendingStack(Stack<BigDecimal> stack, Operator operator) {
-        BigDecimal identity = operator == Operator.ADD || operator == Operator.SUBTRACT ? BIGD_ZERO : BIGD_ONE;
+    private static BigDecimal operatePendingStack(Stack<BigDecimal> stack) {
+        BigDecimal identity = BIGD_ONE;
         while (!stack.isEmpty()) {
-            if (operator == Operator.MULTIPLY)
-                identity = identity.multiply(stack.pop());
-            else if(operator == Operator.DIVIDE)
-                identity = stack.pop().divide(identity, MathContext.DECIMAL32);
-            else if (operator == Operator.ADD)
-                identity = identity.add(stack.pop());
-            else if(operator == Operator.SUBTRACT)
-                identity = stack.pop().subtract(identity);
+            identity = identity.multiply(stack.pop());
         }
         return identity;
     }

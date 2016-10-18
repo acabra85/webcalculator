@@ -3,9 +3,9 @@ package com.acabra.calculator;
 import com.acabra.calculator.domain.CalculationHistoryRecord;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.domain.IntegralRequestBuilder;
-import com.acabra.calculator.integral.FExponential;
-import com.acabra.calculator.integral.IntegrableFunction;
-import com.acabra.calculator.integral.IntegralFunctionFactory;
+import com.acabra.calculator.integral.function.FExponential;
+import com.acabra.calculator.integral.function.IntegrableFunction;
+import com.acabra.calculator.integral.function.FunctionFactory;
 import com.acabra.calculator.integral.approx.NumericalMethodApproximationType;
 import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.ResultFormatter;
@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
@@ -118,8 +119,8 @@ public class WebCalculatorManagerTest {
         PowerMockito.when(calculatorMock.solveArithmeticExpression(any())).thenReturn(new BigDecimal("0"));
 
         webCalculatorManager.processArithmeticCalculation("2 - 2", TOKEN);
-        assertTrue(renderedHistoryResponseMock == webCalculatorManager.provideRenderedHistoryResult(TOKEN));
-        assertEquals(expectedSizeHistory, webCalculatorManager.provideCalculationHistory(TOKEN).size());
+        assertTrue(renderedHistoryResponseMock == webCalculatorManager.provideRenderedHistoryResponse(TOKEN));
+        assertEquals(expectedSizeHistory, webCalculatorManager.provideRawHistory(TOKEN).size());
 
         verify(rendererMock, times(1)).renderCalculationHistory(any(), eq(true));
         verify(calculatorMock, times(1)).solveArithmeticExpression(any());
@@ -140,14 +141,14 @@ public class WebCalculatorManagerTest {
 
         assertEquals(0, calculationResponse.getId());
         assertEquals(calculationResponse.getExpression(), expr1);
-        assertEquals(res1,  calculationResponse.getResult());
+        assertEquals(res1,  calculationResponse.getApproximation());
 
         CalculationResponse calculationResponse2 = (CalculationResponse) webCalculatorManager.processArithmeticCalculation(expr2, TOKEN);
 
         assertEquals(1, calculationResponse2.getId());
         assertEquals(expr2, calculationResponse2.getExpression());
-        assertEquals(res2, calculationResponse2.getResult());
-        assertEquals(expectedSizeHistory, webCalculatorManager.provideCalculationHistory(TOKEN).size());
+        assertEquals(res2, calculationResponse2.getApproximation());
+        assertEquals(expectedSizeHistory, webCalculatorManager.provideRawHistory(TOKEN).size());
 
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expr1));
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expr2));
@@ -166,7 +167,7 @@ public class WebCalculatorManagerTest {
 
         List<CalculationResponse> calculationHistory;
         try {
-            calculationHistory = webCalculatorManager.provideCalculationHistory(TOKEN2);
+            calculationHistory = webCalculatorManager.provideRawHistory(TOKEN2);
         } catch (NoSuchElementException nsee) {
             calculationHistory = Collections.emptyList();
             exceptionToken2 = true;
@@ -175,7 +176,7 @@ public class WebCalculatorManagerTest {
         assertTrue(exceptionToken2);
         assertEquals(0, calculationHistory.size());
 
-        List<CalculationResponse> resultList = webCalculatorManager.provideCalculationHistory(TOKEN);
+        List<CalculationResponse> resultList = webCalculatorManager.provideRawHistory(TOKEN);
 
         assertEquals(expectedSizeHistory, resultList.size()); //valid size according to number of operations on that Token
         assertEquals(0, resultList.get(0).getId());
@@ -186,7 +187,7 @@ public class WebCalculatorManagerTest {
 
     @Test(expected = NoSuchElementException.class)
     public void provideRenderedHistoryResultEmptyTest() {
-        webCalculatorManager.provideRenderedHistoryResult(TOKEN);
+        webCalculatorManager.provideRenderedHistoryResponse(TOKEN);
     }
 
     @Test
@@ -198,10 +199,10 @@ public class WebCalculatorManagerTest {
         webCalculatorManager.processArithmeticCalculation(expr1, TOKEN);
         webCalculatorManager.processArithmeticCalculation(expr2, TOKEN);
 
-        List<CalculationResponse> historyList = webCalculatorManager.provideCalculationHistory(TOKEN);
+        List<CalculationResponse> historyList = webCalculatorManager.provideRawHistory(TOKEN);
         when(rendererMock.renderCalculationHistory(eq(historyList), eq(true))).thenReturn(renderedTable2);
 
-        assertEquals(renderedTable2, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResult(TOKEN)).getRenderedTable());
+        assertEquals(renderedTable2, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResponse(TOKEN)).getRenderedTable());
         assertEquals(expectedSizeHistory, historyList.size());
 
         verify(rendererMock, times(1)).renderCalculationHistory(eq(historyList), eq(true));
@@ -216,7 +217,7 @@ public class WebCalculatorManagerTest {
         when(calculatorMock.solveArithmeticExpression(eq(expr3))).thenReturn(new BigDecimal(res3));
 
         webCalculatorManager.processArithmeticCalculation(expr3, TOKEN);
-        assertEquals(renderedTable3, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResult(TOKEN)).getRenderedTable());
+        assertEquals(renderedTable3, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResponse(TOKEN)).getRenderedTable());
 
 
         verify(rendererMock, times(1)).renderCalculationHistory(any(), eq(true));
@@ -233,8 +234,8 @@ public class WebCalculatorManagerTest {
         when(rendererMock.renderCalculationHistory(any(), eq(true))).thenReturn(renderedTable4);
         PowerMockito.when(calculatorMock.solveArithmeticExpression(expr4)).thenReturn(new BigDecimal(result4));
 
-        assertEquals(result4, ((CalculationResponse)webCalculatorManager.processArithmeticCalculation(expr4, TOKEN)).getResult());
-        assertEquals(renderedTable4, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResult(TOKEN)).getRenderedTable());
+        assertEquals(result4, ((CalculationResponse)webCalculatorManager.processArithmeticCalculation(expr4, TOKEN)).getApproximation());
+        assertEquals(renderedTable4, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResponse(TOKEN)).getRenderedTable());
 
         verify(rendererMock, times(1)).renderCalculationHistory(any(), eq(true));
     }
@@ -249,8 +250,8 @@ public class WebCalculatorManagerTest {
         when(rendererMock.renderCalculationHistory(any(), eq(true))).thenReturn(renderedTable);
         PowerMockito.when(calculatorMock.solveArithmeticExpression(expression)).thenReturn(new BigDecimal(res));
 
-        assertEquals(res, ((CalculationResponse)webCalculatorManager.processArithmeticCalculation(expression, TOKEN)).getResult());
-        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResult(TOKEN)).getRenderedTable());
+        assertEquals(res, ((CalculationResponse)webCalculatorManager.processArithmeticCalculation(expression, TOKEN)).getApproximation());
+        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResponse(TOKEN)).getRenderedTable());
 
         verify(rendererMock, times(1)).renderCalculationHistory(any(), eq(true));
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expression));
@@ -266,8 +267,8 @@ public class WebCalculatorManagerTest {
         when(rendererMock.renderCalculationHistory(any(), eq(true))).thenReturn(renderedTable);
         PowerMockito.when(calculatorMock.solveArithmeticExpression(expr)).thenReturn(new BigDecimal(res));
 
-        assertEquals(res, ((CalculationResponse)webCalculatorManager.processArithmeticCalculation(expr, TOKEN)).getResult());
-        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResult(TOKEN)).getRenderedTable());
+        assertEquals(res, ((CalculationResponse)webCalculatorManager.processArithmeticCalculation(expr, TOKEN)).getApproximation());
+        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResponse(TOKEN)).getRenderedTable());
 
         verify(rendererMock, times(1)).renderCalculationHistory(any(), eq(true));
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expr));
@@ -288,7 +289,7 @@ public class WebCalculatorManagerTest {
         CalculationResponse calculationResponseMock = PowerMockito.mock(CalculationResponse.class);
 
         IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
-        when(solvedIntegralMock.getSequenceRiemannRectangle()).thenReturn(1.1);
+        when(solvedIntegralMock.getApproximation()).thenReturn(1.1);
         when(solvedIntegralMock.getResult()).thenReturn(1.2);
 
         CompletableFuture<IntegrableFunction> future = CompletableFuture.completedFuture(solvedIntegralMock);
@@ -308,7 +309,7 @@ public class WebCalculatorManagerTest {
         Assert.assertEquals(solved, calculationResponseMock);
         assertEquals(sizeAfter, webCalculatorManager.countHistorySize());
 
-        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResult(TOKEN)).getRenderedTable());
+        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResponse(TOKEN)).getRenderedTable());
         verify(rendererMock, times(1)).renderCalculationHistory(any(), eq(true));
         verify(calculatorMock, times(1)).approximateAreaUnderCurve(any());
 
@@ -335,7 +336,7 @@ public class WebCalculatorManagerTest {
         when(rendererMock.renderCalculationHistory(any(), eq(true))).thenReturn(renderedTable);
 
         IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
-        when(solvedIntegralMock.getSequenceRiemannRectangle()).thenReturn(1.1);
+        when(solvedIntegralMock.getApproximation()).thenReturn(1.1);
         when(solvedIntegralMock.getResult()).thenReturn(1.2);
         CompletableFuture<IntegrableFunction> future = CompletableFuture.completedFuture(solvedIntegralMock);
 
@@ -355,7 +356,7 @@ public class WebCalculatorManagerTest {
         Assert.assertEquals(solved, calculationResponseMock);
         assertEquals(sizeAfter, webCalculatorManager.countHistorySize());
 
-        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResult(TOKEN)).getRenderedTable());
+        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResponse(TOKEN)).getRenderedTable());
         verify(rendererMock, times(1)).renderCalculationHistory(any(), eq(true));
         verify(calculatorMock, times(1)).approximateAreaUnderCurve(any());
 
@@ -400,7 +401,7 @@ public class WebCalculatorManagerTest {
         Assert.assertEquals(solved, calculationResponseMock);
         assertEquals(sizeAfter, webCalculatorManager.countHistorySize());
 
-        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResult(TOKEN)).getRenderedTable());
+        assertEquals(renderedTable, ((RenderedHistoryResponse) webCalculatorManager.provideRenderedHistoryResponse(TOKEN)).getRenderedTable());
         verify(rendererMock, times(1)).renderCalculationHistory(any(), eq(true));
         verify(calculatorMock, times(1)).approximateAreaUnderCurve(any());
 
@@ -430,17 +431,17 @@ public class WebCalculatorManagerTest {
 
         FExponential expIntegralMock = PowerMockito.mock(FExponential.class);
 
-        when(expIntegralMock.getUpperBound()).thenReturn(upperBound);
-        when(expIntegralMock.getLowerBound()).thenReturn(lowerBound);
+        when(expIntegralMock.getUpperLimit()).thenReturn(upperBound);
+        when(expIntegralMock.getLowerLimit()).thenReturn(lowerBound);
         when(expIntegralMock.toString()).thenReturn("");
         when(expIntegralMock.getResult()).thenReturn(result);
-        when(expIntegralMock.getSequenceRiemannRectangle()).thenReturn(approximation);
+        when(expIntegralMock.getApproximation()).thenReturn(approximation);
 
         CompletableFuture<IntegrableFunction> futureSolvedIntegral = CompletableFuture.completedFuture(expIntegralMock);
 
         IntegralRequest integralRequestMock = PowerMockito.mock(IntegralRequest.class);
-        when(integralRequestMock.getLowerBound()).thenReturn(lowerBound);
-        when(integralRequestMock.getUpperBound()).thenReturn(upperBound);
+        when(integralRequestMock.getLowerLimit()).thenReturn(lowerBound);
+        when(integralRequestMock.getUpperLimit()).thenReturn(upperBound);
         when(integralRequestMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
         when(integralRequestMock.getNumThreads()).thenReturn(numThreads);
         when(integralRequestMock.isAreaInscribed()).thenReturn(inscribed);
@@ -467,22 +468,22 @@ public class WebCalculatorManagerTest {
         PowerMockito.verifyStatic(Mockito.times(1));
         ResultFormatter.formatIntegralRequest(expIntegralMock.toString(), repeatedCalculations, numThreads);
 
-        verify(integralRequestMock, times(0)).getLowerBound();
-        verify(integralRequestMock, times(0)).getUpperBound();
+        verify(integralRequestMock, times(0)).getLowerLimit();
+        verify(integralRequestMock, times(0)).getUpperLimit();
         verify(integralRequestMock, times(1)).getNumThreads();
         verify(integralRequestMock, times(1)).getRepeatedCalculations();
         verify(integralRequestMock, times(0)).getFunctionId();
         verify(integralRequestMock, times(1)).getApproximationMethodId();
         verify(integralRequestMock, times(0)).isAreaInscribed();
 
-        verify(expIntegralMock, times(0)).getUpperBound();
-        verify(expIntegralMock, times(0)).getLowerBound();
+        verify(expIntegralMock, times(0)).getUpperLimit();
+        verify(expIntegralMock, times(0)).getLowerLimit();
         verify(expIntegralMock, times(1)).getResult();
-        verify(expIntegralMock, times(1)).getSequenceRiemannRectangle();
+        verify(expIntegralMock, times(1)).getApproximation();
 
-        assertEquals("1.0", integralCalculationResponse.getResult());
+        assertEquals("1.0", integralCalculationResponse.getApproximation());
         assertEquals(result, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(IntegralFunctionFactory.evaluateApproximationMethodType(approximationMethodId).getLabel(), integralCalculationResponse.getDescription());
+        assertEquals(FunctionFactory.evaluateApproximationMethodType(approximationMethodId).getLabel(), integralCalculationResponse.getDescription());
         assertEquals(expr, integralCalculationResponse.getExpression());
         assertEquals(sizeAfter, webCalculatorManager.countHistorySize());
     }
@@ -559,18 +560,18 @@ public class WebCalculatorManagerTest {
                 .withRepeatedCalculations(repeatedCalculations)
                 .build();
 
-        when(calculatorMock.approximateAreaUnderCurve(eq(integralRequest))).thenReturn(integralResult);
+        when(calculatorMock.approximateAreaUnderCurve(any())).thenReturn(integralResult);
 
         assertEquals(sizeBeforeProcess, webCalculatorManager.countHistorySize());
 
         CalculationResponse calculationResponse = webCalculatorManager.processIntegralCalculation(integralRequest, TOKEN).get();
 
         IntegralCalculationResponse integralCalculationResponse = (IntegralCalculationResponse) calculationResponse;
-        verify(calculatorMock, Mockito.times(1)).approximateAreaUnderCurve(eq(integralRequest));
-        assertEquals(result, integralCalculationResponse.getResult());
+        verify(calculatorMock, Mockito.times(1)).approximateAreaUnderCurve(any());
+        assertEquals("0", integralCalculationResponse.getApproximation());
         assertEquals(expr, integralCalculationResponse.getExpression());
         assertEquals(description, integralCalculationResponse.getDescription());
-        assertEquals(NumericalMethodApproximationType.RIEMANN, IntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()));
+        assertEquals(NumericalMethodApproximationType.RIEMANN, FunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()));
         assertEquals(sizeAfterProcess, webCalculatorManager.countHistorySize());
     }
 
@@ -581,17 +582,17 @@ public class WebCalculatorManagerTest {
         int sizeAfterProcess = 1;
 
         FExponential expIntegralMock = PowerMockito.mock(FExponential.class);
-        when(expIntegralMock.getUpperBound()).thenReturn(upperBound);
-        when(expIntegralMock.getLowerBound()).thenReturn(lowerBound);
+        when(expIntegralMock.getUpperLimit()).thenReturn(upperBound);
+        when(expIntegralMock.getLowerLimit()).thenReturn(lowerBound);
         when(expIntegralMock.toString()).thenReturn("");
         when(expIntegralMock.getResult()).thenReturn(Double.valueOf(exactIntegral));
-        when(expIntegralMock.getSequenceRiemannRectangle()).thenReturn(Double.valueOf(result));
+        when(expIntegralMock.getApproximation()).thenReturn(Double.valueOf(result));
 
         IntegralRequest integralReqMock = PowerMockito.mock(IntegralRequest.class);
         when(integralReqMock.getFunctionId()).thenReturn(functionId);
         when(integralReqMock.getApproximationMethodId()).thenReturn(approximationMethodId);
-        when(integralReqMock.getLowerBound()).thenReturn(lowerBound);
-        when(integralReqMock.getUpperBound()).thenReturn(upperBound);
+        when(integralReqMock.getLowerLimit()).thenReturn(lowerBound);
+        when(integralReqMock.getUpperLimit()).thenReturn(upperBound);
         when(integralReqMock.getNumThreads()).thenReturn(numThreads);
         when(integralReqMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
         when(integralReqMock.isAreaInscribed()).thenReturn(inscribed);
@@ -618,19 +619,19 @@ public class WebCalculatorManagerTest {
         verify(integralReqMock, Mockito.times(1)).getNumThreads();
         verify(integralReqMock, Mockito.times(0)).getFunctionId();
         verify(integralReqMock, Mockito.times(1)).getApproximationMethodId();
-        verify(integralReqMock, Mockito.times(0)).getLowerBound();
-        verify(integralReqMock, Mockito.times(0)).getUpperBound();
+        verify(integralReqMock, Mockito.times(0)).getLowerLimit();
+        verify(integralReqMock, Mockito.times(0)).getUpperLimit();
         verify(integralReqMock, Mockito.times(0)).isAreaInscribed();
         verify(calculatorMock, Mockito.times(1)).approximateAreaUnderCurve(eq(integralReqMock));
 
-        verify(expIntegralMock, times(0)).getUpperBound();
-        verify(expIntegralMock, times(0)).getLowerBound();
+        verify(expIntegralMock, times(0)).getUpperLimit();
+        verify(expIntegralMock, times(0)).getLowerLimit();
         verify(expIntegralMock, times(1)).getResult();
-        verify(expIntegralMock, times(1)).getSequenceRiemannRectangle();
+        verify(expIntegralMock, times(1)).getApproximation();
 
         assertEquals(expr, integralCalculationResponse.getExpression());
         assertEquals(description, integralCalculationResponse.getDescription());
-        assertEquals(result, integralCalculationResponse.getResult());
+        assertEquals(result, integralCalculationResponse.getApproximation());
         assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult() + "");
         assertEquals(sizeAfterProcess, webCalculatorManager.countHistorySize());
     }
@@ -663,8 +664,8 @@ public class WebCalculatorManagerTest {
 
         when(integralReqMock.getFunctionId()).thenReturn(functionId);
         when(integralReqMock.getApproximationMethodId()).thenReturn(approximationMethodId);
-        when(integralReqMock.getLowerBound()).thenReturn(lowerBound);
-        when(integralReqMock.getUpperBound()).thenReturn(upperBound);
+        when(integralReqMock.getLowerLimit()).thenReturn(lowerBound);
+        when(integralReqMock.getUpperLimit()).thenReturn(upperBound);
 
         webCalculatorManager.processIntegralCalculation(integralReqMock, TOKEN);
     }
@@ -680,8 +681,8 @@ public class WebCalculatorManagerTest {
 
         when(integralReqMock.getFunctionId()).thenReturn(functionId);
         when(integralReqMock.getApproximationMethodId()).thenReturn(approximationMethod);
-        when(integralReqMock.getLowerBound()).thenReturn(lowerBound);
-        when(integralReqMock.getUpperBound()).thenReturn(upperBound);
+        when(integralReqMock.getLowerLimit()).thenReturn(lowerBound);
+        when(integralReqMock.getUpperLimit()).thenReturn(upperBound);
         when(integralReqMock.getNumThreads()).thenReturn(numThreads);
 
         webCalculatorManager.processIntegralCalculation(integralReqMock, TOKEN);
@@ -698,8 +699,8 @@ public class WebCalculatorManagerTest {
 
         when(integralReqMock.getFunctionId()).thenReturn(functionId);
         when(integralReqMock.getApproximationMethodId()).thenReturn(approximationMethodId);
-        when(integralReqMock.getLowerBound()).thenReturn(lowerBound);
-        when(integralReqMock.getUpperBound()).thenReturn(upperBound);
+        when(integralReqMock.getLowerLimit()).thenReturn(lowerBound);
+        when(integralReqMock.getUpperLimit()).thenReturn(upperBound);
         when(integralReqMock.getNumThreads()).thenReturn(numThreads);
 
         webCalculatorManager.processIntegralCalculation(integralReqMock, TOKEN);
@@ -717,8 +718,8 @@ public class WebCalculatorManagerTest {
 
         when(integralReqMock.getFunctionId()).thenReturn(functionId);
         when(integralReqMock.getApproximationMethodId()).thenReturn(approximationMethodId);
-        when(integralReqMock.getLowerBound()).thenReturn(lowerBound);
-        when(integralReqMock.getUpperBound()).thenReturn(upperBound);
+        when(integralReqMock.getLowerLimit()).thenReturn(lowerBound);
+        when(integralReqMock.getUpperLimit()).thenReturn(upperBound);
         when(integralReqMock.getNumThreads()).thenReturn(numThreads);
         when(integralReqMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
 
@@ -737,8 +738,8 @@ public class WebCalculatorManagerTest {
 
         when(integralReqMock.getFunctionId()).thenReturn(functionId);
         when(integralReqMock.getApproximationMethodId()).thenReturn(approximationMethodId);
-        when(integralReqMock.getLowerBound()).thenReturn(lowerBound);
-        when(integralReqMock.getUpperBound()).thenReturn(upperBound);
+        when(integralReqMock.getLowerLimit()).thenReturn(lowerBound);
+        when(integralReqMock.getUpperLimit()).thenReturn(upperBound);
         when(integralReqMock.getNumThreads()).thenReturn(numThreads);
         when(integralReqMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
 
@@ -756,9 +757,9 @@ public class WebCalculatorManagerTest {
 
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expr));
 
-        assertEquals(res, calculationResponse.getResult());
+        assertEquals(res, calculationResponse.getApproximation());
         assertEquals(expr, calculationResponse.getExpression());
-        assertEquals(expectedSizeHistory, webCalculatorManager.provideCalculationHistory(TOKEN).size());
+        assertEquals(expectedSizeHistory, webCalculatorManager.provideRawHistory(TOKEN).size());
 
 
     }
@@ -774,9 +775,9 @@ public class WebCalculatorManagerTest {
 
         verify(calculatorMock, times(1)).solveArithmeticExpression(eq(expr));
 
-        assertEquals(res, calculationResponse.getResult());
+        assertEquals(res, calculationResponse.getApproximation());
         assertEquals(expr, calculationResponse.getExpression());
-        assertEquals(expectedSizeHistory, webCalculatorManager.provideCalculationHistory(TOKEN).size());
+        assertEquals(expectedSizeHistory, webCalculatorManager.provideRawHistory(TOKEN).size());
     }
 
     @Test
@@ -794,9 +795,9 @@ public class WebCalculatorManagerTest {
         CalculationResponse calculationResponse3 = (CalculationResponse) webCalculatorManager.processArithmeticCalculation(expr, TOKEN2 + TOKEN);
 
         verify(calculatorMock, Mockito.times(3)).solveArithmeticExpression(expr);
-        assertEquals(res, calculationResponse1.getResult());
-        assertEquals(res, calculationResponse2.getResult());
-        assertEquals(res, calculationResponse3.getResult());
+        assertEquals(res, calculationResponse1.getApproximation());
+        assertEquals(res, calculationResponse2.getApproximation());
+        assertEquals(res, calculationResponse3.getApproximation());
 
 
         assertEquals(expectedSizeHistoryBeforeCleanUp, webCalculatorManager.countHistorySize());
@@ -826,9 +827,9 @@ public class WebCalculatorManagerTest {
         assertEquals(expectedCleanedEntries, cleanedEntries.intValue());
         assertEquals(expectedSizeHistoryBeforeCleanUp - cleanedEntries, webCalculatorManager.countHistorySize());
 
-        assertEquals(res, calculationResponse1.getResult());
-        assertEquals(res, calculationResponse2.getResult());
-        assertEquals(res, calculationResponse3.getResult());
+        assertEquals(res, calculationResponse1.getApproximation());
+        assertEquals(res, calculationResponse2.getApproximation());
+        assertEquals(res, calculationResponse3.getApproximation());
 
         verify(calculatorMock, Mockito.times(3)).solveArithmeticExpression(expr);
     }
@@ -858,9 +859,9 @@ public class WebCalculatorManagerTest {
         CalculationResponse calcResponseMock1 = PowerMockito.mock(CalculationResponse.class);
         CalculationResponse calcResponseMock2 = PowerMockito.mock(CalculationResponse.class);
         CalculationResponse calcResponseMock3 = PowerMockito.mock(CalculationResponse.class);
-        when(calcResponseMock1.getResult()).thenReturn(res1);
-        when(calcResponseMock2.getResult()).thenReturn(res2);
-        when(calcResponseMock3.getResult()).thenReturn(res3);
+        when(calcResponseMock1.getApproximation()).thenReturn(res1);
+        when(calcResponseMock2.getApproximation()).thenReturn(res2);
+        when(calcResponseMock3.getApproximation()).thenReturn(res3);
         when(calcResponseMock1.getResponseTime()).thenReturn(secs);
         when(calcResponseMock2.getResponseTime()).thenReturn(secs);
         when(calcResponseMock3.getResponseTime()).thenReturn(secs);
@@ -890,18 +891,18 @@ public class WebCalculatorManagerTest {
         CalculationResponse calculationResponse3 = (CalculationResponse) webCalculatorManager.processArithmeticCalculation(expr3, TOKEN2);
 
         assertEquals(expectedSizeHistoryBeforeCleanUp, webCalculatorManager.countHistorySize());
-        assertEquals(sizeToken, webCalculatorManager.provideCalculationHistory(TOKEN).size());
-        assertEquals(sizeToken2, webCalculatorManager.provideCalculationHistory(TOKEN2).size());
+        assertEquals(sizeToken, webCalculatorManager.provideRawHistory(TOKEN).size());
+        assertEquals(sizeToken2, webCalculatorManager.provideRawHistory(TOKEN2).size());
 
         Integer cleanedEntries = webCalculatorManager.cleanExpiredEntries(cleaningTime, expirationPolicy, ChronoUnit.MINUTES).get();
 
         assertEquals(expectedCleanedEntries, cleanedEntries.intValue());
         assertEquals(expectedSizeHistoryBeforeCleanUp - cleanedEntries, webCalculatorManager.countHistorySize());
-        assertEquals(sizeToken, webCalculatorManager.provideCalculationHistory(TOKEN).size());
+        assertEquals(sizeToken, webCalculatorManager.provideRawHistory(TOKEN).size());
 
         boolean exceptionHistoryNotFound = false;
         try {
-            webCalculatorManager.provideCalculationHistory(TOKEN2);
+            webCalculatorManager.provideRawHistory(TOKEN2);
         } catch (NoSuchElementException nse) {
             exceptionHistoryNotFound = true;
         }
@@ -911,9 +912,9 @@ public class WebCalculatorManagerTest {
         verify(historyRecordMock1, Mockito.times(1)).getLastUsed();
         verify(historyRecordMock2, Mockito.times(1)).getLastUsed();
 
-        assertEquals(res1, calculationResponse1.getResult());
-        assertEquals(res2, calculationResponse2.getResult());
-        assertEquals(res3, calculationResponse3.getResult());
+        assertEquals(res1, calculationResponse1.getApproximation());
+        assertEquals(res2, calculationResponse2.getApproximation());
+        assertEquals(res3, calculationResponse3.getApproximation());
         assertEquals(secs, calculationResponse1.getResponseTime(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(secs, calculationResponse2.getResponseTime(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(secs, calculationResponse3.getResponseTime(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -936,9 +937,9 @@ public class WebCalculatorManagerTest {
         Stopwatch.createStarted();
 
         verify(stopwatchMock, Mockito.times(3)).elapsed(any());
-        verify(calcResponseMock1, Mockito.times(1)).getResult();
-        verify(calcResponseMock2, Mockito.times(1)).getResult();
-        verify(calcResponseMock3, Mockito.times(1)).getResult();
+        verify(calcResponseMock1, Mockito.times(1)).getApproximation();
+        verify(calcResponseMock2, Mockito.times(1)).getApproximation();
+        verify(calcResponseMock3, Mockito.times(1)).getApproximation();
         verify(calcResponseMock1, Mockito.times(1)).getResponseTime();
         verify(calcResponseMock2, Mockito.times(1)).getResponseTime();
         verify(calcResponseMock3, Mockito.times(1)).getResponseTime();
@@ -964,10 +965,10 @@ public class WebCalculatorManagerTest {
         CalculationResponse calculationResponse2 = (CalculationResponse) webCalculatorManager.processArithmeticCalculation(expr2, TOKEN2);
         CalculationResponse calculationResponse3 = (CalculationResponse) webCalculatorManager.processArithmeticCalculation(expr2, TOKEN2);
 
-        assertEquals(res1, calculationResponse0.getResult());
-        assertEquals(res1, calculationResponse1.getResult());
-        assertEquals(res2, calculationResponse2.getResult());
-        assertEquals(res2, calculationResponse3.getResult());
+        assertEquals(res1, calculationResponse0.getApproximation());
+        assertEquals(res1, calculationResponse1.getApproximation());
+        assertEquals(res2, calculationResponse2.getApproximation());
+        assertEquals(res2, calculationResponse3.getApproximation());
         assertEquals(0L, calculationResponse0.getId());
         assertEquals(1L, calculationResponse1.getId());
         assertEquals(2L, calculationResponse2.getId());
@@ -978,8 +979,8 @@ public class WebCalculatorManagerTest {
         assertEquals(secs, calculationResponse3.getResponseTime());
 
         assertEquals(expectedSize, webCalculatorManager.countHistorySize());
-        assertEquals(sizeToken, webCalculatorManager.provideCalculationHistory(TOKEN).size());
-        assertEquals(sizeToken2, webCalculatorManager.provideCalculationHistory(TOKEN2).size());
+        assertEquals(sizeToken, webCalculatorManager.provideRawHistory(TOKEN).size());
+        assertEquals(sizeToken2, webCalculatorManager.provideRawHistory(TOKEN2).size());
 
         verify(calculatorMock, Mockito.times(2)).solveArithmeticExpression(eq(expr1));
         verify(calculatorMock, Mockito.times(2)).solveArithmeticExpression(eq(expr2));

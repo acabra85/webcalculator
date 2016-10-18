@@ -11,8 +11,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class IntegralRequestDTO implements SimpleRequest {
 
-    private String lowerBound;
-    private String upperBound;
+    private String lowerLimit;
+    private String upperLimit;
     private String numberThreads;
     private String repeatedCalculations;
     private int functionId;
@@ -23,9 +23,9 @@ public class IntegralRequestDTO implements SimpleRequest {
     public IntegralRequestDTO() {
     }
 
-    public IntegralRequestDTO(String lowerBound, String upperBound, String numberThreads, String repeatedCalculations, int functionId, int approximationMethodId, boolean areaInscribed, List<Double> coefficients) {
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
+    public IntegralRequestDTO(String lowerLimit, String upperLimit, String numberThreads, String repeatedCalculations, int functionId, int approximationMethodId, boolean areaInscribed, List<Double> coefficients) {
+        this.lowerLimit = lowerLimit;
+        this.upperLimit = upperLimit;
         this.numberThreads = numberThreads;
         this.repeatedCalculations = repeatedCalculations;
         this.functionId = functionId;
@@ -34,14 +34,14 @@ public class IntegralRequestDTO implements SimpleRequest {
         this.coefficients = coefficients;
     }
 
-    @JsonProperty("lowerBound")
-    public String getLowerBound() {
-        return lowerBound;
+    @JsonProperty("lowerLimit")
+    public String getLowerLimit() {
+        return lowerLimit;
     }
 
-    @JsonProperty("upperBound")
-    public String getUpperBound() {
-        return upperBound;
+    @JsonProperty("upperLimit")
+    public String getUpperLimit() {
+        return upperLimit;
     }
 
     @JsonProperty("numberThreads")

@@ -1,5 +1,7 @@
 package com.acabra.calculator.integral;
 
+import com.acabra.calculator.integral.function.IntegrableFunction;
+import com.acabra.calculator.integral.function.IntegrableFunctionType;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +11,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,12 +35,12 @@ public class IntegralSubRangeSupplierTest {
         double[] expectedLowerRanges = {lowerBound1, -8.0, -6.0, -4.0, -2.0};
         double[] expectedUpperRanges = {-8.0, -6.0, -4.0, -2.0, upperBound1};
         int repeatedCalculations1 = 5;
-        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL, Collections.emptyList());
+        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(IntegrableFunctionType.EXPONENTIAL, lowerBound1, upperBound1, Collections.emptyList(), repeatedCalculations1);
         int i = 0;
         for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction integrableFunction = integralSubRangeSupplier.get();
-            assertEquals(expectedLowerRanges[i], integrableFunction.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-            assertEquals(expectedUpperRanges[i], integrableFunction.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+            assertEquals(expectedLowerRanges[i], integrableFunction.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+            assertEquals(expectedUpperRanges[i], integrableFunction.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         }
         assertEquals(i, repeatedCalculations1);
     }
@@ -47,12 +50,12 @@ public class IntegralSubRangeSupplierTest {
         double lowerBound1 = -10;
         double upperBound1 = -0.0;
         int repeatedCalculations1 = 1;
-        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL, Collections.emptyList());
+        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(IntegrableFunctionType.EXPONENTIAL, lowerBound1, upperBound1, Collections.emptyList(), repeatedCalculations1);
         int i = 0;
         for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction currentIntegral = integralSubRangeSupplier.get();
-            assertEquals(lowerBound1, currentIntegral.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-            assertEquals(upperBound1, currentIntegral.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+            assertEquals(lowerBound1, currentIntegral.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+            assertEquals(upperBound1, currentIntegral.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         }
         assertEquals(i, repeatedCalculations1);
     }
@@ -64,14 +67,20 @@ public class IntegralSubRangeSupplierTest {
         double[] expectedLowerRanges = {lowerBound1, 0.0};
         double[] expectedUpperRanges = {0.0, upperBound1};
         int repeatedCalculations1 = 2;
-        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(lowerBound1, upperBound1, repeatedCalculations1, IntegralFunctionType.EXPONENTIAL, Collections.emptyList());
+        IntegralSubRangeSupplier integralSubRangeSupplier = new IntegralSubRangeSupplier(IntegrableFunctionType.EXPONENTIAL, lowerBound1, upperBound1, Collections.emptyList(), repeatedCalculations1);
         int i = 0;
         for (i = 0; integralSubRangeSupplier.hasMoreSubRanges(); i++) {
             IntegrableFunction currentIntegral = integralSubRangeSupplier.get();
-            assertEquals(expectedLowerRanges[i], currentIntegral.getLowerBound(), WebCalculatorConstants.ACCURACY_EPSILON);
-            assertEquals(expectedUpperRanges[i], currentIntegral.getUpperBound(), WebCalculatorConstants.ACCURACY_EPSILON);
+            assertEquals(expectedLowerRanges[i], currentIntegral.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+            assertEquals(expectedUpperRanges[i], currentIntegral.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         }
         assertEquals(i, repeatedCalculations1);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void getErrorTest() {
+        IntegralSubRangeSupplier supp = new IntegralSubRangeSupplier(IntegrableFunctionType.EXPONENTIAL, 1, 2, Collections.emptyList(), 0);
+        supp.get();
     }
 
 }

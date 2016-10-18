@@ -11,27 +11,35 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class IntegralCalculationResponse extends CalculationResponse {
 
     private final Double accuracy;
-    private final double integralResult;
+    private final Double integralResult;
 
     @JsonCreator
     public IntegralCalculationResponse(@JsonProperty("id") long id,
                                        @JsonProperty("failure") boolean failure,
                                        @JsonProperty("expression") String expression,
-                                       @JsonProperty("result") double result,
-                                       @JsonProperty("integralResult") double integralResult,
+                                       @JsonProperty("result") Double result,
+                                       @JsonProperty("integralResult") Double integralResult,
                                        @JsonProperty("responseTime") long responseTime,
                                        @JsonProperty("description") String description) {
-        super(id, failure, expression, result +"", responseTime, description);
+        super(id, failure, expression, result == null ? "0" : result.toString(), responseTime, description);
         this.integralResult = integralResult;
-        this.accuracy = result!=integralResult ? calculateAccuracy(result, integralResult) : 100;
+        this.accuracy = calculateAccuracy(result, integralResult);
     }
 
-    private static double calculateAccuracy(double approx, double real) {
-        return 100.0 - Math.abs(approx - real) * 100.0 / real;
+    private static double calculateAccuracy(Double approx, Double real) {
+        if (null == approx || null == real) {
+            return 0.0;
+        }
+        double distance = Math.abs(real - approx);
+        if (distance > Math.abs(real)) {
+            return 0.0;
+        } else {
+            return 100.0 - (distance * 100.0 / Math.abs(real));
+        }
     }
 
     @JsonProperty("accuracy")
-    public synchronized double getAccuracy() {
+    public double getAccuracy() {
         return accuracy;
     }
 

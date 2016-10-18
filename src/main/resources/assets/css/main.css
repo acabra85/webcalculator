@@ -1,6 +1,6 @@
 
 .to-center {
-    width: 275px;
+    width: 285px;
     height: auto;
     text-align: right;
 }
@@ -62,10 +62,14 @@ button {
     text-align: right;
 }
 
-.accurate-result {
+.accurate-approximation {
     color: green;
 }
 
-.not-accurate-result {
+.not-accurate-approximation {
     color: red;
+}
+
+.detail-method-text {
+    font-size: x-small;
 }

@@ -20,8 +20,13 @@ Approximation (inscribed rectangles)
 
 This enables the web application on localhost:8080 by default
 
-1. Download source code and on the projects root folder run ```mvn install``` (this generates the webcalculator1.0.jar file)
-2. Run from console on projects root folder ```java -jar target/webcalculator-1.0.jar server config/webcalculator.yml```
+1. Download source code and on the projects root folder run ```mvn clean install``` (this generates the webcalculator-(*version).jar file)
+ (To avoid running tests  add ```-DskipTests```)
+2. Run from console on projects root folder ```java -jar target/webcalculator-(*version).jar server config/webcalculator.yml```
+
+
+###Mutation Testing
+1. For testing mutation testing using the PITEST plugin ```mvn org.pitest:pitest-maven:mutationCoverage```
 
 ####More settings:
   If the desired port 8080 wants to be replaced, modify the ```server.connector.port``` property on the ```webcalculator.yml``` file.

@@ -20,6 +20,10 @@ public enum NumericalMethodApproximationType {
         switch (methodId) {
             case 0:
                 return RIEMANN;
+            case 1:
+                return SIMPSON;
+            case 2:
+                return GAUSS;
             default:
                 throw new NoSuchElementException("unable to find approximation method methodId");
         }

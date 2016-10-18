@@ -1,4 +1,6 @@
-package com.acabra.calculator.integral;
+package com.acabra.calculator.integral.function;
+
+import com.acabra.calculator.integral.Interval;
 
 import java.util.Collections;
 import java.util.List;

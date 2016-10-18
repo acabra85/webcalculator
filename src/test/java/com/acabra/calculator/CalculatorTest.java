@@ -1,9 +1,9 @@
 package com.acabra.calculator;
 
 import com.acabra.calculator.integral.IntegralSolver;
-import com.acabra.calculator.integral.FExponential;
-import com.acabra.calculator.integral.IntegrableFunction;
-import com.acabra.calculator.integral.FPolynomial;
+import com.acabra.calculator.integral.function.FExponential;
+import com.acabra.calculator.integral.function.IntegrableFunction;
+import com.acabra.calculator.integral.function.FPolynomial;
 import com.acabra.calculator.util.ShuntingYard;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;

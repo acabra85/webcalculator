@@ -1,4 +1,4 @@
-package com.acabra.calculator.integral;
+package com.acabra.calculator.integral.function;
 
 import com.acabra.calculator.util.ResultFormatter;
 
@@ -14,23 +14,15 @@ public class FPolynomial extends IntegrableFunction {
     private static final FunctionDomain DOMAIN = FunctionDomainFactory.REAL_NUMBERS;
     private final int order;
     private final List<Double> coefficients;
-    protected String stringRepresentation;
+    private String stringRepresentation;
 
     public FPolynomial(double lowerBound, double upperBound, List<Double> coefficients, Optional<Double> integrationResult, Optional<Double> approximation) {
-        super(lowerBound, upperBound, integrationResult.orElse(null), IntegralFunctionType.POLYNOMIAL.getLabel());
-        this.sequenceRiemannRectangle = approximation.orElse(null);
+        super(lowerBound, upperBound, integrationResult.orElse(null), IntegrableFunctionType.POLYNOMIAL.getLabel(), DOMAIN);
+        this.approximation = approximation.orElse(null);
         this.coefficients = Collections.unmodifiableList(coefficients);
         this.order = this.coefficients.size();
-        this.evaluatedLower = runEvaluation(this.lowerBound);
-        this.evaluatedUpper = runEvaluation(this.upperBound);
-    }
-
-    @Override
-    protected void validateBounds() {
-        if (!DOMAIN.belongsDomain(this.lowerBound) || !DOMAIN.belongsDomain(this.upperBound)
-                || DOMAIN.doesRangeContainsNonDomainPoints(this.requestedIntegrationRange)) {
-            throw new UnsupportedOperationException("unable to create function, bounds not in function's domain");
-        }
+        this.evaluatedLower = runEvaluation(this.lowerLimit);
+        this.evaluatedUpper = runEvaluation(this.upperLimit);
     }
 
     private String provideStringRepresentation() {
@@ -66,13 +58,13 @@ public class FPolynomial extends IntegrableFunction {
     }
 
     @Override
-    protected double evaluate(double domainPoint) {
+    public double evaluate(double domainPoint) {
         if (0 == order) {
             return 0.0;
         }
         return inFunctionsDomain(domainPoint) ?
-                domainPoint == upperBound ? evaluatedUpper :
-                        domainPoint == lowerBound ? evaluatedLower :
+                domainPoint == upperLimit ? evaluatedUpper :
+                        domainPoint == lowerLimit ? evaluatedLower :
                                 runEvaluation(domainPoint) :
                 Double.NaN;
     }
@@ -87,20 +79,12 @@ public class FPolynomial extends IntegrableFunction {
         return total;
     }
 
-    @Override
-    protected synchronized double solveIntegralWithRiemannSequences(boolean inscribedRectangle) {
-        if (sequenceRiemannRectangle == null) {
-            sequenceRiemannRectangle = calculateRiemannSequenceRectangleArea(inscribedRectangle);
-        }
-        return sequenceRiemannRectangle;
-    }
-
     protected Double executeIntegration() {
         double total = 0.0;
         for(int exponents = 0; exponents < order; exponents++) {
             if (coefficients.get(exponents) != 0) {
-                total +=  evaluateIntegral(upperBound, coefficients.get(exponents), exponents + 1) -
-                        evaluateIntegral(lowerBound, coefficients.get(exponents), exponents + 1);
+                total +=  evaluateIntegral(upperLimit, coefficients.get(exponents), exponents + 1) -
+                        evaluateIntegral(lowerLimit, coefficients.get(exponents), exponents + 1);
             }
         }
         return total;
@@ -122,11 +106,11 @@ public class FPolynomial extends IntegrableFunction {
     public String toString() {
         return String.format(STRING_REPRESENTATION_FORMAT,
                 getStringRepresentation(),
-                ResultFormatter.trimIntegerResults(lowerBound + ""),
-                ResultFormatter.trimIntegerResults(upperBound + ""));
+                ResultFormatter.trimIntegerResults(lowerLimit + ""),
+                ResultFormatter.trimIntegerResults(upperLimit + ""));
     }
 
-    public synchronized String getStringRepresentation() {
+    private synchronized String getStringRepresentation() {
         if (null == stringRepresentation) {
             stringRepresentation = provideStringRepresentation();
         }

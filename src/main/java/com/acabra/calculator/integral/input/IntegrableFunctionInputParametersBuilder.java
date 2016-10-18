@@ -20,12 +20,12 @@ public class IntegrableFunctionInputParametersBuilder {
         integrationResult = null;
     }
 
-    public IntegrableFunctionInputParametersBuilder withLowerBound(double lowerBound) {
+    public IntegrableFunctionInputParametersBuilder withLowerLimit(double lowerBound) {
         this.lowerBound = lowerBound;
         return this;
     }
 
-    public IntegrableFunctionInputParametersBuilder withUpperBound(double upperBound) {
+    public IntegrableFunctionInputParametersBuilder withUpperLimit(double upperBound) {
         this.upperBound = upperBound;
         return this;
     }

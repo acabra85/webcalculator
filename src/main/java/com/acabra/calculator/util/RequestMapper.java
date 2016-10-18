@@ -19,8 +19,8 @@ public class RequestMapper {
             IntegralRequestBuilder builder = new IntegralRequestBuilder();
             int repeatedCalculations = retrieveSafeMaxInteger(Long.parseLong(integralRequestDTO.getRepeatedCalculations()));
             int numThreads = retrieveSafeMaxInteger(Long.parseLong(integralRequestDTO.getNumberThreads()));
-            return builder.withLowerBound(Double.parseDouble(integralRequestDTO.getLowerBound()))
-                    .withUpperBound(Double.parseDouble(integralRequestDTO.getUpperBound()))
+            return builder.withLowerBound(Double.parseDouble(integralRequestDTO.getLowerLimit()))
+                    .withUpperBound(Double.parseDouble(integralRequestDTO.getUpperLimit()))
                     .withRepeatedCalculations(repeatedCalculations)
                     .withNumThreads(numThreads)
                     .withFunctionId(integralRequestDTO.getFunctionId())

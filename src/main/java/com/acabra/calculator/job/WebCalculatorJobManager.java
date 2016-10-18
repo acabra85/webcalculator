@@ -47,7 +47,7 @@ public class WebCalculatorJobManager {
                 // Grab the Scheduler instance from the Factory
                 this.scheduler = StdSchedulerFactory.getDefaultScheduler();
             }
-            if (webCalculatorManager!= null && !this.started && this.scheduler != null && !this.scheduler.isStarted()) {
+            if (webCalculatorManager!= null && this.scheduler != null && !this.scheduler.isStarted() && !this.started) {
                 // and start it off
                 scheduler.start();
                 logger.info("web calculation history scheduler started");
@@ -56,8 +56,7 @@ public class WebCalculatorJobManager {
                 scheduler.getContext().put(WEB_CALC_POLICY_KEY, this.policyCleaner);
 
                 scheduleWebCalculatorHistoryCleanerJob();
-
-                this.started = true;
+                this.started = !(scheduler.isShutdown() && scheduler.isInStandbyMode());
             }
         } catch (SchedulerException se) {
             logger.info("failed_ " + se.getMessage());
@@ -66,7 +65,7 @@ public class WebCalculatorJobManager {
     }
 
     private void scheduleWebCalculatorHistoryCleanerJob() throws SchedulerException {
-        JobDetail syncJobDetail = newJob(WebCalculationHistoryCleanerJob.class)
+        JobDetail syncJobDetail = newJob(WebCalculatorCalculationHistoryCleanerJob.class)
                 .withIdentity("historyCleanJob", JOB_GROUP_1)
                 .build();
 
@@ -82,11 +81,19 @@ public class WebCalculatorJobManager {
 
     public void shutDown() {
         try {
+            if (!this.started) {
+                throw new IllegalStateException("The system has not been yet turned on");
+            }
             if (scheduler!= null && scheduler.isStarted()) {
                 scheduler.shutdown();
+                this.started = !scheduler.isShutdown();
             }
         } catch (SchedulerException se) {
             logger.error(se);
         }
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 }

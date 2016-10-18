@@ -2,9 +2,8 @@ package com.acabra.calculator;
 
 import com.acabra.calculator.domain.CalculationHistoryRecord;
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.FExponential;
-import com.acabra.calculator.integral.IntegrableFunction;
-import com.acabra.calculator.integral.IntegralFunctionFactory;
+import com.acabra.calculator.integral.function.IntegrableFunction;
+import com.acabra.calculator.integral.function.FunctionFactory;
 import com.acabra.calculator.integral.WebCalculatorCompletableFutureUtils;
 import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.ResultFormatter;
@@ -65,7 +64,7 @@ public class WebCalculatorManager {
                     integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads());
             calculationResponse = WebCalculatorFactoryResponse
                     .createCalculationResponse(counter.getAndIncrement(), expression, responseTime, solvedIntegral,
-                            IntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()).getLabel());
+                            FunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()).getLabel());
             appendCalculationHistory(calculationResponse, token);
             return calculationResponse;
         };
@@ -73,16 +72,16 @@ public class WebCalculatorManager {
 
 
     private BiFunction<
-            CompletableFuture<IntegrableFunction>,
-            Throwable,
-            CompletableFuture<CalculationResponse>> provideBiFunctionHandler(final IntegralRequest integralRequest, String token, Stopwatch stopwatch) {
+                CompletableFuture<IntegrableFunction>,
+                Throwable,
+                CompletableFuture<CalculationResponse>> provideBiFunctionHandler(final IntegralRequest integralRequest, String token, Stopwatch stopwatch) {
         return (solvedIntegral, exception) -> {
             if (exception != null) {
                 logger.error(exception);
                 String expression = ResultFormatter.formatIntegralRequest(solvedIntegral.toString(),
                         integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads());
                 CalculationResponse failed = WebCalculatorFactoryResponse.createFailedCalculationResponse(counter.getAndIncrement(),
-                        expression, token, stopwatch.elapsed(TimeUnit.NANOSECONDS), exception.getCause().getMessage());
+                        expression, stopwatch.elapsed(TimeUnit.NANOSECONDS), exception.getCause().getMessage());
                 return CompletableFuture.completedFuture(failed);
             }
             return solvedIntegral.thenApply(retrieveIntegralCalculationResponse(integralRequest, token, stopwatch.elapsed(TimeUnit.NANOSECONDS)));
@@ -90,7 +89,7 @@ public class WebCalculatorManager {
     }
 
     /**
-     * Validates the integral request and request the calculator object to provide the result
+     * Validates the integral request and request the calculator object to provide the approximation
      * @param integralRequest a integrable function request
      * @param token a session token to group history results
      * @return a future representing the integrable function solved.
@@ -122,10 +121,10 @@ public class WebCalculatorManager {
     /**
      * Retrieves a history rendered response of requests made with the specified token
      * @param token the token used for the requests
-     * @return  a RenderedHistoryResponse object containing the rendered result.
+     * @return  a RenderedHistoryResponse object containing the rendered approximation.
      */
-    public SimpleResponse provideRenderedHistoryResult(String token) {
-        List<CalculationResponse> calculationResponseList = provideCalculationHistory(token);
+    public SimpleResponse provideRenderedHistoryResponse(String token) {
+        List<CalculationResponse> calculationResponseList = provideRawHistory(token);
         String table = renderer.renderCalculationHistory(calculationResponseList, true);
         return WebCalculatorFactorySimpleResponse.createTableResponse(counter.getAndIncrement(), table);
     }
@@ -140,12 +139,24 @@ public class WebCalculatorManager {
 
     /**
      * Retrieves a list of requests made with a specified token
-     * @param token
+     * @param token token identifying the requests made
      * @return
      */
-    synchronized List<CalculationResponse> provideCalculationHistory(String token) {
+    protected synchronized List<CalculationResponse> provideRawHistory(String token) {
         if (history.containsKey(token)) {
             return history.get(token).getCalculationHistory();
+        }
+        throw new NoSuchElementException("No request history found with token: " + token);
+    }
+
+    /**
+     * Retrieves a list of requests made with a specified token
+     * @param token token identifying the requests made
+     * @return
+     */
+    public SimpleResponse provideHistoryResponse(String token) {
+        if (history.containsKey(token)) {
+            return new HistoryResponse(counter.getAndIncrement(), history.get(token).getCalculationHistory());
         }
         throw new NoSuchElementException("No request history found with token: " + token);
     }

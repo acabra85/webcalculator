@@ -1,6 +1,6 @@
 package com.acabra.calculator.response;
 
-import com.acabra.calculator.integral.IntegrableFunction;
+import com.acabra.calculator.integral.function.IntegrableFunction;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,18 +33,18 @@ public class WebCalculatorFactoryResponseTest {
         double expectedAccuracy = 100.0;
 
         IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
-        when(solvedIntegralMock.getSequenceRiemannRectangle()).thenReturn(approxArea);
+        when(solvedIntegralMock.getApproximation()).thenReturn(approxArea);
         when(solvedIntegralMock.getResult()).thenReturn(exactIntegral);
 
         IntegralCalculationResponse integralCalculationResponse = (IntegralCalculationResponse) WebCalculatorFactoryResponse.createCalculationResponse(id, expression, responseTime, solvedIntegralMock, description);
 
         verify(solvedIntegralMock, times(1)).getResult();
-        verify(solvedIntegralMock, times(1)).getSequenceRiemannRectangle();
+        verify(solvedIntegralMock, times(1)).getApproximation();
 
         assertEquals(description, integralCalculationResponse.getDescription());
         assertEquals(expression, integralCalculationResponse.getExpression());
         assertEquals(id, integralCalculationResponse.getId());
-        assertEquals(approxArea+"", integralCalculationResponse.getResult());
+        assertEquals(approxArea+"", integralCalculationResponse.getApproximation());
         assertEquals(responseTime, integralCalculationResponse.getResponseTime());
         assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedAccuracy, integralCalculationResponse.getAccuracy(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -61,18 +61,18 @@ public class WebCalculatorFactoryResponseTest {
         double expectedAccuracy = 50.0;
 
         IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
-        when(solvedIntegralMock.getSequenceRiemannRectangle()).thenReturn(approxArea);
+        when(solvedIntegralMock.getApproximation()).thenReturn(approxArea);
         when(solvedIntegralMock.getResult()).thenReturn(exactIntegral);
 
         IntegralCalculationResponse integralCalculationResponse = (IntegralCalculationResponse) WebCalculatorFactoryResponse.createCalculationResponse(id, expression, responseTime, solvedIntegralMock, description);
 
         verify(solvedIntegralMock, times(1)).getResult();
-        verify(solvedIntegralMock, times(1)).getSequenceRiemannRectangle();
+        verify(solvedIntegralMock, times(1)).getApproximation();
 
         assertEquals(description, integralCalculationResponse.getDescription());
         assertEquals(expression, integralCalculationResponse.getExpression());
         assertEquals(id, integralCalculationResponse.getId());
-        assertEquals(approxArea+"", integralCalculationResponse.getResult());
+        assertEquals(approxArea+"", integralCalculationResponse.getApproximation());
         assertEquals(responseTime, integralCalculationResponse.getResponseTime());
         assertEquals(exactIntegral, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedAccuracy, integralCalculationResponse.getAccuracy(), WebCalculatorConstants.ACCURACY_EPSILON);
@@ -92,6 +92,23 @@ public class WebCalculatorFactoryResponseTest {
         assertEquals(responseTime, calculationResponse.getResponseTime());
         assertEquals(description, calculationResponse.getDescription());
         assertEquals(expression, calculationResponse.getExpression());
-        assertEquals(result+"", calculationResponse.getResult());
+        assertEquals(result+"", calculationResponse.getApproximation());
+    }
+
+    @Test
+    public void createFailedCalculationResponseTest() {
+        String description = "failed";
+        String expression = "5 +-/ 5";
+        int id = 0;
+        long responseTime = 1;
+        String result = "NaN";
+
+        CalculationResponse calculationResponse = WebCalculatorFactoryResponse.createFailedCalculationResponse(id, expression, responseTime, description);
+
+        assertEquals(id, calculationResponse.getId());
+        assertEquals(responseTime, calculationResponse.getResponseTime());
+        assertEquals(description, calculationResponse.getDescription());
+        assertEquals(expression, calculationResponse.getExpression());
+        assertEquals(result, calculationResponse.getApproximation());
     }
 }
