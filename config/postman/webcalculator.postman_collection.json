@@ -1,0 +1,113 @@
+{
+	"variables": [],
+	"info": {
+		"name": "webcalculator",
+		"_postman_id": "414af4c4-9eb7-ed37-ccf1-509248b5b4fb",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "index.hml",
+			"request": {
+				"url": "{{server}}{{port}}",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve Rendered History",
+			"request": {
+				"url": "{{server}}{{port}}/api/calculator/renderedhistory?token=a0739e94-aea6-4020-bcdc-83fbe2670175",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve RawHistory",
+			"request": {
+				"url": "{{server}}{{port}}/api/calculator/history?token=a0739e94-aea6-4020-bcdc-83fbe2670175",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Solve Integral",
+			"request": {
+				"url": "{{server}}{{port}}/api/calculator/integral?token=a0739e94-aea6-4020-bcdc-83fbe2670175",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"lowerLimit\": \"1\",\r\n    \"upperLimit\": \"2\",\r\n    \"numberThreads\": \"1\",\r\n    \"repeatedCalculations\": \"10\",\r\n    \"functionId\": 3,\r\n    \"approximationMethodId\": 1,\r\n    \"coefficients\": []\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Solve Arithmetic",
+			"request": {
+				"url": "{{server}}{{port}}/api/calculator?token=a0739e94-aea6-4020-bcdc-83fbe2670175&expression=8%2520sqrt%2520(%2520%2520sqrt%2520(%25208%2520%252B%25208%2520)%2520%2520*%25206%2520%252B%25201%2520)%2520",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve Token",
+			"request": {
+				"url": "{{server}}{{port}}/api/calculator/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
