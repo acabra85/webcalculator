@@ -1,0 +1,308 @@
+[33mcommit 7fbedd7c1b2968cadc5fbe2bf879018a61de5de9[m
+Merge: 79fdeaa 35fd3ed
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 24 14:57:49 2016 +0200
+
+    Merge branch 'master' of github.com:acabra85/webcalculator
+
+[33mcommit 79fdeaa44fe37207334d5faf2e4408156d9a97a3[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Tue Oct 18 17:15:03 2016 +0200
+
+    adding postman catalogues
+
+[33mcommit 35fd3edbad87b39744fed65708c60f13ea84e1a1[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Tue Oct 18 17:15:03 2016 +0200
+
+    adding postman catalogues
+
+[33mcommit 966398df3c43c1eefbb4384b42d80644277b83a5[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Tue Oct 18 16:30:14 2016 +0200
+
+    improving test coverage, expanding available functions and approximation methods
+
+[33mcommit e68f0ed8db50be7af88a4e48fb625f1f76d265f3[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Sat Oct 15 12:22:11 2016 +0200
+
+    using regular expression to split the coefficients array on javascript when the function choosen is polynomial
+
+[33mcommit 54b3cb8834fde1c678187f137203c0457de5e2e4[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Oct 14 18:20:46 2016 +0200
+
+    providing domain interval for functions using custom builder, migrating calculations to BigInteger
+
+[33mcommit 1ffe93e320c84310a822d70017f97323ffe639ef[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 10 18:49:46 2016 +0200
+
+    adding support for module afterburner to response objects to propperly serialize and deserialize with Jackson annotations
+
+[33mcommit 3e1230bcc1e6d19a4c0800ef81d3eef4c353bf45[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 10 18:17:52 2016 +0200
+
+    providing tests for resorce class, refactoring to provide mutation testing
+
+[33mcommit e407f08e2282e28223b81f355decb022a7d3930f[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Oct 7 14:30:59 2016 +0200
+
+    adding main method to scheduler class, for future integration with rabitMQ
+
+[33mcommit ea5f1161b5ffbf897d11128240b0a97159010ded[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Oct 7 14:28:44 2016 +0200
+
+    adjusting frequency of scheduler
+
+[33mcommit 3856c3dc738f888d49e0ba964a5f901b7fdff079[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Oct 7 10:55:30 2016 +0200
+
+    updating version of library on Procfile files for heroku deploy
+
+[33mcommit 36296d60701cb6296c947620efd0b674e518f916[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Oct 7 10:52:35 2016 +0200
+
+    providing scheduler process for heroku platform
+
+[33mcommit 924393a256fab4f97b11a027ca682ffdafc1a427[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Oct 7 10:40:28 2016 +0200
+
+    updating version to 1.1
+
+[33mcommit 4f3444434afb58353834aec8aa5d831ff8433c10[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Oct 7 10:39:20 2016 +0200
+
+    merge with branch feature/refactor_integralSubRangeProvider
+
+[33mcommit 30716913d7b9dc0b578ec0b68714456d85f9d7f3[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Tue Oct 4 08:44:11 2016 +0200
+
+    Update README.md
+    
+    updating user's manual link.
+
+[33mcommit df121d6755ea51ea322ff7489419c71fdc230934[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Mon Oct 3 21:20:34 2016 +0200
+
+    Update README.md
+
+[33mcommit fdf0d45d1fc07f34c63c2b8250cf9657df42c721[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Mon Oct 3 21:11:54 2016 +0200
+
+    Update README.md
+
+[33mcommit 1d01a143551d8048bf4c08de66b5824572c9d215[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 3 21:05:44 2016 +0200
+
+    Adding help and git links to the main page
+
+[33mcommit 5abe6dcf8f975e6cd05b94cbec9c50236c00670a[m
+Merge: 5205bde b937eab
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 3 20:43:18 2016 +0200
+
+    Merge branch 'master' of github.com:acabra85/webcalculator
+
+[33mcommit 5205bdeccf78e4419513526870acfe686d2e884e[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 3 20:43:06 2016 +0200
+
+    Added rendering for integration results
+
+[33mcommit b937eab5684cc3dfa0d09c3240d2dac187d5228f[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Mon Oct 3 18:13:38 2016 +0200
+
+    Update README.md
+    
+    indicating manual for the webcalculator
+
+[33mcommit f7ec756066c0adee682569c2f230c90e41cb6875[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 3 18:09:11 2016 +0200
+
+    Providing documentation for classes and refactoring
+
+[33mcommit 62c1b9b6d17de2f75aa459f6a07cb0f69c89c64b[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 3 17:17:49 2016 +0200
+
+    serving files statically
+
+[33mcommit 3e3716437dc2532e7e0edc0ba76af2debf3c7460[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Mon Oct 3 14:12:46 2016 +0200
+
+    Update README.md
+    
+    describing deploy steps
+
+[33mcommit 42603f79e6c53aa2082300f47914727193d9b51c[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 3 13:43:48 2016 +0200
+
+    providing information for deploy
+
+[33mcommit 692eac39243ae3467dd1ea8e89cf292d68597328[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 3 13:38:58 2016 +0200
+
+    provide better styling for webpage
+
+[33mcommit 951fbfcc4261a4fcd7f24fdfdecbcfb30da852de[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Mon Oct 3 13:28:21 2016 +0200
+
+    removing dependency with the site_url for webpage, and refactoring accesspaths for endpoints
+
+[33mcommit d06c16b8446fa33c5a75fa44afa5b2870d468b2f[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Sun Oct 2 19:24:42 2016 +0200
+
+    providing css cursor: pointer for allowing touch events on iOS
+
+[33mcommit 325609d2306b48e2b59ec9abb6733ef485b94d77[m
+Merge: a91cdf6 9569744
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Sun Oct 2 05:16:33 2016 +0200
+
+    Merge branch 'master' of github.com:acabra85/webcalculator
+
+[33mcommit a91cdf688160b753b5c7e1ce4ffb07da461b41e1[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Sun Oct 2 05:15:43 2016 +0200
+
+    providing centering for history column headers
+
+[33mcommit 9569744b1356a89f483bced091ae2e3260298881[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Sun Oct 2 05:01:47 2016 +0200
+
+    Update heroku.yml
+
+[33mcommit 69acc13ac6a0be10e093ea7e4a13122023dbfd0f[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Sun Oct 2 05:01:26 2016 +0200
+
+    Update heroku.yml
+
+[33mcommit 64251f68cbdff2ee2cd63abdaae4476305e6842b[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Sun Oct 2 04:58:14 2016 +0200
+
+    adding signature to web footer
+
+[33mcommit 248217d443ee1d78ad77f6295a4fee1b190a8978[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Sun Oct 2 04:47:15 2016 +0200
+
+    Simplifying formatting of results and integral expressions. 2. Applying method of Riemann Areas Aproximations as Integral solutions. 3. Appending response with exact area claculated through integration techniques. 4. Extracting constants to class.
+
+[33mcommit ee8ae523e451dc5c039ca07d294a295fe6d7f792[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Sat Oct 1 13:23:11 2016 +0200
+
+    providing display messages for failed server responses, and using typed keys stack to enable removing last character more robustly
+
+[33mcommit 00afc0a3460fc645702cd59d23055cc82c8f6170[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Sep 30 23:16:40 2016 +0200
+
+    correcting bug that prepended 0 in the begining of the expression.
+
+[33mcommit 34d54e958df81b507a1e863f595e7ce0e94e5e26[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Sep 30 22:26:40 2016 +0200
+
+    providing tests for rendering view html
+
+[33mcommit 1333816b74332edfc760452eec1c26f5914921e7[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Sep 30 22:14:00 2016 +0200
+
+    Providing validation on operating substraction and addition, also providing additional behaviour in evaluating areas under graphs for negative areas
+
+[33mcommit 8996323296810d669abc3bb2406521730e26a4e1[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Sep 30 14:37:12 2016 +0200
+
+    fixing remote location
+
+[33mcommit fb7697ebd856b1c54c19129e042d1ab50a8e5beb[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Fri Sep 30 14:35:36 2016 +0200
+
+    providing interface and support for integrals
+
+[33mcommit 55bd47329a0a31de2f9c05e01214e6e440ebb64a[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Wed Sep 28 19:03:18 2016 +0200
+
+    Refactoring src code structure, and removing errors on user's web interface
+
+[33mcommit f8d49fee31a31abdac0d92bf2aa37e6f7962bb74[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Wed Sep 28 18:25:13 2016 +0200
+
+    include grouping symbols through keyboard
+
+[33mcommit df52fe14da996a849478372cab3f592cf9dd940f[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Wed Sep 28 18:12:22 2016 +0200
+
+    Enabling keys according to the charcode to make available multi browser support
+
+[33mcommit a2f37b3924e262c8d9751619337825710c21e88e[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Wed Sep 28 17:51:30 2016 +0200
+
+    providing support for keyboard
+
+[33mcommit e3603ccf2e3676fdfc581b6e20a1312d34dc285d[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Wed Sep 28 17:36:43 2016 +0200
+
+    providing proper url for service to run on web
+
+[33mcommit c71d3b256f25f8f494a3b86ae3c6e659106beff0[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Wed Sep 28 17:32:19 2016 +0200
+
+    Provinding renderers on the server side, the front end places information directly. CalculatorManager provides controller functionality
+
+[33mcommit a0cc28de1501ce8cd13bbcfe87d63c25b9adfc2c[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Tue Sep 27 12:25:41 2016 +0200
+
+    Adding first resource
+
+[33mcommit d238cc2e19d129a6772045b7e384988b01197535[m
+Author: Agustin Cabra <acabra@easysol.net>
+Date:   Tue Sep 27 12:04:08 2016 +0200
+
+    Initial REST structure for webcalculator
+
+[33mcommit 7dd5ba7c511d2189227db624f24f67294e3481b1[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Tue Sep 27 10:39:08 2016 +0200
+
+    Update README.md
+
+[33mcommit 374bd365380dae6dc4b20c85ce5c08012c7f3cf5[m
+Author: Agustin Cabra <cabra.agustin@gmail.com>
+Date:   Tue Sep 27 10:37:35 2016 +0200
+
+    Initial commit

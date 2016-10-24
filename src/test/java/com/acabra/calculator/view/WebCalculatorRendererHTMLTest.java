@@ -93,7 +93,7 @@ public class WebCalculatorRendererHTMLTest {
         PowerMockito.verifyStatic(times(4));
         ResultFormatter.formatNanoSeconds(secs);
 
-        PowerMockito.verifyStatic(times(4));
+        PowerMockito.verifyStatic(times(2));
         ResultFormatter.trimIntegerResults(anyString());
     }
 
@@ -125,7 +125,7 @@ public class WebCalculatorRendererHTMLTest {
         PowerMockito.verifyStatic(times(4));
         ResultFormatter.formatNanoSeconds(secs);
 
-        PowerMockito.verifyStatic(times(4));
+        PowerMockito.verifyStatic(times(2));
         ResultFormatter.trimIntegerResults(anyString());
     }
 }
