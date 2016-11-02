@@ -1,12 +1,13 @@
-package com.acabra.calculator.integral.function;
+package com.acabra.calculator.integral.definiteintegral;
 
+import com.acabra.calculator.function.RealFunction;
 import com.acabra.calculator.integral.Interval;
 import com.acabra.calculator.util.ResultFormatter;
 
 /**
  * Created by Agustin on 9/29/2016.
  */
-public abstract class IntegrableFunction {
+public abstract class DefiniteIntegralFunction extends RealFunction {
 
     protected static final String STRING_REPRESENTATION_FORMAT = "Integ{%s}[%s, %s]";
 
@@ -20,7 +21,7 @@ public abstract class IntegrableFunction {
     protected volatile Double evaluatedLower;
     protected volatile Double evaluatedUpper;
 
-    public IntegrableFunction(double lowerLimit, double upperLimit, Double result, String label, FunctionDomain domain) {
+    public DefiniteIntegralFunction(double lowerLimit, double upperLimit, Double result, String label, FunctionDomain domain) {
         this.domain = domain;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
@@ -68,14 +69,6 @@ public abstract class IntegrableFunction {
      * @return the result of integration between limits
      */
     protected abstract Double executeIntegration();
-
-    /**
-     * Evaluates the function on a single domainPoint, it is recommended to
-     * watch for domain constraints of the function.
-     * @param domainPoint a domainPoint belonging to the domain of the function.
-     * @return the evaluated function on the requested domainPoint
-     */
-    public abstract double evaluate(double domainPoint);
 
     public double getLowerLimit() {
         return lowerLimit;

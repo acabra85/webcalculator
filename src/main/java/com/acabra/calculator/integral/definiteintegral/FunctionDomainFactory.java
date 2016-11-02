@@ -1,4 +1,4 @@
-package com.acabra.calculator.integral.function;
+package com.acabra.calculator.integral.definiteintegral;
 
 import com.acabra.calculator.integral.Interval;
 

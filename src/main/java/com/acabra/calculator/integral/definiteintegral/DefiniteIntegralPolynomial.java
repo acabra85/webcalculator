@@ -1,6 +1,7 @@
-package com.acabra.calculator.integral.function;
+package com.acabra.calculator.integral.definiteintegral;
 
 import com.acabra.calculator.util.ResultFormatter;
+import com.google.common.util.concurrent.AtomicDouble;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,14 +10,14 @@ import java.util.Optional;
 /**
  * Created by Agustin on 9/30/2016.
  */
-public class FPolynomial extends IntegrableFunction {
+public class DefiniteIntegralPolynomial extends DefiniteIntegralFunction {
 
     private static final FunctionDomain DOMAIN = FunctionDomainFactory.REAL_NUMBERS;
     private final int order;
     private final List<Double> coefficients;
     private String stringRepresentation;
 
-    public FPolynomial(double lowerBound, double upperBound, List<Double> coefficients, Optional<Double> integrationResult, Optional<Double> approximation) {
+    public DefiniteIntegralPolynomial(double lowerBound, double upperBound, List<Double> coefficients, Optional<Double> integrationResult, Optional<Double> approximation) {
         super(lowerBound, upperBound, integrationResult.orElse(null), IntegrableFunctionType.POLYNOMIAL.getLabel(), DOMAIN);
         this.approximation = approximation.orElse(null);
         this.coefficients = Collections.unmodifiableList(coefficients);
@@ -115,6 +116,17 @@ public class FPolynomial extends IntegrableFunction {
             stringRepresentation = provideStringRepresentation();
         }
         return stringRepresentation;
+    }
+
+    @Override
+    public double calculateDerivative(double evalPoint) {
+        AtomicDouble total = new AtomicDouble();
+        for (int i = 1; i < coefficients.size(); i++) {
+            if (coefficients.get(i) != 0.0) {
+                total.addAndGet(i * coefficients.get(i) * Math.pow(evalPoint, i-1));
+            }
+        }
+        return total.get();
     }
 
     public static boolean inFunctionsDomain(double val) {

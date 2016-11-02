@@ -21,18 +21,18 @@
                                name="expression" class="form-control" placeholder="" aria-describedby="basic-addon1"
                                value="0" style="text-align:right; width: 400px" readonly/>
                         <ul class="nav nav-tabs">
-                            <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(0)"><a href="#">Basic</a></li>
-                            <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(1)"><a href="#">Integrals</a></li>
-                            <li role="presentation"><a href="#">
+                            <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(0)"><approximatedRoot href="#">Basic</approximatedRoot></li>
+                            <li role="presentation" data-toggle="tab" onclick="toggleBasicIntegralPanels(1)"><approximatedRoot href="#">Integrals</approximatedRoot></li>
+                            <li role="presentation"><approximatedRoot href="#">
                                 <button type="button" class="btn btn-info btn-xs" id="display_history" onclick="displayHistory()">History</button>
-                            </a></li>
-                            <li role="presentation" onclick="clearResult()"><a href="#">
+                            </approximatedRoot></li>
+                            <li role="presentation" onclick="clearResult()"><approximatedRoot href="#">
                                 <button type="button" class="btn btn-danger btn-xs" id="clear_result">Clear</button>
-                            </a></li>
-                            <li role="presentation" onclick="removeLastCharacter()" ><a href="#">
+                            </approximatedRoot></li>
+                            <li role="presentation" onclick="removeLastCharacter()" ><approximatedRoot href="#">
                                 <button type="button" class="btn btn-warning btn-xs" id="remove_last"><span
                                         class="glyphicon glyphicon-arrow-left"></span></button>
-                            </a></li>
+                            </approximatedRoot></li>
                         </ul>
                         <div class="calc-buttons operation-container" id="main_calculator_panel" style="display: block;">
                             <div class="btn-group btn-group-lg">
@@ -73,10 +73,10 @@
                                     <div class="input-group-btn">
                                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Function<span class="caret"></span></button>
                                         <ul class="dropdown-menu">
-                                            <li onclick="useFunction(0)"><a href="#">e^x</a></li>
-                                            <li onclick="useFunction(1)"><a href="#">x^n</a></li>
-                                            <li onclick="useFunction(2)"><a href="#">ln(x)</a></li>
-                                            <li onclick="useFunction(3)"><a href="#">1/x</a></li>
+                                            <li onclick="useFunction(0)"><approximatedRoot href="#">e^x</approximatedRoot></li>
+                                            <li onclick="useFunction(1)"><approximatedRoot href="#">x^n</approximatedRoot></li>
+                                            <li onclick="useFunction(2)"><approximatedRoot href="#">ln(x)</approximatedRoot></li>
+                                            <li onclick="useFunction(3)"><approximatedRoot href="#">1/x</approximatedRoot></li>
                                         </ul>
                                     </div><!-- /btn-group -->
                                     <input type="text" id="selected_function" class="form-control" aria-label="..." value="e^x" readonly>
@@ -85,9 +85,9 @@
                                     <div class="input-group-btn">
                                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Approx. Method<span class="caret"></span></button>
                                         <ul class="dropdown-menu">
-                                            <li onclick="useApproximationMethod(0)"><a href="#">Riemann Rectangles</a></li>
-                                            <li onclick="useApproximationMethod(1)"><a href="#">Simpson's Rule</a></li>
-                                            <!--<li onclick="useApproximationMethod(2)"><a href="#">Gaussian Quadrature</a></li>-->
+                                            <li onclick="useApproximationMethod(0)"><approximatedRoot href="#">Riemann Rectangles</approximatedRoot></li>
+                                            <li onclick="useApproximationMethod(1)"><approximatedRoot href="#">Simpson's Rule</approximatedRoot></li>
+                                            <!--<li onclick="useApproximationMethod(2)"><approximatedRoot href="#">Gaussian Quadrature</approximatedRoot></li>-->
                                         </ul>
                                     </div><!-- /btn-group -->
                                     <input type="text" id="selected_approximation_method" class="form-control detail-method-text" aria-label="..." value="Riemann Rectangles" readonly>
@@ -109,7 +109,7 @@
                                 </div>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-addon">Repeated Calculations:</span>
-                                    <input type="number" class="form-control" id="repeatedcalculations" data-toggle="tooltip" data-placement="right" title="must be a number greater than 0" aria-describedby="sizing-addon3" min="1" max="2147483647" value="1">
+                                    <input type="number" class="form-control" id="repeatedcalculations" data-toggle="tooltip" data-placement="right" title="must be approximatedRoot number greater than 0" aria-describedby="sizing-addon3" min="1" max="2147483647" value="1">
                                 </div>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-addon">Number Threads:</span>
@@ -127,7 +127,7 @@
             </div>
         </div>
     </div>
-    <div class="panel-footer">Web Calculator 1.0 (<a href="https://github.com/acabra85/webcalculator">Agustin Cabra</a> 2016) <a href="https://github.com/acabra85/webcalculator/wiki">HELP</a></div>
+    <div class="panel-footer">Web Calculator 1.0 (<approximatedRoot href="https://github.com/acabra85/webcalculator">Agustin Cabra</approximatedRoot> 2016) <approximatedRoot href="https://github.com/acabra85/webcalculator/wiki">HELP</approximatedRoot></div>
 </div>
 <script src="js/lib.js"></script>
 </body>

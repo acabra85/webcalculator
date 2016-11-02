@@ -1,7 +1,7 @@
 package com.acabra.calculator;
 
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.function.IntegrableFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.integral.IntegralSolver;
 import com.acabra.calculator.util.ShuntingYard;
 import org.apache.log4j.Logger;
@@ -46,7 +46,7 @@ public class Calculator {
      * @param integralRequest a request of integral function
      * @return a future representing the integrableFunction object solved.
      */
-    CompletableFuture<IntegrableFunction> approximateAreaUnderCurve(IntegralRequest integralRequest) {
+    CompletableFuture<DefiniteIntegralFunction> approximateAreaUnderCurve(IntegralRequest integralRequest) {
         return new IntegralSolver(integralRequest).approximateAreaUnderCurve();
     }
 

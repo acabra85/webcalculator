@@ -1,12 +1,12 @@
 package com.acabra.calculator.integral;
 
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.approx.NumericalMethodApproximationType;
+import com.acabra.calculator.integral.approx.NumericalMethodAreaApproximationType;
 import com.acabra.calculator.integral.approx.RiemannSolver;
 import com.acabra.calculator.integral.approx.SimpsonSolver;
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.FunctionFactory;
-import com.acabra.calculator.integral.function.IntegrableFunctionType;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
+import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.integral.input.IntegrableFunctionInputParameters;
 import com.acabra.calculator.integral.input.IntegrableFunctionInputParametersBuilder;
 import org.apache.log4j.Logger;
@@ -31,7 +31,7 @@ public class IntegralSolver {
     private final int repeatedCalculations;
     private final boolean areaInscribed;
     private final IntegrableFunctionType functionType;
-    private final NumericalMethodApproximationType approximationMethodType;
+    private final NumericalMethodAreaApproximationType approximationMethodType;
     private final List<Double> coefficients;
 
     public IntegralSolver(IntegralRequest integralRequest) {
@@ -39,8 +39,8 @@ public class IntegralSolver {
         this.upperLimit = integralRequest.getUpperLimit();
         this.numThreads = integralRequest.getNumThreads();
         this.repeatedCalculations = Integer.parseInt(integralRequest.getRepeatedCalculations() + "");
-        this.functionType = FunctionFactory.evaluateFunctionType(integralRequest.getFunctionId());
-        this.approximationMethodType = FunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId());
+        this.functionType = DefiniteIntegralFunctionFactory.evaluateFunctionType(integralRequest.getFunctionId());
+        this.approximationMethodType = DefiniteIntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId());
         this.areaInscribed = integralRequest.isAreaInscribed();
         this.coefficients = Collections.unmodifiableList(integralRequest.getCoefficients());
     }
@@ -49,7 +49,7 @@ public class IntegralSolver {
      * This method creates sub-integral functions and aggregates the result of the Riemann areas for each integral.
      * @return A future containing the integral with the total area aggregated from the sub intervals.
      */
-    public CompletableFuture<IntegrableFunction> approximateAreaUnderCurve() {
+    public CompletableFuture<DefiniteIntegralFunction> approximateAreaUnderCurve() {
         if (lowerLimit == upperLimit) {
             IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
                     .withLowerLimit(lowerLimit)
@@ -58,7 +58,7 @@ public class IntegralSolver {
                     .withCoefficients(coefficients)
                     .withIntegrationResult(0.0)
                     .build();
-            return CompletableFuture.completedFuture(FunctionFactory.createIntegralFunction(functionType, parameters));
+            return CompletableFuture.completedFuture(DefiniteIntegralFunctionFactory.createIntegralFunction(functionType, parameters));
         }
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         switch (approximationMethodType) {

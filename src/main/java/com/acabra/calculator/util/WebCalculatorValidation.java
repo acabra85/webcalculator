@@ -2,7 +2,7 @@ package com.acabra.calculator.util;
 
 import com.acabra.calculator.Operator;
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.function.FunctionFactory;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
@@ -26,8 +26,8 @@ public class WebCalculatorValidation {
      * @param integralRequest an integral request
      */
     public static void validateIntegralRequest(IntegralRequest integralRequest) {
-        FunctionFactory.evaluateFunctionType(integralRequest.getFunctionId());
-        FunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId());
+        DefiniteIntegralFunctionFactory.evaluateFunctionType(integralRequest.getFunctionId());
+        DefiniteIntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId());
         int numThreads = integralRequest.getNumThreads();
         if (numThreads < 1 || numThreads > 15)
             throw new InputMismatchException("invalid input num threads must be between [1,15]");

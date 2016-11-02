@@ -2,8 +2,8 @@ package com.acabra.calculator.integral.approx;
 
 import com.acabra.calculator.integral.IntegralSubRangeSupplier;
 import com.acabra.calculator.integral.WebCalculatorCompletableFutureUtils;
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.IntegrableFunctionType;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -28,7 +28,7 @@ public class SimpsonSolver extends AreaApproximatorNumericalMethod {
      * @return the area of the calculated rectangle
      */
     @Override
-    protected Double applyRule(IntegrableFunction function) {
+    protected Double applyRule(DefiniteIntegralFunction function) {
         double lowerLimit = function.getLowerLimit();
         double upperLimit = function.getUpperLimit();
         double midPoint = lowerLimit + (upperLimit - lowerLimit) / 2.0;
@@ -36,7 +36,7 @@ public class SimpsonSolver extends AreaApproximatorNumericalMethod {
     }
 
     @Override
-    public CompletableFuture<IntegrableFunction> approximate(final int repeatedCalculations, final ExecutorService executor) {
+    public CompletableFuture<DefiniteIntegralFunction> approximate(final int repeatedCalculations, final ExecutorService executor) {
         if (repeatedCalculations%2 == 0) {
             final double simpsonDelta = (upperLimit - lowerLimit) /  (3.0 * repeatedCalculations); // h/3 where h = (b-a)/n
             int subIntervals = repeatedCalculations / 2;

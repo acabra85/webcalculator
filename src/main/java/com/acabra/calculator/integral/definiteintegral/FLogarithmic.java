@@ -1,11 +1,11 @@
-package com.acabra.calculator.integral.function;
+package com.acabra.calculator.integral.definiteintegral;
 
 import java.util.Optional;
 
 /**
  * Created by Agustin on 10/11/2016.
  */
-public class FLogarithmic extends IntegrableFunction {
+public class FLogarithmic extends DefiniteIntegralFunction {
 
     private static final FunctionDomain DOMAIN = new FunctionDomainFactory.DomainBuilder()
             .withPositiveRealNumbers()
@@ -41,8 +41,15 @@ public class FLogarithmic extends IntegrableFunction {
         return Math.log(domainPoint);
     }
 
+    @Override
+    public double calculateDerivative(double evalPoint) {
+        if (inFunctionsDomain(evalPoint)) {
+            return 1.0 / evalPoint;
+        }
+        throw new UnsupportedOperationException(String.format("Entered value %.4f does not belong to functions domain", evalPoint));
+    }
+
     public static boolean inFunctionsDomain(double val) {
         return DOMAIN.belongsDomain(val);
     }
-
 }

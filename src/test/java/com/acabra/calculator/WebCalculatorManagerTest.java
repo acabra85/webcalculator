@@ -3,10 +3,10 @@ package com.acabra.calculator;
 import com.acabra.calculator.domain.CalculationHistoryRecord;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.domain.IntegralRequestBuilder;
-import com.acabra.calculator.integral.function.FExponential;
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.FunctionFactory;
-import com.acabra.calculator.integral.approx.NumericalMethodApproximationType;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralExponential;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
+import com.acabra.calculator.integral.approx.NumericalMethodAreaApproximationType;
 import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorConstants;
@@ -53,7 +53,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
         IntegralRequest.class, WebCalculatorFactorySimpleResponse.class,
         WebCalculatorFactoryResponse.class,
         TokenResponse.class, RenderedHistoryResponse.class, ResultFormatter.class,
-        FExponential.class, CalculationHistoryRecord.class, Stopwatch.class})
+        DefiniteIntegralExponential.class, CalculationHistoryRecord.class, Stopwatch.class})
 @PowerMockIgnore(value = {"javax.management.*"})
 public class WebCalculatorManagerTest {
 
@@ -282,17 +282,19 @@ public class WebCalculatorManagerTest {
         String res = "1.71456";
         String rowExpr = "<tr><td>1</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
+        String integralStrRep = "integralStrRep";
         IntegralRequest integralRequest = new IntegralRequest(0, 1, 1, 1, 0, 0, true, Collections.emptyList());
 
         when(rendererMock.renderCalculationHistory(any(), eq(true))).thenReturn(renderedTable);
 
         CalculationResponse calculationResponseMock = PowerMockito.mock(CalculationResponse.class);
 
-        IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
+        DefiniteIntegralFunction solvedIntegralMock = PowerMockito.mock(DefiniteIntegralFunction.class);
         when(solvedIntegralMock.getApproximation()).thenReturn(1.1);
         when(solvedIntegralMock.getResult()).thenReturn(1.2);
+        when(solvedIntegralMock.toString()).thenReturn(integralStrRep);
 
-        CompletableFuture<IntegrableFunction> future = CompletableFuture.completedFuture(solvedIntegralMock);
+        CompletableFuture<DefiniteIntegralFunction> future = CompletableFuture.completedFuture(solvedIntegralMock);
 
         PowerMockito.mockStatic(ResultFormatter.class);
         PowerMockito.when(ResultFormatter.formatIntegralRequest(anyString(), anyInt(), anyInt())).thenReturn("formatted");
@@ -314,7 +316,7 @@ public class WebCalculatorManagerTest {
         verify(calculatorMock, times(1)).approximateAreaUnderCurve(any());
 
         PowerMockito.verifyStatic(times(1));
-        ResultFormatter.formatIntegralRequest("integrableFunction", 1, 1);
+        ResultFormatter.formatIntegralRequest(integralStrRep, 1, 1);
         PowerMockito.verifyStatic(times(1));
         WebCalculatorValidation.validateIntegralRequest(integralRequest);
         PowerMockito.verifyStatic(times(1));
@@ -332,13 +334,16 @@ public class WebCalculatorManagerTest {
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
         IntegralRequest integralRequest = new IntegralRequest(0, 1, 1, 1, 0, 0, true, Collections.emptyList());
         CalculationResponse calculationResponseMock = PowerMockito.mock(CalculationResponse.class);
+        String integralStrRep = "integralStrRep";
 
         when(rendererMock.renderCalculationHistory(any(), eq(true))).thenReturn(renderedTable);
 
-        IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
+        DefiniteIntegralFunction solvedIntegralMock = PowerMockito.mock(DefiniteIntegralFunction.class);
         when(solvedIntegralMock.getApproximation()).thenReturn(1.1);
         when(solvedIntegralMock.getResult()).thenReturn(1.2);
-        CompletableFuture<IntegrableFunction> future = CompletableFuture.completedFuture(solvedIntegralMock);
+        when(solvedIntegralMock.toString()).thenReturn(integralStrRep);
+
+        CompletableFuture<DefiniteIntegralFunction> future = CompletableFuture.completedFuture(solvedIntegralMock);
 
         PowerMockito.mockStatic(ResultFormatter.class);
         PowerMockito.when(ResultFormatter.formatIntegralRequest(anyString(), anyInt(), anyInt())).thenReturn("formatted");
@@ -361,7 +366,7 @@ public class WebCalculatorManagerTest {
         verify(calculatorMock, times(1)).approximateAreaUnderCurve(any());
 
         PowerMockito.verifyStatic(times(1));
-        ResultFormatter.formatIntegralRequest("integrableFunction", 1, 1);
+        ResultFormatter.formatIntegralRequest(integralStrRep, 1, 1);
         PowerMockito.verifyStatic(times(1));
         WebCalculatorValidation.validateIntegralRequest(integralRequest);
         PowerMockito.verifyStatic(times(1));
@@ -378,12 +383,15 @@ public class WebCalculatorManagerTest {
         String rowExpr = "<tr><td>1</td><td>" + expr + "</td><td>" + res + "</td></tr>";
         String renderedTable = "<table>" + tableHeader + "<tbody>" + rowExpr + "</tbody></table>";
         IntegralRequest integralRequest = new IntegralRequest(0, 1, 1, 1, 0, 0, true, Collections.emptyList());
+        String integralStrRep = "integralStrRep";
         CalculationResponse calculationResponseMock = PowerMockito.mock(CalculationResponse.class);
 
         when(rendererMock.renderCalculationHistory(any(), eq(true))).thenReturn(renderedTable);
 
-        IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
-        CompletableFuture<IntegrableFunction> future = CompletableFuture.completedFuture(solvedIntegralMock);
+        DefiniteIntegralFunction solvedIntegralMock = PowerMockito.mock(DefiniteIntegralFunction.class);
+        when(solvedIntegralMock.toString()).thenReturn(integralStrRep);
+
+        CompletableFuture<DefiniteIntegralFunction> future = CompletableFuture.completedFuture(solvedIntegralMock);
 
         PowerMockito.mockStatic(ResultFormatter.class);
         PowerMockito.when(ResultFormatter.formatIntegralRequest(anyString(), anyInt(), anyInt())).thenReturn("formatted");
@@ -406,7 +414,7 @@ public class WebCalculatorManagerTest {
         verify(calculatorMock, times(1)).approximateAreaUnderCurve(any());
 
         PowerMockito.verifyStatic(times(1));
-        ResultFormatter.formatIntegralRequest("integrableFunction", 1, 1);
+        ResultFormatter.formatIntegralRequest(integralStrRep, 1, 1);
         PowerMockito.verifyStatic(times(1));
         WebCalculatorValidation.validateIntegralRequest(integralRequest);
         PowerMockito.verifyStatic(times(1));
@@ -429,7 +437,7 @@ public class WebCalculatorManagerTest {
         int sizeBefore = 0;
         int sizeAfter = 1;
 
-        FExponential expIntegralMock = PowerMockito.mock(FExponential.class);
+        DefiniteIntegralExponential expIntegralMock = PowerMockito.mock(DefiniteIntegralExponential.class);
 
         when(expIntegralMock.getUpperLimit()).thenReturn(upperBound);
         when(expIntegralMock.getLowerLimit()).thenReturn(lowerBound);
@@ -437,7 +445,7 @@ public class WebCalculatorManagerTest {
         when(expIntegralMock.getResult()).thenReturn(result);
         when(expIntegralMock.getApproximation()).thenReturn(approximation);
 
-        CompletableFuture<IntegrableFunction> futureSolvedIntegral = CompletableFuture.completedFuture(expIntegralMock);
+        CompletableFuture<DefiniteIntegralFunction> futureSolvedIntegral = CompletableFuture.completedFuture(expIntegralMock);
 
         IntegralRequest integralRequestMock = PowerMockito.mock(IntegralRequest.class);
         when(integralRequestMock.getLowerLimit()).thenReturn(lowerBound);
@@ -483,7 +491,7 @@ public class WebCalculatorManagerTest {
 
         assertEquals("1.0", integralCalculationResponse.getResult());
         assertEquals(result, integralCalculationResponse.getIntegralResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(FunctionFactory.evaluateApproximationMethodType(approximationMethodId).getLabel(), integralCalculationResponse.getDescription());
+        assertEquals(DefiniteIntegralFunctionFactory.evaluateApproximationMethodType(approximationMethodId).getLabel(), integralCalculationResponse.getDescription());
         assertEquals(expr, integralCalculationResponse.getExpression());
         assertEquals(sizeAfter, webCalculatorManager.countHistorySize());
     }
@@ -498,7 +506,7 @@ public class WebCalculatorManagerTest {
         int numThreads = 5;
         int repeatedCalculations = 6;
         String expr = "Integ{e^x}[0, 1] #Rep=6 #Th=5";
-        String description = NumericalMethodApproximationType.RIEMANN.getLabel();
+        String description = NumericalMethodAreaApproximationType.RIEMANN.getLabel();
         String exactIntegral = "1.0";
         boolean inscribed = true;
         evaluateResultFormatting(approximationMethodId,
@@ -516,7 +524,7 @@ public class WebCalculatorManagerTest {
         String exactIntegral = "4.5399929762483885E-7";
         String expr = "Integ{e^x}[-10, -9.99] #Rep=6 #Th=5";
         int approximationMethodId = 0;
-        String description = NumericalMethodApproximationType.RIEMANN.getLabel();
+        String description = NumericalMethodAreaApproximationType.RIEMANN.getLabel();
         boolean inscribed = true;
         evaluateResultFormatting(approximationMethodId, functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description, exactIntegral, inscribed);
     }
@@ -532,7 +540,7 @@ public class WebCalculatorManagerTest {
         int repeatedCalculations = 6;
         String exactIntegral = "0.0";
         String expr = "Integ{e^x}[0, 0] #Rep=6 #Th=5";
-        String description = NumericalMethodApproximationType.RIEMANN.getLabel();
+        String description = NumericalMethodAreaApproximationType.RIEMANN.getLabel();
         boolean inscribed = true;
         evaluateResultFormatting(approximationMethodId, functionId, lowerBound, upperBound, result, numThreads, repeatedCalculations, expr, description, exactIntegral, inscribed);
     }
@@ -549,8 +557,8 @@ public class WebCalculatorManagerTest {
         int repeatedCalculations = 6;
         String expr = "Integ{e^x}[0, 0] #Rep=6 #Th=5";
         int approximationMethodId = 0;
-        String description = NumericalMethodApproximationType.RIEMANN.getLabel();
-        CompletableFuture<IntegrableFunction> integralResult = CompletableFuture.completedFuture(new FExponential(lowerBound, upperBound, Double.valueOf(result), null));
+        String description = NumericalMethodAreaApproximationType.RIEMANN.getLabel();
+        CompletableFuture<DefiniteIntegralFunction> integralResult = CompletableFuture.completedFuture(new DefiniteIntegralExponential(lowerBound, upperBound, Optional.of(Double.valueOf(result)), Optional.empty()));
         IntegralRequest integralRequest = new IntegralRequestBuilder()
                 .withFunctionId(functionId)
                 .withApproximationMethodId(approximationMethodId)
@@ -571,7 +579,7 @@ public class WebCalculatorManagerTest {
         assertEquals("0", integralCalculationResponse.getResult());
         assertEquals(expr, integralCalculationResponse.getExpression());
         assertEquals(description, integralCalculationResponse.getDescription());
-        assertEquals(NumericalMethodApproximationType.RIEMANN, FunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()));
+        assertEquals(NumericalMethodAreaApproximationType.RIEMANN, DefiniteIntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()));
         assertEquals(sizeAfterProcess, webCalculatorManager.countHistorySize());
     }
 
@@ -581,7 +589,7 @@ public class WebCalculatorManagerTest {
         int sizeBeforeProcess = 0;
         int sizeAfterProcess = 1;
 
-        FExponential expIntegralMock = PowerMockito.mock(FExponential.class);
+        DefiniteIntegralExponential expIntegralMock = PowerMockito.mock(DefiniteIntegralExponential.class);
         when(expIntegralMock.getUpperLimit()).thenReturn(upperBound);
         when(expIntegralMock.getLowerLimit()).thenReturn(lowerBound);
         when(expIntegralMock.toString()).thenReturn("");
@@ -597,7 +605,7 @@ public class WebCalculatorManagerTest {
         when(integralReqMock.getRepeatedCalculations()).thenReturn(repeatedCalculations);
         when(integralReqMock.isAreaInscribed()).thenReturn(inscribed);
 
-        CompletableFuture<IntegrableFunction> futureSolvedIntegral = CompletableFuture.completedFuture(expIntegralMock);
+        CompletableFuture<DefiniteIntegralFunction> futureSolvedIntegral = CompletableFuture.completedFuture(expIntegralMock);
 
         PowerMockito.mockStatic(WebCalculatorValidation.class, ResultFormatter.class);
         PowerMockito.doNothing().when(WebCalculatorValidation.class, "validateIntegralRequest", integralReqMock);

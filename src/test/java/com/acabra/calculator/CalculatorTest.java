@@ -1,9 +1,9 @@
 package com.acabra.calculator;
 
 import com.acabra.calculator.integral.IntegralSolver;
-import com.acabra.calculator.integral.function.FExponential;
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.FPolynomial;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralExponential;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralPolynomial;
 import com.acabra.calculator.util.ShuntingYard;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class CalculatorTest {
     @Test
     public void solveExponentialIntegralExpression() throws Exception {
         double expected = 1.71828;
-        CompletableFuture<IntegrableFunction> concurrentIntegralResult = CompletableFuture.completedFuture(new FExponential(0, 1, expected, null));
+        CompletableFuture<DefiniteIntegralFunction> concurrentIntegralResult = CompletableFuture.completedFuture(new DefiniteIntegralExponential(0, 1, Optional.of(expected), Optional.empty()));
 
         IntegralSolver integralSolverMock = PowerMockito.mock(IntegralSolver.class);
 
@@ -50,8 +50,8 @@ public class CalculatorTest {
     public void solvePolynomialIntegralExpression() throws Exception {
         double expected = 1.71828;
         List<Double> coefficients = Arrays.asList(0.0, 2.0);
-        CompletableFuture<IntegrableFunction> concurrentIntegralResult =
-                CompletableFuture.completedFuture(new FPolynomial(0, 1, coefficients, Optional.of(expected), Optional.empty()));
+        CompletableFuture<DefiniteIntegralFunction> concurrentIntegralResult =
+                CompletableFuture.completedFuture(new DefiniteIntegralPolynomial(0, 1, coefficients, Optional.of(expected), Optional.empty()));
 
         IntegralSolver integralSolverMock = PowerMockito.mock(IntegralSolver.class);
 
@@ -61,9 +61,9 @@ public class CalculatorTest {
 
     }
 
-    private void resolveAndVerifyIntegral(CompletableFuture<IntegrableFunction> future, double expected, IntegralSolver integralSolverMock) throws ExecutionException, InterruptedException {
-        IntegrableFunction integrableFunction = future.get();
-        assertEquals(expected, integrableFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+    private void resolveAndVerifyIntegral(CompletableFuture<DefiniteIntegralFunction> future, double expected, IntegralSolver integralSolverMock) throws ExecutionException, InterruptedException {
+        DefiniteIntegralFunction definiteIntegralFunction = future.get();
+        assertEquals(expected, definiteIntegralFunction.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         try {
             verifyNew(IntegralSolver.class).withArguments(eq(null));
         } catch (Exception e) {

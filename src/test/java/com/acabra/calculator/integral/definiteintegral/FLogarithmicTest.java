@@ -1,5 +1,6 @@
-package com.acabra.calculator.integral.function;
+package com.acabra.calculator.integral.definiteintegral;
 
+import com.acabra.calculator.integral.definiteintegral.FLogarithmic;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -51,5 +52,25 @@ public class FLogarithmicTest {
         assertEquals(-1.6094379, fLogarithmic.evaluate(0.2), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(1.0, fLogarithmic.evaluate(Math.E), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals("Integ{ln(x)}[0.2, 1.2]", fLogarithmic.toString());
+    }
+
+    @Test
+    public void should_calculate_derivativeTest() {
+        FLogarithmic fLogarithmic = new FLogarithmic(0.00001, Double.MAX_VALUE, Optional.empty(), Optional.empty());
+        assertEquals(1.0, fLogarithmic.calculateDerivative(1), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(0.5, fLogarithmic.calculateDerivative(2), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(0.1, fLogarithmic.calculateDerivative(10), WebCalculatorConstants.ACCURACY_EPSILON);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void should_fail_calculating_derivative_1_Test() {
+        FLogarithmic fLogarithmic = new FLogarithmic(0.00001, Double.MAX_VALUE, Optional.empty(), Optional.empty());
+        fLogarithmic.calculateDerivative(0);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void should_fail_calculating_derivative_2_Test() {
+        FLogarithmic fLogarithmic = new FLogarithmic(0.00001, Double.MAX_VALUE, Optional.empty(), Optional.empty());
+        fLogarithmic.calculateDerivative(-5);
     }
 }

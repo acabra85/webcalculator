@@ -1,6 +1,8 @@
 package com.acabra.calculator.integral.approx;
 
-import com.acabra.calculator.integral.function.*;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralPolynomial;
+import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,7 +27,7 @@ public class RiemannSolverTest {
         int lowerBound = 0;
         double upperBound = 5.0;
         double expected = 742.0657955;
-        IntegrableFunction unsolvedIntegral = new RiemannSolver(lowerBound, upperBound, EMPTY_LIST, IntegrableFunctionType.EXPONENTIAL, false)
+        DefiniteIntegralFunction unsolvedIntegral = new RiemannSolver(lowerBound, upperBound, EMPTY_LIST, IntegrableFunctionType.EXPONENTIAL, false)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
@@ -41,7 +43,7 @@ public class RiemannSolverTest {
         double expectedApproximationCircumscribed = 1.71828182;
         double integralResult = 1.0;
 
-        IntegrableFunction unsolvedIntegral = new RiemannSolver(lowerBound, upperBound, EMPTY_LIST, IntegrableFunctionType.LOGARITHMIC, false)
+        DefiniteIntegralFunction unsolvedIntegral = new RiemannSolver(lowerBound, upperBound, EMPTY_LIST, IntegrableFunctionType.LOGARITHMIC, false)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
@@ -64,7 +66,7 @@ public class RiemannSolverTest {
         double expectedApproximationCircumscribed = 1.71828182;
         double integralResult = 1.0;
 
-        IntegrableFunction unsolvedIntegral = new RiemannSolver(lowerBound, upperBound, EMPTY_LIST, IntegrableFunctionType.LOGARITHMIC, true)
+        DefiniteIntegralFunction unsolvedIntegral = new RiemannSolver(lowerBound, upperBound, EMPTY_LIST, IntegrableFunctionType.LOGARITHMIC, true)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
@@ -90,7 +92,7 @@ public class RiemannSolverTest {
         double circumscribedAreaExpected = 16.0;
         List<Double> coefficients = Arrays.asList(0.0, 2.0, 3.0);
 
-        FPolynomial unsolvedIntegral = (FPolynomial) new RiemannSolver(lowerBound, upperBound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
+        DefiniteIntegralPolynomial unsolvedIntegral = (DefiniteIntegralPolynomial) new RiemannSolver(lowerBound, upperBound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
@@ -100,7 +102,7 @@ public class RiemannSolverTest {
 
         assertEquals(inscribedAreaExpected, unsolvedIntegral.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
 
-        unsolvedIntegral = (FPolynomial) new RiemannSolver(lowerBound, upperBound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
+        unsolvedIntegral = (DefiniteIntegralPolynomial) new RiemannSolver(lowerBound, upperBound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
@@ -120,24 +122,24 @@ public class RiemannSolverTest {
         double inscribedAreaExpected = 2.0;
         double circumscribedAreaExpected = 4.0;
 
-        FPolynomial fPolynomial = (FPolynomial) new RiemannSolver(lowerBound, upperBound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
+        DefiniteIntegralPolynomial definiteIntegralPolynomial = (DefiniteIntegralPolynomial) new RiemannSolver(lowerBound, upperBound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
-        assertEquals(lowerBound, fPolynomial.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperBound, fPolynomial.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(integralResult, fPolynomial.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(inscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(lowerBound, definiteIntegralPolynomial.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperBound, definiteIntegralPolynomial.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(integralResult, definiteIntegralPolynomial.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(inscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
 
-        fPolynomial = (FPolynomial) new RiemannSolver(lowerBound, upperBound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
+        definiteIntegralPolynomial = (DefiniteIntegralPolynomial) new RiemannSolver(lowerBound, upperBound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
-        assertEquals(circumscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(circumscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(order, fPolynomial.getOrder());
-        assertEquals(fPolynomial.getOrder(), fPolynomial.getCoefficients().size());
-        assertEquals("Integ{2x}[1, 2]", fPolynomial.toString());
+        assertEquals(circumscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(order, definiteIntegralPolynomial.getOrder());
+        assertEquals(definiteIntegralPolynomial.getOrder(), definiteIntegralPolynomial.getCoefficients().size());
+        assertEquals("Integ{2x}[1, 2]", definiteIntegralPolynomial.toString());
     }
     @Test
     public void solveIntegral1Test() throws ExecutionException, InterruptedException {
@@ -149,24 +151,24 @@ public class RiemannSolverTest {
         double circumscribedAreaExpected = 4.0;
         List<Double> coefficients = Arrays.asList(0.0, 2.0);
 
-        FPolynomial fPolynomial = (FPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
+        DefiniteIntegralPolynomial definiteIntegralPolynomial = (DefiniteIntegralPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
-        assertEquals(lowerbound, fPolynomial.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperbound, fPolynomial.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(integralResult, fPolynomial.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(inscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(lowerbound, definiteIntegralPolynomial.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, definiteIntegralPolynomial.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(integralResult, definiteIntegralPolynomial.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(inscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
 
-        fPolynomial = (FPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
+        definiteIntegralPolynomial = (DefiniteIntegralPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
-        assertEquals(circumscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(circumscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(order, fPolynomial.getOrder());
-        assertEquals(fPolynomial.getOrder(), fPolynomial.getCoefficients().size());
-        assertEquals("Integ{2x}[1, 2]", fPolynomial.toString());
+        assertEquals(circumscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(order, definiteIntegralPolynomial.getOrder());
+        assertEquals(definiteIntegralPolynomial.getOrder(), definiteIntegralPolynomial.getCoefficients().size());
+        assertEquals("Integ{2x}[1, 2]", definiteIntegralPolynomial.toString());
     }
 
     @Test
@@ -179,24 +181,24 @@ public class RiemannSolverTest {
         double circumscribedAreaExpected = -2.0;
         List<Double> coefficients = Arrays.asList(0.0, 2.0);
 
-        FPolynomial fPolynomial = (FPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
+        DefiniteIntegralPolynomial definiteIntegralPolynomial = (DefiniteIntegralPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
-        assertEquals(lowerbound, fPolynomial.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperbound, fPolynomial.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(integralResult, fPolynomial.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(inscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(lowerbound, definiteIntegralPolynomial.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, definiteIntegralPolynomial.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(integralResult, definiteIntegralPolynomial.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(inscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
 
-        fPolynomial = (FPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
+        definiteIntegralPolynomial = (DefiniteIntegralPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
-        assertEquals(circumscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(circumscribedAreaExpected, fPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(order, fPolynomial.getOrder());
-        assertEquals(fPolynomial.getOrder(), fPolynomial.getCoefficients().size());
-        assertEquals("Integ{2x}[-1, 0]", fPolynomial.toString());
+        assertEquals(circumscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(circumscribedAreaExpected, definiteIntegralPolynomial.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(order, definiteIntegralPolynomial.getOrder());
+        assertEquals(definiteIntegralPolynomial.getOrder(), definiteIntegralPolynomial.getCoefficients().size());
+        assertEquals("Integ{2x}[-1, 0]", definiteIntegralPolynomial.toString());
     }
 
     @Test @Ignore
@@ -212,48 +214,48 @@ public class RiemannSolverTest {
         double expectedAreaCircumscribedRange1 = -8.0;
         double expectedAreaCircumscribedRange2 = 2.0;
 
-        FPolynomial fPolynomialPartRange1 = (FPolynomial) new RiemannSolver(-2, 0, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
+        DefiniteIntegralPolynomial definiteIntegralPolynomialPartRange1 = (DefiniteIntegralPolynomial) new RiemannSolver(-2, 0, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
-        FPolynomial fPolynomialPartRange2 = (FPolynomial) new RiemannSolver(0, 1, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
-                .approximate(1, Executors.newFixedThreadPool(1))
-                .get();
-
-        assertEquals(expectedAreaInscribedRange1, fPolynomialPartRange1.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(expectedAreaInscribedRange2, fPolynomialPartRange2.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-
-        fPolynomialPartRange1 = (FPolynomial) new RiemannSolver(-2, 0, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
-                .approximate(1, Executors.newFixedThreadPool(1))
-                .get();
-        fPolynomialPartRange2 = (FPolynomial) new RiemannSolver(0, 1, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
+        DefiniteIntegralPolynomial definiteIntegralPolynomialPartRange2 = (DefiniteIntegralPolynomial) new RiemannSolver(0, 1, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
                 .approximate(1, Executors.newFixedThreadPool(1))
                 .get();
 
-        assertEquals(expectedAreaCircumscribedRange1, fPolynomialPartRange1.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(expectedAreaCircumscribedRange2, fPolynomialPartRange2.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(expectedAreaInscribedRange1, definiteIntegralPolynomialPartRange1.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(expectedAreaInscribedRange2, definiteIntegralPolynomialPartRange2.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+
+        definiteIntegralPolynomialPartRange1 = (DefiniteIntegralPolynomial) new RiemannSolver(-2, 0, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
+                .approximate(1, Executors.newFixedThreadPool(1))
+                .get();
+        definiteIntegralPolynomialPartRange2 = (DefiniteIntegralPolynomial) new RiemannSolver(0, 1, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
+                .approximate(1, Executors.newFixedThreadPool(1))
+                .get();
+
+        assertEquals(expectedAreaCircumscribedRange1, definiteIntegralPolynomialPartRange1.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(expectedAreaCircumscribedRange2, definiteIntegralPolynomialPartRange2.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
 
         double inscribedAreaExpected = expectedAreaInscribedRange2 + expectedAreaInscribedRange1;
         double circumscribedAreaExpected = expectedAreaCircumscribedRange2 + expectedAreaCircumscribedRange2;
 
 
-        FPolynomial fPolynomialFullRange = (FPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
+        DefiniteIntegralPolynomial definiteIntegralPolynomialFullRange = (DefiniteIntegralPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, true)
                 .approximate(1000, Executors.newFixedThreadPool(1))
                 .get();
 
 
-        assertEquals(lowerbound, fPolynomialFullRange.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(upperbound, fPolynomialFullRange.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(integralResult, fPolynomialFullRange.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(lowerbound, definiteIntegralPolynomialFullRange.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(upperbound, definiteIntegralPolynomialFullRange.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(integralResult, definiteIntegralPolynomialFullRange.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
 
-        assertEquals(inscribedAreaExpected, fPolynomialFullRange.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(inscribedAreaExpected, definiteIntegralPolynomialFullRange.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
 
-        fPolynomialFullRange = (FPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
+        definiteIntegralPolynomialFullRange = (DefiniteIntegralPolynomial) new RiemannSolver(lowerbound, upperbound, coefficients, IntegrableFunctionType.POLYNOMIAL, false)
                 .approximate(100, Executors.newFixedThreadPool(1))
                 .get();
 
-        assertEquals(circumscribedAreaExpected, fPolynomialFullRange.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(order, fPolynomialFullRange.getOrder());
-        assertEquals(fPolynomialFullRange.getOrder(), fPolynomialFullRange.getCoefficients().size());
-        assertEquals("Integ{2x}[-2, 1]", fPolynomialFullRange.toString());
+        assertEquals(circumscribedAreaExpected, definiteIntegralPolynomialFullRange.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(order, definiteIntegralPolynomialFullRange.getOrder());
+        assertEquals(definiteIntegralPolynomialFullRange.getOrder(), definiteIntegralPolynomialFullRange.getCoefficients().size());
+        assertEquals("Integ{2x}[-2, 1]", definiteIntegralPolynomialFullRange.toString());
     }
 }

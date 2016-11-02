@@ -1,6 +1,6 @@
 package com.acabra.calculator.response;
 
-import com.acabra.calculator.integral.function.IntegrableFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +18,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * Created by Agustin on 10/5/2016.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({IntegrableFunction.class})
+@PrepareForTest({DefiniteIntegralFunction.class})
 @PowerMockIgnore(value = {"javax.management.*"})
 public class WebCalculatorFactoryResponseTest {
 
@@ -32,7 +32,7 @@ public class WebCalculatorFactoryResponseTest {
         double exactIntegral = 1.0;
         double expectedAccuracy = 100.0;
 
-        IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
+        DefiniteIntegralFunction solvedIntegralMock = PowerMockito.mock(DefiniteIntegralFunction.class);
         when(solvedIntegralMock.getApproximation()).thenReturn(approxArea);
         when(solvedIntegralMock.getResult()).thenReturn(exactIntegral);
 
@@ -60,7 +60,7 @@ public class WebCalculatorFactoryResponseTest {
         double exactIntegral = 2.0;
         double expectedAccuracy = 50.0;
 
-        IntegrableFunction solvedIntegralMock = PowerMockito.mock(IntegrableFunction.class);
+        DefiniteIntegralFunction solvedIntegralMock = PowerMockito.mock(DefiniteIntegralFunction.class);
         when(solvedIntegralMock.getApproximation()).thenReturn(approxArea);
         when(solvedIntegralMock.getResult()).thenReturn(exactIntegral);
 

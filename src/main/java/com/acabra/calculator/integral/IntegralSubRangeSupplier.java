@@ -1,8 +1,8 @@
 package com.acabra.calculator.integral;
 
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.FunctionFactory;
-import com.acabra.calculator.integral.function.IntegrableFunctionType;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
+import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.integral.input.IntegrableFunctionInputParameters;
 import com.acabra.calculator.integral.input.IntegrableFunctionInputParametersBuilder;
 
@@ -36,13 +36,13 @@ public class IntegralSubRangeSupplier implements Supplier {
     }
 
     @Override
-    public IntegrableFunction get() {
+    public DefiniteIntegralFunction get() {
         Interval interval = rangeSupplier.get();
         IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
                 .withLowerLimit(interval.getLowerLimit())
                 .withUpperLimit(interval.getUpperLimit())
                 .withCoefficients(coefficients)
                 .build();
-        return FunctionFactory.createIntegralFunction(functionType, parameters);
+        return DefiniteIntegralFunctionFactory.createIntegralFunction(functionType, parameters);
     }
 }

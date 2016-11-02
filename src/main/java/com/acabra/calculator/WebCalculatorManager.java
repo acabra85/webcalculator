@@ -2,8 +2,8 @@ package com.acabra.calculator;
 
 import com.acabra.calculator.domain.CalculationHistoryRecord;
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.FunctionFactory;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
 import com.acabra.calculator.integral.WebCalculatorCompletableFutureUtils;
 import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.ResultFormatter;
@@ -57,14 +57,14 @@ public class WebCalculatorManager {
         }
     }
 
-    private Function<IntegrableFunction, CalculationResponse> retrieveIntegralCalculationResponse(final IntegralRequest integralRequest, final String token, final long responseTime) {
+    private Function<DefiniteIntegralFunction, CalculationResponse> retrieveIntegralCalculationResponse(final IntegralRequest integralRequest, final String token, final long responseTime) {
         return  solvedIntegral -> {
             CalculationResponse calculationResponse;
             String expression = ResultFormatter.formatIntegralRequest(solvedIntegral.toString(),
                     integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads());
             calculationResponse = WebCalculatorFactoryResponse
                     .createCalculationResponse(counter.getAndIncrement(), expression, responseTime, solvedIntegral,
-                            FunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()).getLabel());
+                            DefiniteIntegralFunctionFactory.evaluateApproximationMethodType(integralRequest.getApproximationMethodId()).getLabel());
             appendCalculationHistory(calculationResponse, token);
             return calculationResponse;
         };
@@ -72,7 +72,7 @@ public class WebCalculatorManager {
 
 
     private BiFunction<
-                CompletableFuture<IntegrableFunction>,
+                CompletableFuture<DefiniteIntegralFunction>,
                 Throwable,
                 CompletableFuture<CalculationResponse>> provideBiFunctionHandler(final IntegralRequest integralRequest, String token, Stopwatch stopwatch) {
         return (solvedIntegral, exception) -> {
@@ -97,7 +97,7 @@ public class WebCalculatorManager {
     public CompletableFuture<CalculationResponse> processIntegralCalculation(final IntegralRequest integralRequest, final String token) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         WebCalculatorValidation.validateIntegralRequest(integralRequest);
-        CompletableFuture<IntegrableFunction> future = calculator.approximateAreaUnderCurve(integralRequest);
+        CompletableFuture<DefiniteIntegralFunction> future = calculator.approximateAreaUnderCurve(integralRequest);
         return WebCalculatorCompletableFutureUtils.withFallbackDifferentResponse(future,
                 provideBiFunctionHandler(integralRequest, token, stopwatch),
                 x -> x.thenApply(retrieveIntegralCalculationResponse(integralRequest, token, stopwatch.elapsed(TimeUnit.NANOSECONDS))));

@@ -1,9 +1,9 @@
 package com.acabra.calculator.integral.approx;
 
 import com.acabra.calculator.integral.IntegralSubRangeSupplier;
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.FunctionFactory;
-import com.acabra.calculator.integral.function.IntegrableFunctionType;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
+import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.integral.input.IntegrableFunctionInputParametersBuilder;
 
 import java.util.Collections;
@@ -28,8 +28,8 @@ public abstract class AreaApproximatorNumericalMethod {
         this.functionType = functionType;
     }
 
-    protected IntegrableFunction provideIntegralFunctionWithApproximation(Double approximation) {
-        return FunctionFactory.createIntegralFunction(functionType, new IntegrableFunctionInputParametersBuilder()
+    protected DefiniteIntegralFunction provideIntegralFunctionWithApproximation(Double approximation) {
+        return DefiniteIntegralFunctionFactory.createIntegralFunction(functionType, new IntegrableFunctionInputParametersBuilder()
                 .withLowerLimit(lowerLimit)
                 .withUpperLimit(upperLimit)
                 .withCoefficients(coefficients)
@@ -41,6 +41,6 @@ public abstract class AreaApproximatorNumericalMethod {
         return new IntegralSubRangeSupplier(functionType, lowerLimit, upperLimit, coefficients, repeatedCalculations);
     }
 
-    protected abstract CompletableFuture<IntegrableFunction> approximate(final int repeatedCalculations, final ExecutorService executor);
-    protected abstract Double applyRule(final IntegrableFunction function);
+    protected abstract CompletableFuture<DefiniteIntegralFunction> approximate(final int repeatedCalculations, final ExecutorService executor);
+    protected abstract Double applyRule(final DefiniteIntegralFunction function);
 }

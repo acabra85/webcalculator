@@ -1,7 +1,7 @@
 package com.acabra.calculator.integral.approx;
 
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.IntegrableFunctionType;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Test;
 
@@ -23,9 +23,9 @@ public class SimpsonSolverTest {
     @Test
     public void approximateTest() throws ExecutionException, InterruptedException {
         int repeatedCalculations = 10;
-        CompletableFuture<IntegrableFunction> approximate = new SimpsonSolver(1, 2, EMPTY_LIST, IntegrableFunctionType.INVERSE).approximate(repeatedCalculations, Executors.newFixedThreadPool(1));
-        IntegrableFunction integrableFunction = approximate.get();
-        assertEquals(0.6931502, integrableFunction.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
+        CompletableFuture<DefiniteIntegralFunction> approximate = new SimpsonSolver(1, 2, EMPTY_LIST, IntegrableFunctionType.INVERSE).approximate(repeatedCalculations, Executors.newFixedThreadPool(1));
+        DefiniteIntegralFunction definiteIntegralFunction = approximate.get();
+        assertEquals(0.6931502, definiteIntegralFunction.getApproximation(), WebCalculatorConstants.ACCURACY_EPSILON);
     }
 
     @Test(expected = UnsupportedOperationException.class)

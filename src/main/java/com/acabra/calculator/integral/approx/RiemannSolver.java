@@ -2,8 +2,8 @@ package com.acabra.calculator.integral.approx;
 
 import com.acabra.calculator.integral.IntegralSubRangeSupplier;
 import com.acabra.calculator.integral.WebCalculatorCompletableFutureUtils;
-import com.acabra.calculator.integral.function.IntegrableFunction;
-import com.acabra.calculator.integral.function.IntegrableFunctionType;
+import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
+import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -33,7 +33,7 @@ public class RiemannSolver extends AreaApproximatorNumericalMethod {
      * @return the area of the calculated rectangle
      */
     @Override
-    public Double applyRule(IntegrableFunction function) {
+    public Double applyRule(DefiniteIntegralFunction function) {
         /*TODO Areas under the x-axis should be taken in count
                this runs on the assumption that the area evaluated is fully under the x-axis or either
                above the x-axis, to solve discrepancy split intervals and make proper area subtraction.
@@ -55,7 +55,7 @@ public class RiemannSolver extends AreaApproximatorNumericalMethod {
     }
 
     @Override
-    public CompletableFuture<IntegrableFunction> approximate(int repeatedCalculations, ExecutorService executor) {
+    public CompletableFuture<DefiniteIntegralFunction> approximate(int repeatedCalculations, ExecutorService executor) {
         final IntegralSubRangeSupplier rangeProvider = createRangeSupplier(repeatedCalculations);
         List<CompletableFuture<Double>> integralSolutionFutures = IntStream.range(0, repeatedCalculations)
                 .mapToObj(i -> CompletableFuture.supplyAsync(() -> applyRule(rangeProvider.get()), executor))
