@@ -61,8 +61,12 @@ public class RiemannSolver extends AreaApproximatorNumericalMethod {
                 .mapToObj(i -> CompletableFuture.supplyAsync(() -> applyRule(rangeProvider.get()), executor))
                 .collect(Collectors.toList());
         CompletableFuture<List<Double>> allDone = WebCalculatorCompletableFutureUtils.sequence(integralSolutionFutures);
-        return allDone.thenApply(
-                list -> provideIntegralFunctionWithApproximation(list.stream().reduce(0.0, Double::sum))
-        );
+        CompletableFuture<List<Double>> listCompletableFuture = allDone.whenComplete((doubles, throwable) -> {
+            executor.shutdown();
+            if (throwable != null) {
+                throw new RuntimeException("unable to approximate: " + throwable.getMessage());
+            }
+        });
+        return listCompletableFuture.thenApply(list -> provideIntegralFunctionWithApproximation(list.stream().reduce(0.0, Double::sum)));
     }
 }

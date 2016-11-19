@@ -113,7 +113,7 @@ public class WebCalculatorResource implements AppResource{
         CompletableFuture.supplyAsync(() -> {
             try {
                 CompletableFuture<CalculationResponse> integralFuture = webCalculatorManager.processIntegralCalculation(RequestMapper.fromInternalRequest(integralRequestDTO), token);
-                return integralFuture.thenApply(integralResponse -> {
+                return  integralFuture.thenApply(integralResponse -> {
                     if (integralResponse.isFailure()) {
                         return getResponse(Response.Status.INTERNAL_SERVER_ERROR, integralResponse.getDescription(), null);
                     }

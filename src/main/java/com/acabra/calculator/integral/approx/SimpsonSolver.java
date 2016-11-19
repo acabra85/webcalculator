@@ -45,10 +45,13 @@ public class SimpsonSolver extends AreaApproximatorNumericalMethod {
                     .mapToObj(i -> CompletableFuture.supplyAsync(() -> applyRule(functionSupplier.get()), executor))
                     .collect(Collectors.toList());
             CompletableFuture<List<Double>> allDone = WebCalculatorCompletableFutureUtils.sequence(simpsonResolvedValues);
-            return allDone.thenApply(list -> {
-                Double simpsonApproximation = (list.stream().reduce(0.0, Double::sum)) * simpsonDelta;
-                return provideIntegralFunctionWithApproximation(simpsonApproximation);
+            allDone.whenComplete((s, error) -> {
+                executor.shutdown();
+                if (error!=null) {
+                    throw new RuntimeException("unable to process the request: "  + error.getMessage());
+                }
             });
+            return allDone.thenApply(list -> provideIntegralFunctionWithApproximation((list.stream().reduce(0.0, Double::sum)) * simpsonDelta));
         }
         throw new UnsupportedOperationException("unable to apply Simpson's rule to odd number of sub-areas");
     }
