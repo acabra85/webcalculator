@@ -67,4 +67,28 @@ public class WebCalculatorValidationTest {
         String expression = "{ 6 + ( [ { 6 {} ] ) ]";
         WebCalculatorValidation.validateArithmeticExpression(expression);
     }
+
+    @Test(expected = InputMismatchException.class)
+    public void validateArithmeticExpressionWrongContents4Test() {
+        String expression = " 5 + ) 3 - 2 (";
+        WebCalculatorValidation.validateArithmeticExpression(expression);
+    }
+
+    @Test(expected = InputMismatchException.class)
+    public void validateArithmeticExpressionWrongContents5Test() {
+        String expression = " 5 + [ 3 - 2 )";
+        WebCalculatorValidation.validateArithmeticExpression(expression);
+    }
+
+    @Test(expected = InputMismatchException.class)
+    public void validateArithmeticExpressionWrongContents6Test() {
+        String expression = " 5 + [ 3 - 2 ";
+        WebCalculatorValidation.validateArithmeticExpression(expression);
+    }
+
+    @Test
+    public void should_fail_wrong_parenthesis_closing_7() {
+        String expression = "6 + ( [ { 6 ] } )";
+        WebCalculatorValidation.validateArithmeticExpression(expression);
+    }
 }

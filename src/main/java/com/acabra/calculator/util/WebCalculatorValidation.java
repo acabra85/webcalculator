@@ -52,7 +52,6 @@ public class WebCalculatorValidation {
      * @return true if the expression has proper grouping and valid symbols
      */
     private static boolean validateParenthesisGroupingAndContents(String expression) {
-        boolean validClosing = true;
         Map<String, AtomicInteger> openParenthesisControl = provideOpenParenthesisControl();
         StringTokenizer stringTokenizer = new StringTokenizer(expression, " ");
         while (stringTokenizer.hasMoreTokens()) {
@@ -62,22 +61,13 @@ public class WebCalculatorValidation {
             } else if (CLOSE_PARENTHESIS_CONTROL.containsKey(token)) {
                 String openKey = CLOSE_PARENTHESIS_CONTROL.get(token);
                 if (openParenthesisControl.get(openKey).decrementAndGet() < 0) {
-                    validClosing = false;
+                    return false;
                 }
             } else if (!Operator.OPERATOR_MAP.containsKey(token) && !NumberUtils.isNumber(token)) {
                 throw new InputMismatchException(String.format("invalid expression: unrecognized value[%s]", token));
             }
         }
-        return validClosing && validOpening(openParenthesisControl);
-    }
-
-    private static boolean validOpening(Map<String, AtomicInteger> openParenthesisControl) {
-        for (AtomicInteger openCounter: openParenthesisControl.values()) {
-            if (openCounter.get() != 0) {
-                return false;
-            }
-        }
-        return true;
+        return openParenthesisControl.values().stream().filter(x -> x.get() != 0).count() == 0;
     }
 
     private static Map<String, AtomicInteger> provideOpenParenthesisControl() {
