@@ -32,10 +32,10 @@ public class ShuntingYard {
                     sb.append(output.get(output.size() - 1)).append(' ');
                 }
                 stack.push(token);
-            } else if (Operator.GROUPING_LEFT_SYMBOLS.contains(token)) {
-                stack.push(Operator.GROUPING_LEFT_SYMBOLS.get(0));
-            } else if (Operator.GROUPING_RIGHT_SYMBOLS.contains(token)) {
-                while (!Operator.GROUPING_LEFT_SYMBOLS.contains(stack.peek())) {
+            } else if (Operator.OPEN_GROUP_SYMBOLS_SET.contains(token)) {
+                stack.push(token);
+            } else if (Operator.CLOSE_GROUP_SYMBOLS_SET.contains(token)) {
+                while (!Operator.OPEN_GROUP_SYMBOLS_SET.contains(stack.peek())) {
                     output.add(stack.pop());
                     sb.append(output.get(output.size() - 1)).append(' ');
                 }

@@ -22,12 +22,13 @@ public class WebCalculatorCompletableFutureUtils {
      */
     public static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> futures) {
         if (!futures.isEmpty()) {
-            CompletableFuture<Void> allDoneFuture = CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
-            allDoneFuture.exceptionally(e -> {
+            //CompletableFuture<Void> allDoneFuture = CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+            return CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]))
+            .exceptionally(e -> {
                 logger.error(e);
                 throw new UnsupportedOperationException("unable to process request");
-            });
-            return allDoneFuture.thenApply(v -> futures.stream()
+            })
+            .thenApply(v -> futures.stream()
                     .map(CompletableFuture::join)
                     .collect(Collectors.toList())
             );

@@ -6,7 +6,6 @@ import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionF
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Agustin on 9/29/2016.
@@ -14,10 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class WebCalculatorValidation {
 
 
-    private static final Map<String, String> CLOSE_PARENTHESIS_CONTROL  = Collections.unmodifiableMap(new HashMap<String, String>() {{
-        put(Operator.GROUPING_RIGHT_SYMBOLS.get(0), Operator.GROUPING_LEFT_SYMBOLS.get(0));
-        put(Operator.GROUPING_RIGHT_SYMBOLS.get(1), Operator.GROUPING_LEFT_SYMBOLS.get(1));
-        put(Operator.GROUPING_RIGHT_SYMBOLS.get(2), Operator.GROUPING_LEFT_SYMBOLS.get(2));
+    private static final Map<String, String> CLOSE_PARENTHESIS_CONTROL = Collections.unmodifiableMap(new HashMap<String, String>() {{
+        put(Operator.CLOSE_GROUP_SYMBOLS.get(0), Operator.OPEN_GROUP_SYMBOLS.get(0));
+        put(Operator.CLOSE_GROUP_SYMBOLS.get(1), Operator.OPEN_GROUP_SYMBOLS.get(1));
+        put(Operator.CLOSE_GROUP_SYMBOLS.get(2), Operator.OPEN_GROUP_SYMBOLS.get(2));
     }});
 
     /**
@@ -52,39 +51,21 @@ public class WebCalculatorValidation {
      * @return true if the expression has proper grouping and valid symbols
      */
     private static boolean validateParenthesisGroupingAndContents(String expression) {
-        boolean validClosing = true;
-        Map<String, AtomicInteger> openParenthesisControl = provideOpenParenthesisControl();
         StringTokenizer stringTokenizer = new StringTokenizer(expression, " ");
+        Stack<String> stackControl = new Stack<>();
         while (stringTokenizer.hasMoreTokens()) {
             String token = stringTokenizer.nextToken();
-            if (openParenthesisControl.containsKey(token)) {
-                openParenthesisControl.get(token).incrementAndGet();
-            } else if (CLOSE_PARENTHESIS_CONTROL.containsKey(token)) {
-                String openKey = CLOSE_PARENTHESIS_CONTROL.get(token);
-                if (openParenthesisControl.get(openKey).decrementAndGet() < 0) {
-                    validClosing = false;
+            if (Operator.OPEN_GROUP_SYMBOLS_SET.contains(token)) {
+                stackControl.push(token);
+            } else if (Operator.CLOSE_GROUP_SYMBOLS_SET.contains(token)) {
+                if (stackControl.isEmpty() || !stackControl.pop().equals(CLOSE_PARENTHESIS_CONTROL.get(token))) {
+                    return false;
                 }
             } else if (!Operator.OPERATOR_MAP.containsKey(token) && !NumberUtils.isNumber(token)) {
                 throw new InputMismatchException(String.format("invalid expression: unrecognized value[%s]", token));
             }
         }
-        return validClosing && validOpening(openParenthesisControl);
+        return stackControl.isEmpty();
     }
 
-    private static boolean validOpening(Map<String, AtomicInteger> openParenthesisControl) {
-        for (AtomicInteger openCounter: openParenthesisControl.values()) {
-            if (openCounter.get() != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static Map<String, AtomicInteger> provideOpenParenthesisControl() {
-        Map<String, AtomicInteger> openParenthesisControl = new HashMap<>();
-        openParenthesisControl.put(Operator.GROUPING_LEFT_SYMBOLS.get(0), new AtomicInteger());
-        openParenthesisControl.put(Operator.GROUPING_LEFT_SYMBOLS.get(1), new AtomicInteger());
-        openParenthesisControl.put(Operator.GROUPING_LEFT_SYMBOLS.get(2), new AtomicInteger());
-        return openParenthesisControl;
-    }
 }
