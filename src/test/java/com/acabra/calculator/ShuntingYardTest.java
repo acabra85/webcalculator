@@ -75,4 +75,11 @@ public class ShuntingYardTest {
         List<String> expected = Arrays.asList("6 3 6 * -".split("\\s+"));
         assertEquals(expected, ShuntingYard.postfix(expression));
     }
+
+    @Test
+    public void should_solve_using_shunting_yard_5() {
+        String expression = "6 - ( 3 { * 6 } )";
+        List<String> expected = Arrays.asList("6 3 6 * * -".split("\\s+"));
+        assertEquals(expected, ShuntingYard.postfix(expression));
+    }
 }

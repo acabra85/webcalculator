@@ -379,4 +379,21 @@ public class CalculatorTest {
 
         assertEquals(0, actual.compareTo(expected));
     }
+
+    @Test(expected = InputMismatchException.class)
+    public void should_return_minus_five_hundred_seventy_3() {
+        String expression = "6 - ( 3 { * 6 } )";
+        BigDecimal expected = new BigDecimal(-570.0);
+
+        List<String> arrayStub = Arrays.asList("6 3 6 * * -".split("\\s+"));
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(arrayStub);
+
+        BigDecimal actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(0, actual.compareTo(expected));
+    }
 }
