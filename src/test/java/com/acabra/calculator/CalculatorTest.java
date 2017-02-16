@@ -315,4 +315,68 @@ public class CalculatorTest {
 
         assertEquals(expected+"", actual.toString());
     }
+
+    @Test
+    public void should_return_minus_twelve_1() {
+        String expression = "6 - ( 3 * { 6 } )";
+        BigDecimal expected = new BigDecimal(-12.0);
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("6 3 6 * -".split("\\s+")));
+
+        BigDecimal actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(0, actual.compareTo(expected));
+    }
+
+    @Test
+    public void should_return_minus_twelve_2() {
+        String expression = "6 - ( 3 { 6 } )";
+        BigDecimal expected = new BigDecimal(-12.0);
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("6 3 6 * -".split("\\s+")));
+
+        BigDecimal actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(0, actual.compareTo(expected));
+    }
+
+    @Test
+    public void should_return_minus_five_hundred_seventy_1() {
+        String expression = "6 - ( 3 { 4 [ 6 ( { 8 } ) ] } )";
+        BigDecimal expected = new BigDecimal(-570.0);
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("6 3 4 6 8 * * * -".split("\\s+")));
+
+        BigDecimal actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(0, actual.compareTo(expected));
+    }
+
+    @Test
+    public void should_return_minus_five_hundred_seventy_2() {
+        String expression = "6 - ( { [ ( { 8 } ) 6 ] 4 } 3 )";
+        BigDecimal expected = new BigDecimal(-570.0);
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("6 8 6 * 4 * 3 * -".split("\\s+")));
+
+        BigDecimal actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(0, actual.compareTo(expected));
+    }
 }

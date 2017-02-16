@@ -2,12 +2,10 @@ package com.acabra.calculator.util;
 
 import com.acabra.calculator.Calculator;
 import com.acabra.calculator.Operator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @see <a href="http://eddmann.com/posts/shunting-yard-implementation-in-java/">Shunting Yard, Edd Mann</a>
@@ -22,10 +20,14 @@ public class ShuntingYard {
     }
 
     public static List<String> postfix(String infix) {
+        return postfix(ExplicitMultiplicationParser.makeMultiplicationExplicit(infix));
+    }
+
+    private static List<String> postfix(List<String> infix) {
         List<String> output = new ArrayList<>();
         Deque<String> stack = new LinkedList<>();
         StringBuilder sb = new StringBuilder();
-        for (String token : infix.split("\\s+")) {
+        for (String token : infix) {
             if (Operator.OPERATOR_MAP.containsKey(token)) {
                 while (!stack.isEmpty() && hasHigherPrecedence(token, stack.peek())) {
                     output.add(stack.pop());
