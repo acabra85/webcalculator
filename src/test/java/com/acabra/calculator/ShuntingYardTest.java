@@ -47,4 +47,39 @@ public class ShuntingYardTest {
         List<String> expected = Arrays.asList("2 9 1 + @ +".split("\\s+"));
         assertEquals(expected, ShuntingYard.postfix(expression));
     }
+
+    @Test
+    public void should_solve_using_shunting_yard_1() {
+        String expression = "6 - ( 3 { 6 } )";
+        List<String> expected = Arrays.asList("6 3 6 * -".split("\\s+"));
+        assertEquals(expected, ShuntingYard.postfix(expression));
+    }
+
+    @Test
+    public void should_solve_using_shunting_yard_2() {
+        String expression = "6 - ( 3 { 4 [ 6 ( { 8 } ) ] } )";
+        List<String> expected = Arrays.asList("6 3 4 6 8 * * * -".split("\\s+"));
+        assertEquals(expected, ShuntingYard.postfix(expression));
+    }
+
+    @Test
+    public void should_solve_using_shunting_yard_3() {
+        String expression = "6 - ( { [ ( { 8 } ) 6 ] 4 } 3 )";
+        List<String> expected = Arrays.asList("6 8 6 * 4 * 3 * -".split("\\s+"));
+        assertEquals(expected, ShuntingYard.postfix(expression));
+    }
+
+    @Test
+    public void should_solve_using_shunting_yard_4() {
+        String expression = "6 - ( 3 * { 6 } )";
+        List<String> expected = Arrays.asList("6 3 6 * -".split("\\s+"));
+        assertEquals(expected, ShuntingYard.postfix(expression));
+    }
+
+    @Test
+    public void should_solve_using_shunting_yard_5() {
+        String expression = "6 - ( 3 { * 6 } )";
+        List<String> expected = Arrays.asList("6 3 6 * * -".split("\\s+"));
+        assertEquals(expected, ShuntingYard.postfix(expression));
+    }
 }

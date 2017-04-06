@@ -23,10 +23,14 @@ public class ShuntingYard {
     }
 
     public static List<String> postfix(String infix) {
+        return postfix(ExplicitMultiplicationParser.makeMultiplicationExplicit(infix));
+    }
+
+    private static List<String> postfix(List<String> infix) {
         List<String> output = new ArrayList<>();
         Deque<String> stack = new LinkedList<>();
         StringBuilder sb = new StringBuilder();
-        for (String token : StringUtils.split(infix ,' ')) {
+        for (String token : infix) {
             if (Operator.OPERATOR_MAP.containsKey(token)) {
                 while (!stack.isEmpty() && hasHigherPrecedence(token, stack.peek())) {
                     output.add(stack.pop());

@@ -3,6 +3,7 @@ package com.acabra.calculator;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.integral.IntegralSolver;
+import com.acabra.calculator.util.ExplicitMultiplicationParser;
 import com.acabra.calculator.util.ShuntingYard;
 import org.apache.log4j.Logger;
 
