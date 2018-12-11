@@ -14,3 +14,5 @@ hs_err_pid*
 /target
 *.iml
 dependency-reduced-pom.xml
+
+/.DS_STORE
