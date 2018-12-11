@@ -39,6 +39,7 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
 
         // Configure CORS parameters
         cors.setInitParameter("allowedOrigins", "*");
+        cors.setInitParameter(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
         cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");
         cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
         // Add URL mapping

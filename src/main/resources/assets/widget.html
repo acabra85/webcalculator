@@ -18,7 +18,6 @@
                 headers: {
                     'header-token':'w3b3n401nt'
                 },
-                crossDomain: true,
                 contentType: "application/json; charset=utf-8",
                 url: "http://localhost:8080/app/login?single-token=97cfc311492b06461cd103f788e3940a",
                 success: function (result) {
@@ -27,13 +26,10 @@
                 },
                 error: function () {
                     console.log('error');
-                },
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader('header-token', 'w3b3n401nt');
                 }
             })
-                    .done(function() {
-                    });
+            .done(function() {
+            });
 
             console.log('append');
         });
