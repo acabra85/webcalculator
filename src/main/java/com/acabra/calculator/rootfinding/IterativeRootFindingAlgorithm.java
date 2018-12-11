@@ -10,13 +10,13 @@ public abstract class IterativeRootFindingAlgorithm {
 
 	public IterativeRootFindingAlgorithm(RealFunction realFunction, double[] params) {
 		this.realFunction = realFunction;
-		this.parameters = params;
+		this.parameters = params.clone();
 		this.tolerance = WebCalculatorConstants.ACCURACY_EPSILON;
 	}
 
 	public IterativeRootFindingAlgorithm(RealFunction realFunction, double[] parameters, double tolerance) {
 		this.realFunction = realFunction;
-		this.parameters = parameters;
+		this.parameters = parameters.clone();
 		this.tolerance = tolerance;
 	}
 
@@ -25,8 +25,8 @@ public abstract class IterativeRootFindingAlgorithm {
 	}
 
 	public double[] getParameters() {
-		return this.parameters;
-	}
+		return this.parameters.clone();
+    }
 
 	public IterativeRootFindingResult iterateMethod(int numIterations) {
 		int i;

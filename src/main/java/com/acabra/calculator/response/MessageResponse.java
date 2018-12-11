@@ -10,8 +10,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @created 2016-09-27
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
-@JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonInclude
 public class MessageResponse<T> extends SimpleResponse {
+
+    private static final long serialVersionUID = -6406713160086373312L;
     private T body;
     private String message;
 

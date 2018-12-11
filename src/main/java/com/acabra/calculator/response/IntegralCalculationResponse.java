@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by Agustin on 10/5/2016.
  */
-@JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonInclude
 public class IntegralCalculationResponse extends CalculationResponse {
 
+    private static final long serialVersionUID = -721820393037654294L;
     private final Double accuracy;
     private final Double integralResult;
 

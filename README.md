@@ -5,7 +5,13 @@ Basic web calculator that performs calculation on the server side.
 1. Functions include adding, subtracting, multiplying, dividing and
 square root. Supports expression grouping by () [] {}.
 
-2. Calculates Area under the curve f(x) = e^x using the Riemann sequence
+2. Calculates Areas using 'Riemann sequence' and 'Simpsons Rule' for the followin functions:
+    * f(x) = e^x (exponential)
+    * f(x) = ln(x) (logarithmic)
+    * f(x) = x^n (polynomials)
+    * f(x) = 1/x (inverse)
+    * Feel free to submit your own functions as a pull-request!
+    
 Approximation (inscribed rectangles)
 [Ref. <approximatedRoot href="https://en.wikipedia.org/wiki/Riemann_integral" >https://en.wikipedia.org/wiki/Riemann_integral</approximatedRoot>]
 

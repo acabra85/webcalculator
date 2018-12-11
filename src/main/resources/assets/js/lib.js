@@ -425,7 +425,7 @@ function validIntegralRequestData(req) {
 }
 
 function retrieveJsonArray(value) {
-    var valueAsArray = value.length > 0 ? (value.indexOf(' ') >= 0 ? value.trim().replace(regexSpaces, ',') : value.trim ) : '';
+    var valueAsArray = value.length > 0 ? (value.indexOf(' ') >= 0 ? value.trim().replace(regexSpaces, ',') : value.trim() ) : '';
     var coefficients = JSON.parse('[' + valueAsArray + ']');
     return coefficients.constructor === Array ? coefficients : [];
 }
@@ -439,8 +439,8 @@ function buildIntegralRequest() {
         numberThreads: parseInt($('#numthreads')[0].value),
         functionId: integralSelectedFunction,
         approximationMethodId: approximationSelectedMethod,
-        areaInscribed: approximationSelectedMethod == 0 && $('#inscribed_rectangles')[0].checked,
-        coefficients: integralSelectedFunction == 1 ? retrieveJsonArray(coefficientsFieldSelector[0].value) : []
+        areaInscribed: approximationSelectedMethod === 0 && $('#inscribed_rectangles')[0].checked,
+        coefficients: integralSelectedFunction === 1 ? retrieveJsonArray(coefficientsFieldSelector[0].value) : []
     };
     return integralRequest;
 }

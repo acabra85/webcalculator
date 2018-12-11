@@ -1,19 +1,38 @@
 package com.acabra.calculator;
 
+import com.google.common.base.Stopwatch;
 import com.acabra.calculator.domain.CalculationHistoryRecord;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.domain.IntegralRequestBuilder;
+import com.acabra.calculator.integral.approx.NumericalMethodAreaApproximationType;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralExponential;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
-import com.acabra.calculator.integral.approx.NumericalMethodAreaApproximationType;
-import com.acabra.calculator.response.*;
+import com.acabra.calculator.response.CalculationResponse;
+import com.acabra.calculator.response.IntegralCalculationResponse;
+import com.acabra.calculator.response.RenderedHistoryResponse;
+import com.acabra.calculator.response.TokenResponse;
+import com.acabra.calculator.response.WebCalculatorFactoryResponse;
+import com.acabra.calculator.response.WebCalculatorFactorySimpleResponse;
 import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
 import com.acabra.calculator.view.WebCalculatorRendererHTML;
-import com.google.common.base.Stopwatch;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.CheckReturnValue;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,20 +42,13 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -104,7 +116,7 @@ public class WebCalculatorManagerTest {
 
     }
 
-    @Test
+    @Test @CheckReturnValue
     public void provideRenderedHistoryResultTest() {
         long id = 1L;
         String table = "renderedTable";

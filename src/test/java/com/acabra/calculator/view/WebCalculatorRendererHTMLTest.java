@@ -30,7 +30,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class WebCalculatorRendererHTMLTest {
 
 
-    private final String TABLE_CLOSE = "</tbody></table>";
+    private static final String TABLE_CLOSE = "</tbody></table>";
 
     private double approx3 = 0.444;
     private String approxStr3 = "0.444";
@@ -46,8 +46,8 @@ public class WebCalculatorRendererHTMLTest {
     private double percentage4 = 100 - 99.9999948699487;
     private String percentageStr4 = "99.99%";
 
-    private final String row1 = "<tr><td>1</td><td>aa</td><td>1.1</td><td>0.001s</td></tr>";
-    private final String row2 = "<tr><td>2</td><td>bb</td><td>0</td><td>0.001s</td></tr>";
+    private static final String row1 = "<tr><td>1</td><td>aa</td><td>1.1</td><td>0.001s</td></tr>";
+    private static final String row2 = "<tr><td>2</td><td>bb</td><td>0</td><td>0.001s</td></tr>";
     private String METHOD_RIEMANN_LABEL = "Riemann";
     private String subRow3 = String.format(WebCalculatorRendererHTML.INTEGRAL_RESULT_DETAIL_TABLE,
             METHOD_RIEMANN_LABEL, approx3, integralResult3,

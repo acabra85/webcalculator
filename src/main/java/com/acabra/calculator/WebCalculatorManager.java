@@ -1,17 +1,19 @@
 package com.acabra.calculator;
 
+import com.google.common.base.Stopwatch;
 import com.acabra.calculator.domain.CalculationHistoryRecord;
 import com.acabra.calculator.domain.IntegralRequest;
+import com.acabra.calculator.integral.WebCalculatorCompletableFutureUtils;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
-import com.acabra.calculator.integral.WebCalculatorCompletableFutureUtils;
-import com.acabra.calculator.response.*;
+import com.acabra.calculator.response.CalculationResponse;
+import com.acabra.calculator.response.HistoryResponse;
+import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.calculator.response.WebCalculatorFactoryResponse;
+import com.acabra.calculator.response.WebCalculatorFactorySimpleResponse;
 import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
-import com.google.common.base.Stopwatch;
-import org.apache.log4j.Logger;
-
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -20,11 +22,11 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.log4j.Logger;
 
 /**
  * Created by Agustin on 9/27/2016.
@@ -38,22 +40,20 @@ public class WebCalculatorManager {
     private final ConcurrentHashMap<String, CalculationHistoryRecord> history;
     private final WebCalculatorRenderer renderer;
     private final AtomicLong counter;
-    private final AtomicInteger historySize;
 
     public WebCalculatorManager(WebCalculatorRenderer renderer) {
         this.history = new ConcurrentHashMap<>(16, 0.9f, 1);
         this.calculator = new Calculator();
         this.renderer = renderer;
         this.counter = new AtomicLong();
-        this.historySize = new AtomicInteger(0);
     }
 
-    private synchronized void appendCalculationHistory(CalculationResponse calculationResponse, String token) {
-        if (!history.containsKey(token)) {
-            history.put(token, new CalculationHistoryRecord(calculationResponse));
-            historySize.incrementAndGet();
+    private void appendCalculationHistory(CalculationResponse calculationResponse, String token) {
+        CalculationHistoryRecord calculationHistoryRecord = history.get(token);
+        if (null != calculationHistoryRecord) {
+            calculationHistoryRecord.append(calculationResponse);
         } else {
-            history.get(token).append(calculationResponse);
+            history.putIfAbsent(token, new CalculationHistoryRecord(calculationResponse));
         }
     }
 
@@ -173,7 +173,6 @@ public class WebCalculatorManager {
                     .collect(Collectors.toList());
             expiredKeys.forEach(expiredKey -> {
                 history.remove(expiredKey);
-                historySize.decrementAndGet();
             });
             logger.info("Cleaned entries: " + expiredKeys.size());
             return expiredKeys.size();
@@ -185,6 +184,6 @@ public class WebCalculatorManager {
      * @return
      */
     public int countHistorySize() {
-        return historySize.get();
+        return history.size();
     }
 }
