@@ -5,3 +5,5 @@ deploy:
   provider: heroku
   api_key:
     secure: "510f3629-3508-411e-8d21-cc51d9c78112"
+  app:
+    master: webmathcalculator
