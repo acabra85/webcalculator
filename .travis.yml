@@ -1,9 +1,8 @@
 language: java
-jdk:
-  - oraclejdk8
+jdk: oraclejdk8
 deploy:
   provider: heroku
   api_key:
-    secure: "510f3629-3508-411e-8d21-cc51d9c78112"
+    secure: U3tlYvxXefNxmt4llcb8bwWM16CXt3LHUsb8dXfXeOJc8jzpm6W6nRqJNGMzooNuOKlP8tRu0mbv1wb4xgv8tlxtQKZoDYTupS379i2ZSrCbF3av5+tMXWWYRdD2vsx8A8y3Gs6Ku+ynnMXmK70fzMx15mWdJDe7wA1PhnwNx0VYNaoxRo3b1B0TDIU1rfTX9lGzWqZ3tcprlNFQGL1LZG/wYq0sViZw/oYlA1RXtyQsfXGLXgMjQNP6gefQlGmUqF1QPDuQRoQdfqi0AqrIZar0YuBHvNQpEKAwwbRCdsy/QV/WSeoGhLbiYP/LwNXfjrokFExYu4QD5yrC5494pMoylg00um+S6eznffzzyRMx2MlndLT0qg3tfkYY6kGjxJ4NayZ572BT1PgCsvtDRNPZn6RLDO3SYnSKJYPWqgq3qTNlUMHABJpqggchCadLaIAgqiAJd/vJsVLOFyGbIMm4DaQcYR71ih6vtg1jQBZ7ckgRcxfgSlNXeFZ45rRey3kWaGUqMpOh4KAlvwkudvldmWXRgF+BvyVuBfwgUKKfbsC4vCkVHN4zibR6eCGnyB5UxoId+SqigJuXkDamXgl6noGyB9z5QYDundy+NXEZ64Elkrg1CeFRDJMsWI6ThhD2hp5MHSgN9Jw/4Ia2edWsCHE2CeS3fQ8CUDogNKU=
   app:
     master: webmathcalculator
