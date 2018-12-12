@@ -172,6 +172,16 @@
             <artifactId>findbugs-maven-plugin</artifactId>
             <version>3.0.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>3.3.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>3.9.1</version>
+        </dependency>
     </dependencies>
     <reporting>
         <plugins>
