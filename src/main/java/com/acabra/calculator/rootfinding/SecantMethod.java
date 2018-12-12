@@ -40,7 +40,7 @@ public class SecantMethod extends IterativeRootFindingAlgorithm {
     }
 
     private double f(double val) {
-        return realFunction.evaluate(val);
+        return realFunction.apply(val);
     }
 
     @Override

@@ -1,12 +1,9 @@
 package com.acabra.calculator.integral.definiteintegral;
 
-import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralInverse;
 import com.acabra.calculator.util.WebCalculatorConstants;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-
-import java.util.Optional;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -52,28 +49,7 @@ public class DefiniteIntegralInverseTest {
         assertEquals(expectedIntegral, definiteIntegralInverse.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(lowerLimit, definiteIntegralInverse.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperLimit, definiteIntegralInverse.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(1.0, definiteIntegralInverse.evaluate(1.0), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(5.0, definiteIntegralInverse.evaluate(0.2), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals("Integ{1/x}[0.2, 1.2]", definiteIntegralInverse.toString());
-    }
-
-    @Test
-    public void should_calculate_derivativeTest() {
-        DefiniteIntegralInverse definiteIntegralInverse = new DefiniteIntegralInverse(0.00001, Double.MAX_VALUE, Optional.empty(), Optional.empty());
-        assertEquals(-1.0, definiteIntegralInverse.calculateDerivative(1), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(-0.25, definiteIntegralInverse.calculateDerivative(2), WebCalculatorConstants.ACCURACY_EPSILON);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void should_fail_calculating_derivative_1_Test() {
-        DefiniteIntegralInverse definiteIntegralInverse = new DefiniteIntegralInverse(0.00001, Double.MAX_VALUE, Optional.empty(), Optional.empty());
-        definiteIntegralInverse.calculateDerivative(0);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void should_fail_calculating_derivative_2_Test() {
-        DefiniteIntegralInverse definiteIntegralInverse = new DefiniteIntegralInverse(0.00001, Double.MAX_VALUE, Optional.empty(), Optional.empty());
-        definiteIntegralInverse.calculateDerivative(-5);
     }
 
     @Test(expected = NullPointerException.class)

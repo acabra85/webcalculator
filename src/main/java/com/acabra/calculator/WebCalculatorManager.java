@@ -171,9 +171,7 @@ public class WebCalculatorManager {
                     })
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            expiredKeys.forEach(expiredKey -> {
-                history.remove(expiredKey);
-            });
+            expiredKeys.forEach(history::remove);
             logger.info("Cleaned entries: " + expiredKeys.size());
             return expiredKeys.size();
         });

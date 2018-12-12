@@ -23,9 +23,9 @@ public class FunctionDomain {
         return !nonDomainPoints.contains(val) && intervalSet.stream().anyMatch(dr -> dr.belongs(val));
     }
 
-    public boolean doesRangeContainsNonDomainPoints(final Interval range) {
+    boolean doesRangeContainsNonDomainPoints(final Interval range) {
         return !nonDomainPoints.isEmpty()
-                && nonDomainPoints.stream().filter(range::belongs).count() > 0
+                && nonDomainPoints.stream().anyMatch(range::belongs)
                 || !isRangeContainedInDomain(range);
     }
 

@@ -7,7 +7,7 @@ import com.acabra.calculator.util.ResultFormatter;
 /**
  * Created by Agustin on 9/29/2016.
  */
-public abstract class DefiniteIntegralFunction extends RealFunction {
+public abstract class DefiniteIntegralFunction {
 
     protected static final String STRING_REPRESENTATION_FORMAT = "Integ{%s}[%s, %s]";
 
@@ -15,16 +15,18 @@ public abstract class DefiniteIntegralFunction extends RealFunction {
     protected final double upperLimit;
     private final String label;
     protected final Interval requestedIntegrationRange; //Stores the integration requested in constructor by the boundaries.
-    private final FunctionDomain domain;
+    public final FunctionDomain domain;
+    protected final RealFunction function;
     protected Double result;
     protected volatile Double approximation;
     protected volatile Double evaluatedLower;
     protected volatile Double evaluatedUpper;
 
-    public DefiniteIntegralFunction(double lowerLimit, double upperLimit, Double result, String label, FunctionDomain domain) {
-        this.domain = domain;
-        this.lowerLimit = lowerLimit;
-        this.upperLimit = upperLimit;
+    public DefiniteIntegralFunction(double lowerLimit, double upperLimit, Double result, String label, RealFunction baseFunction) {
+        this.function = baseFunction;
+        this.domain = baseFunction.domain;
+        this.lowerLimit = Math.min(lowerLimit, upperLimit);
+        this.upperLimit = Math.max(lowerLimit, upperLimit);
         this.result = result;
         this.label = label;
         this.approximation = null;
@@ -36,11 +38,11 @@ public abstract class DefiniteIntegralFunction extends RealFunction {
 
     /**
      * Implement this method that verifies that both limits are within
-     * functions domain
+     * functions DOMAIN
      */
     protected void validateLimits() {
         if (!domain.belongsDomain(this.lowerLimit) || !domain.belongsDomain(this.upperLimit)) {
-            throw new UnsupportedOperationException("unable to create function, bounds not in function's domain");
+            throw new UnsupportedOperationException("unable to create function, bounds not in function's DOMAIN");
         }
     }
 
@@ -58,7 +60,7 @@ public abstract class DefiniteIntegralFunction extends RealFunction {
             if (domain.doesRangeContainsNonDomainPoints(requestedIntegrationRange)) {
                 throw new UnsupportedOperationException("Unable to integrate over given limits, area does not converge");
             }
-            result = executeIntegration();
+            result = executeDefiniteIntegration();
         }
         return result;
     }
@@ -68,7 +70,7 @@ public abstract class DefiniteIntegralFunction extends RealFunction {
      * techniques for this function
      * @return the result of integration between limits
      */
-    protected abstract Double executeIntegration();
+    protected abstract Double executeDefiniteIntegration();
 
     public double getLowerLimit() {
         return lowerLimit;
@@ -94,4 +96,5 @@ public abstract class DefiniteIntegralFunction extends RealFunction {
                 ResultFormatter.trimIntegerResults(upperLimit + ""));
     }
 
+    public abstract Double evaluateOnBaseFunction(Double evalPoint);
 }
