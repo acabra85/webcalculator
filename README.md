@@ -5,16 +5,22 @@ Basic web calculator that performs calculation on the server side.
 1. Functions include adding, subtracting, multiplying, dividing and
 square root. Supports expression grouping by () [] {}.
 
-2. Calculates Areas using 'Riemann sequence' and 'Simpsons Rule' for the followin functions:
+1. Calculates Areas using 'Riemann sequence' and 'Simpsons Rule' for the followin functions:
     * f(x) = e^x (exponential)
     * f(x) = ln(x) (logarithmic)
     * f(x) = x^n (polynomials)
     * f(x) = 1/x (inverse)
     * Feel free to submit your own functions as a pull-request!
     
-Approximation (inscribed rectangles)
-[Ref. <approximatedRoot href="https://en.wikipedia.org/wiki/Riemann_integral" >https://en.wikipedia.org/wiki/Riemann_integral</approximatedRoot>]
+    Approximation (inscribed rectangles)
+    [Ref. <approximatedRoot href="https://en.wikipedia.org/wiki/Riemann_integral" >https://en.wikipedia.org/wiki/Riemann_integral</approximatedRoot>]
 
+1. Root finding Approximation algorithms by numerical methods:
+    1. Bisection Method
+    1. Secant Method
+    1. Newton's Method
+    
+    Note: No user interface is provided on website (help needed!)
 ## Deploy
 
 ###Requirements
