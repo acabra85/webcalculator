@@ -9,9 +9,10 @@ import java.util.List;
 /**
  * Created by Agustin on 9/27/2016.
  */
-@JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonInclude
 public class HistoryResponse extends SimpleResponse {
 
+    private static final long serialVersionUID = 4909892376281384166L;
     private final List<CalculationResponse> resultList;
 
     @JsonCreator

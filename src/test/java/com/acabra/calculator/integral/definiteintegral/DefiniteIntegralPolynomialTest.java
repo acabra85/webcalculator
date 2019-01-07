@@ -1,13 +1,14 @@
 package com.acabra.calculator.integral.definiteintegral;
 
-import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralPolynomial;
 import com.acabra.calculator.util.WebCalculatorConstants;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.*;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -141,7 +142,6 @@ public class DefiniteIntegralPolynomialTest {
         assertEquals(lowerLimit, definiteIntegralPolynomial.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperLimit, definiteIntegralPolynomial.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedIntegral, definiteIntegralPolynomial.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(0.0, definiteIntegralPolynomial.evaluate(0.0), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals("Integ{0}[0, 1]", definiteIntegralPolynomial.toString());
     }
 
@@ -160,26 +160,9 @@ public class DefiniteIntegralPolynomialTest {
         assertEquals(lowerLimit, definiteIntegralPolynomial.getLowerLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(upperLimit, definiteIntegralPolynomial.getUpperLimit(), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals(expectedIntegral, definiteIntegralPolynomial.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(evaluated, definiteIntegralPolynomial.evaluate(1.0), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(coeff.get(0), definiteIntegralPolynomial.evaluate(lowerLimit), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(8.0, definiteIntegralPolynomial.evaluate(upperLimit), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(evaluated, definiteIntegralPolynomial.evaluateOnBaseFunction(1.0), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(coeff.get(0), definiteIntegralPolynomial.evaluateOnBaseFunction(lowerLimit), WebCalculatorConstants.ACCURACY_EPSILON);
+        assertEquals(8.0, definiteIntegralPolynomial.evaluateOnBaseFunction(upperLimit), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals("Integ{2-x+2x^2}[0, 2]", definiteIntegralPolynomial.toString());
-    }
-
-    @Test
-    public void should_calculate_derivative1Test() {
-        List<Double> coefficients = Arrays.asList(1.0, 2.1);
-        DefiniteIntegralPolynomial definiteIntegralPolynomial = new DefiniteIntegralPolynomial(0.00001, Double.MAX_VALUE, coefficients, Optional.empty(), Optional.empty());
-        assertEquals(coefficients.get(1), definiteIntegralPolynomial.calculateDerivative(1), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(coefficients.get(1), definiteIntegralPolynomial.calculateDerivative(2), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(coefficients.get(1), definiteIntegralPolynomial.calculateDerivative(100), WebCalculatorConstants.ACCURACY_EPSILON);
-    }
-
-    @Test
-    public void should_calculate_derivative2Test() {
-        List<Double> coefficients = Arrays.asList(5.0, 0.0, -3.0, 0.0, -6.2);
-        DefiniteIntegralPolynomial definiteIntegralPolynomial = new DefiniteIntegralPolynomial(0.00001, Double.MAX_VALUE, coefficients, Optional.empty(), Optional.empty());
-        assertEquals(-30.8, definiteIntegralPolynomial.calculateDerivative(1), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(-210.4, definiteIntegralPolynomial.calculateDerivative(2), WebCalculatorConstants.ACCURACY_EPSILON);
     }
 }

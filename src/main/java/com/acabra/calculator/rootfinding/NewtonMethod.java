@@ -21,7 +21,7 @@ public class NewtonMethod extends IterativeRootFindingAlgorithm {
     }
 
     private double f(double p0) {
-        return realFunction.evaluate(p0);
+        return realFunction.apply(p0);
     }
 
     public IterativeRootFindingResult iterateMethod(int numIterations) {
@@ -35,7 +35,7 @@ public class NewtonMethod extends IterativeRootFindingAlgorithm {
 
     @Override
     public boolean toleranceReached() {
-        return Math.abs(realFunction.evaluate(this.parameters[0])) < tolerance;
+        return Math.abs(realFunction.apply(this.parameters[0])) < tolerance;
     }
 
     protected double[] applyMethod(double[] params) {

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class CalculationResponse extends SimpleResponse {
 
+    private static final long serialVersionUID = -7869308662315627654L;
     private final String expression;
     protected final String result;
     private final String description;

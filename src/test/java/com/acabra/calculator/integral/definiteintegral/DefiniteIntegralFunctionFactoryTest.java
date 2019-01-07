@@ -1,22 +1,22 @@
 package com.acabra.calculator.integral.definiteintegral;
 
-import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
-import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
-import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralPolynomial;
-import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
-import com.acabra.calculator.integral.input.IntegrableFunctionInputParametersBuilder;
 import com.acabra.calculator.integral.input.IntegrableFunctionInputParameters;
+import com.acabra.calculator.integral.input.IntegrableFunctionInputParametersBuilder;
 import com.acabra.calculator.util.WebCalculatorConstants;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 import org.junit.Test;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by Agustin on 9/30/2016.
  */
 public class DefiniteIntegralFunctionFactoryTest {
+    //TODO modify tests to only test DefiniteIntegralFunctionFactory
 
     @Test
     public void createIntegralFunctionResultAndApproximationTest() {
@@ -107,60 +107,10 @@ public class DefiniteIntegralFunctionFactoryTest {
         assertEquals("Integ{e^x}[0, 1]", integralFunction.toString());
     }
 
-    @Test
-    public void createIntegralFunctionInvalidTypeTest() {
-        int expectedExceptions = 4;
-        int foundExceptions = 0;
-        int inverseFunctionId = 4;
-        IntegrableFunctionType inverse = DefiniteIntegralFunctionFactory.evaluateFunctionType(inverseFunctionId);
-        assertNotNull(inverse);
-
-        try {
-            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
-                    .withLowerLimit(0)
-                    .withUpperLimit(1)
-                    .build();
-            DefiniteIntegralFunctionFactory.createIntegralFunction(inverse, parameters);
-        } catch (NoSuchElementException nse) {
-            foundExceptions++;
-        }
-
-        try {
-            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
-                    .withLowerLimit(0)
-                    .withUpperLimit(1)
-                    .withIntegrationResult(1.0)
-                    .build();
-            DefiniteIntegralFunctionFactory.createIntegralFunction(inverse, parameters);
-        } catch (NoSuchElementException nse) {
-            foundExceptions++;
-        }
-
-        try {
-            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
-                    .withLowerLimit(0)
-                    .withUpperLimit(1)
-                    .withApproximation(1.0)
-                    .build();
-            DefiniteIntegralFunctionFactory.createIntegralFunction(inverse, parameters);
-        } catch (NoSuchElementException nse) {
-            foundExceptions++;
-        }
-
-        try {
-            IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
-                    .withLowerLimit(0)
-                    .withUpperLimit(1)
-                    .withIntegrationResult(1.0)
-                    .withApproximation(1.0)
-                    .build();
-            DefiniteIntegralFunctionFactory.createIntegralFunction(inverse, parameters);
-        } catch (NoSuchElementException nse) {
-            foundExceptions++;
-        }
-
-        assertEquals(expectedExceptions, foundExceptions);
-
+    @Test(expected = NoSuchElementException.class)
+    public void should_fail_invalid_function_id_type() {
+        int inverseFunctionId = 6;
+        DefiniteIntegralFunctionFactory.evaluateFunctionType(inverseFunctionId);
     }
 
     @Test
@@ -369,6 +319,7 @@ public class DefiniteIntegralFunctionFactoryTest {
         assertNotNull(DefiniteIntegralFunctionFactory.evaluateFunctionType(3));
         assertNotNull(DefiniteIntegralFunctionFactory.evaluateFunctionType(4));
         assertNotNull(DefiniteIntegralFunctionFactory.evaluateFunctionType(5));
+        assertNotNull(DefiniteIntegralFunctionFactory.evaluateFunctionType(6));
     }
 
     @Test

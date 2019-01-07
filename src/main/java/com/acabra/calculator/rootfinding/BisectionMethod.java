@@ -47,7 +47,7 @@ public class BisectionMethod extends IterativeRootFindingAlgorithm {
     }
 
     private double f(double a) {
-        return realFunction.evaluate(a);
+        return realFunction.apply(a);
     }
 
     @Override

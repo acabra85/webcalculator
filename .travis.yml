@@ -1,3 +1,9 @@
 language: java
-jdk:
-  - oraclejdk8
+jdk: oraclejdk8
+deploy:
+  provider: heroku
+  api_key:
+    secure: B/44MHIQNoCavCeclz7/B/CCWfEddvGCVFbO5PAA/W656cDNnMHqAgBM2NJAA6jKU13VLudyPEGCVYEcNjOZBhP0WOrZcXE5VFryYQKkGjz/ABULHeP9Slqd2M8I2knNgkUEOT8SUja9jnAxx7JqydEpTAHoGgmwoTmY81+vzA3C6gQFM/WYeeBNpYfCYaXv36g/croFtQqLi04vBDYZvmAOioXC5ZizNyYRnFGfkjdRHZyWndKKiFC+63bcnKheRgxw3+uYnLz+y6JFDOFnF1Q2tODUhRrBVMAIWEgpa9JiuyMP7q4O73wm3wj38+5mX7PgYLirNqWWD9QQGOXhQqxJVuzNAWfufBgNaYRsXNKK0oeDdnZbqwOCJGmNI2lnAOeIb+07/SDTPL+7pMwbzlwrtg5CAJGuqXPbTK8LOV9M3tj+IM6cdyJQQPQu4+7a/rdEU9KHoShqUZJhOPQends9/1TitzWSde3q7pR/RnWJ4hz3Sn0mxm2YAOtXi8KIbtFnpnAbnsFTclJa3rKRXEi7lOXRLA2aIgSAYqceN9w3AWyd6ZN7XhmlxRL5gIM5yJzIGPCtoDdT21fP0TkCdeDkcHpGUTSQ3AqLiQiXWZOfuB91OUglE0kirZYqV8Zpbh9Imbga7utZiGoUHckfLwKh8bqKeWISGXXv4htmUwk=
+  app: webmathcalculator
+  on:
+    repo: acabra85/webcalculator

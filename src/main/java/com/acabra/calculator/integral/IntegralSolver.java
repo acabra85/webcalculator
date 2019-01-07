@@ -9,6 +9,7 @@ import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionF
 import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.integral.input.IntegrableFunctionInputParameters;
 import com.acabra.calculator.integral.input.IntegrableFunctionInputParametersBuilder;
+import com.acabra.calculator.util.WebCalculatorConstants;
 import org.apache.log4j.Logger;
 
 import java.util.Collections;
@@ -50,7 +51,7 @@ public class IntegralSolver {
      * @return A future containing the integral with the total area aggregated from the sub intervals.
      */
     public CompletableFuture<DefiniteIntegralFunction> approximateAreaUnderCurve() {
-        if (lowerLimit == upperLimit) {
+        if (Math.abs(lowerLimit - upperLimit) < WebCalculatorConstants.ACCURACY_EPSILON) {
             IntegrableFunctionInputParameters parameters = new IntegrableFunctionInputParametersBuilder()
                     .withLowerLimit(lowerLimit)
                     .withUpperLimit(upperLimit)

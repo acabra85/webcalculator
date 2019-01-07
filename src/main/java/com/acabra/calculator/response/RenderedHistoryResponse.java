@@ -7,10 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by Agustin on 9/28/2016.
  */
-@JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonInclude
 public class RenderedHistoryResponse extends SimpleResponse {
 
-    protected final String renderedTable;
+    private static final long serialVersionUID = -8032854785162616793L;
+    private final String renderedTable;
 
     @JsonCreator
     public RenderedHistoryResponse(@JsonProperty("id") long id,

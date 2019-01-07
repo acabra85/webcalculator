@@ -20,17 +20,17 @@ public enum Operator {
         put(Operator.SQRT.getLabel(), Operator.SQRT);
     }});
 
-    public static List<String> OPEN_GROUP_SYMBOLS = Collections.unmodifiableList(Arrays.asList("(", "[", "{"));
-    public static List<String> CLOSE_GROUP_SYMBOLS = Collections.unmodifiableList(Arrays.asList(")", "]", "}"));
+    public static final List<String> OPEN_GROUP_SYMBOLS = Collections.unmodifiableList(Arrays.asList("(", "[", "{"));
+    public static final List<String> CLOSE_GROUP_SYMBOLS = Collections.unmodifiableList(Arrays.asList(")", "]", "}"));
 
 
-    public static Set<String> OPEN_GROUP_SYMBOLS_SET = Collections.unmodifiableSet(new HashSet<String>() {{
+    public static final Set<String> OPEN_GROUP_SYMBOLS_SET = Collections.unmodifiableSet(new HashSet<String>() {{
         add(Operator.OPEN_GROUP_SYMBOLS.get(0));
         add(Operator.OPEN_GROUP_SYMBOLS.get(1));
         add(Operator.OPEN_GROUP_SYMBOLS.get(2));
     }});
 
-    public static Set<String> CLOSE_GROUP_SYMBOLS_SET = Collections.unmodifiableSet(new HashSet<String>() {{
+    public static final Set<String> CLOSE_GROUP_SYMBOLS_SET = Collections.unmodifiableSet(new HashSet<String>() {{
         add(Operator.CLOSE_GROUP_SYMBOLS.get(0));
         add(Operator.CLOSE_GROUP_SYMBOLS.get(1));
         add(Operator.CLOSE_GROUP_SYMBOLS.get(2));

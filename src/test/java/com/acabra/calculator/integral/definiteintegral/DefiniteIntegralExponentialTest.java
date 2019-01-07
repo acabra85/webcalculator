@@ -1,12 +1,9 @@
 package com.acabra.calculator.integral.definiteintegral;
 
-import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralExponential;
 import com.acabra.calculator.util.WebCalculatorConstants;
-import org.junit.Test;
-
 import java.util.InputMismatchException;
 import java.util.Optional;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -59,9 +56,6 @@ public class DefiniteIntegralExponentialTest {
 
         assertNull(unsolvedIntegral.getApproximation());
         assertEquals(expected, unsolvedIntegral.getResult(), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(1.0, unsolvedIntegral.evaluate(0.0), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(54.59815003, unsolvedIntegral.evaluate(4.0), WebCalculatorConstants.ACCURACY_EPSILON);
-        assertEquals(148.4131591, unsolvedIntegral.evaluate(5.0), WebCalculatorConstants.ACCURACY_EPSILON);
         assertEquals("Integ{e^x}[0, 5]", unsolvedIntegral.toString());
     }
 
@@ -77,13 +71,5 @@ public class DefiniteIntegralExponentialTest {
         int upperLimit = 0;
         double lowerLimit = Double.POSITIVE_INFINITY;
         new DefiniteIntegralExponential(lowerLimit, upperLimit, Optional.empty(), Optional.empty());
-    }
-
-    @Test
-    public void should_get_derivative_and_calculateResultTest() {
-        DefiniteIntegralExponential exponentialFunction = new DefiniteIntegralExponential(0, 3, Optional.empty(), Optional.empty());
-        double domainPoint = 2.0;
-        double derivativeValue = exponentialFunction.calculateDerivative(domainPoint);
-        assertEquals(derivativeValue, exponentialFunction.evaluate(domainPoint), WebCalculatorConstants.ACCURACY_EPSILON);
     }
 }

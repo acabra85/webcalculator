@@ -102,6 +102,7 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
 
     @Override
     protected void finalize() throws Throwable {
+        super.finalize();
         webCalculatorJobManager.shutDown();
     }
 

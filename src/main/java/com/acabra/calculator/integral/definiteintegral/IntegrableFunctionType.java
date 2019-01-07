@@ -6,7 +6,12 @@ import java.util.NoSuchElementException;
  * Created by Agustin on 9/30/2016.
  */
 public enum IntegrableFunctionType {
-    EXPONENTIAL(0, "e^x"), POLYNOMIAL(1, "x^2"), LOGARITHMIC(2, "ln(x)"), INVERSE(3, "1/x"), COS(4, "cos(x)");
+    EXPONENTIAL(0, "e^x"),
+    POLYNOMIAL(1, "x^n"),
+    LOGARITHMIC(2, "ln(x)"),
+    INVERSE(3, "1/x"),
+    COS(4, "cos(x)"),
+    SINE(5, "sin(x)");
 
     final int type;
     final String label;
@@ -28,6 +33,8 @@ public enum IntegrableFunctionType {
                 return INVERSE;
             case 4:
                 return COS;
+            case 5:
+                return SINE;
             default:
                 throw new NoSuchElementException("unable to find function type");
         }

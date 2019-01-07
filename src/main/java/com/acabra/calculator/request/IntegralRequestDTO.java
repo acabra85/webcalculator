@@ -2,7 +2,6 @@ package com.acabra.calculator.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**
@@ -11,6 +10,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class IntegralRequestDTO implements SimpleRequest {
 
+    private static final long serialVersionUID = -9033790735136576054L;
     private String lowerLimit;
     private String upperLimit;
     private String numberThreads;
@@ -19,6 +19,7 @@ public class IntegralRequestDTO implements SimpleRequest {
     private boolean areaInscribed;
     private int approximationMethodId;
     private List<Double> coefficients;
+
 
     public IntegralRequestDTO() {
     }

@@ -32,7 +32,7 @@ public class SimpsonSolver extends AreaApproximatorNumericalMethod {
         double lowerLimit = function.getLowerLimit();
         double upperLimit = function.getUpperLimit();
         double midPoint = lowerLimit + (upperLimit - lowerLimit) / 2.0;
-        return function.evaluate(lowerLimit) + ( 4 * function.evaluate(midPoint) ) + function.evaluate(upperLimit);
+        return function.evaluateOnBaseFunction(lowerLimit) + ( 4 * function.evaluateOnBaseFunction(midPoint) ) + function.evaluateOnBaseFunction(upperLimit);
     }
 
     @Override

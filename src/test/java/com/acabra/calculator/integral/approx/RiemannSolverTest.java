@@ -202,7 +202,8 @@ public class RiemannSolverTest {
     }
 
     @Test @Ignore
-    public void solveIntegral3Test() throws ExecutionException, InterruptedException { //TODO test ignored since area implied covers one root for the function
+    public void solveIntegral3Test() throws ExecutionException, InterruptedException {
+        //TODO test ignored since area implied covers one root for the function
         int lowerbound = -2;
         int upperbound = 1;
         int order = 2;

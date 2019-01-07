@@ -25,6 +25,10 @@ public class FunctionDomainFactory {
     public static final FunctionDomain POSITIVE_REAL_NUMBERS = new FunctionDomain(POSITIVE_REAL_NUMBERS_RANGE, Collections.emptyList());
     public static final FunctionDomain NEGATIVE_REAL_NUMBERS = new FunctionDomain(NEGATIVE_REAL_NUMBERS_RANGE, Collections.emptyList());
 
+    public static DomainBuilder builder() {
+        return new DomainBuilder();
+    }
+
 
     public static class DomainBuilder {
 

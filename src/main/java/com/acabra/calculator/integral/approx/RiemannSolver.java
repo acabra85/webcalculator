@@ -5,6 +5,7 @@ import com.acabra.calculator.integral.WebCalculatorCompletableFutureUtils;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 
+import com.acabra.calculator.util.WebCalculatorConstants;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -41,8 +42,8 @@ public class RiemannSolver extends AreaApproximatorNumericalMethod {
         double upperLimit = function.getUpperLimit();
         double lowerLimit = function.getLowerLimit();
         double width = Math.abs(upperLimit - lowerLimit);
-        double evaluatedLower = function.evaluate(lowerLimit);
-        double evaluatedUpper = function.evaluate(upperLimit);
+        double evaluatedLower = function.evaluateOnBaseFunction(lowerLimit);
+        double evaluatedUpper = function.evaluateOnBaseFunction(upperLimit);
         double evAbsLower = Math.abs(evaluatedLower);
         double evAbsUpper = Math.abs(evaluatedUpper);
         double min = Math.min(evAbsLower, evAbsUpper);
@@ -50,7 +51,9 @@ public class RiemannSolver extends AreaApproximatorNumericalMethod {
         double height = inscribed ? min : max;
         double signLower = evaluatedLower >= 0 ? 1.0 : -1.0;
         double signUpper = evaluatedUpper >= 0 ? 1.0 : -1.0;
-        double sign = inscribed ? (min == evAbsLower ? signLower : signUpper) : (max == evAbsLower ? signLower : signUpper);
+        double sign = inscribed ? (Math.abs(min - evAbsLower) < WebCalculatorConstants.ACCURACY_EPSILON ?
+                signLower : signUpper) :
+                (Math.abs(max - evAbsLower) < WebCalculatorConstants.ACCURACY_EPSILON ? signLower : signUpper);
         return width * height * (sign);
     }
 
