@@ -20,24 +20,18 @@ public enum Operator {
         put(Operator.SQRT.getLabel(), Operator.SQRT);
     }});
 
-    public static final List<String> OPEN_GROUP_SYMBOLS = Collections.unmodifiableList(Arrays.asList("(", "[", "{"));
-    public static final List<String> CLOSE_GROUP_SYMBOLS = Collections.unmodifiableList(Arrays.asList(")", "]", "}"));
-
-
-    public static final Set<String> OPEN_GROUP_SYMBOLS_SET = Collections.unmodifiableSet(new HashSet<String>() {{
-        add(Operator.OPEN_GROUP_SYMBOLS.get(0));
-        add(Operator.OPEN_GROUP_SYMBOLS.get(1));
-        add(Operator.OPEN_GROUP_SYMBOLS.get(2));
+    public static final Map<String, String> CLOSE_PARENTHESIS_CONTROL = Collections.unmodifiableMap(new HashMap<String, String>(){{
+        put("{", "}");
+        put("[", "]");
+        put("(", ")");
     }});
 
-    public static final Set<String> CLOSE_GROUP_SYMBOLS_SET = Collections.unmodifiableSet(new HashSet<String>() {{
-        add(Operator.CLOSE_GROUP_SYMBOLS.get(0));
-        add(Operator.CLOSE_GROUP_SYMBOLS.get(1));
-        add(Operator.CLOSE_GROUP_SYMBOLS.get(2));
-    }});
+    public static final Set<String> OPEN_GROUP_SYMBOLS_SET = Collections.unmodifiableSet(CLOSE_PARENTHESIS_CONTROL.keySet());
+
+    public static final Set<String> CLOSE_GROUP_SYMBOLS_SET = Collections.unmodifiableSet(new HashSet<>(CLOSE_PARENTHESIS_CONTROL.values()));
 
     Operator(int p, String label) {
-        precedence = p;
+        this.precedence = p;
         this.label = label;
     }
 

@@ -4,35 +4,118 @@
     <meta charset="UTF-8">
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 </head>
-<body>
-<input type="button" value='Append Widget' id="appendwidget"/>
-<div id="widgetcontainer" style="width:400px; height: 600px; overflow: auto;">
-
-</div>
-<div id="errorContainer"></div>
+<body style="margin:0 auto; ">
+    <div>
+        <div style="width: 50%; margin: 0 auto;"><input type="button" value='Append Widget' id="appendwidget"/></div>
+        <div id="widgetcontainer" style="width:50%; height: 600px; overflow: auto; margin: 0 auto;"></div>
+        <div id="errorContainer" style="width: 50%; margin: 0 auto; color: red;"></div>
+    </div>
+    <div style="display: none"><input type="text" id="loginid" value="" style=""/></div>
 <script>
-    $(function(){
-        $('#appendwidget').click(function (){
-            $.ajax({
-                type: "GET",
-                headers: {
-                    'header-token':'w3b3n401nt'
-                },
-                contentType: "application/json; charset=utf-8",
-                url: "http://localhost:8080/app/login?single-token=97cfc311492b06461cd103f788e3940a",
-                success: function (result) {
-                    $('#widgetcontainer').append('<div>AHHH</div><br>');
-                    console.log(result.body.token);
-                },
-                error: function () {
-                    console.log('error');
-                }
-            })
-            .done(function() {
-            });
 
-            console.log('append');
+    function resetLogin() {
+        let deferred = $.Deferred();
+        $.ajax({
+            type: "PUT",
+            headers: {
+                'header-token':'w3b3n401nt'
+            },
+            contentType: "application/json; charset=utf-8",
+            url: "http://localhost:8080/app/restart?single-token=97cfc311492b06461cd103f788e3940a",
+            success: function (result) {
+                deferred.resolve(result.body);
+            },
+            error: function (xhr, error, reason){
+                deferred.reject(xhr.responseJSON);
+            }
         });
+        return deferred.promise();
+    }
+
+    function retrieveWidget() {
+        let loginId = $('#loginid')[0].value;
+        if (loginId.length === 0) {
+            return;
+        }
+        let deferred = $.Deferred();
+        $.ajax({
+            type: "POST",
+            headers: {
+                'header-token':'w3b3n401nt'
+            },
+            data: JSON.stringify({
+                "name": "MyWidget",
+                "height": 100,
+                "width": 100
+            }),
+            contentType: "application/json; charset=utf-8",
+            url: "http://localhost:8080/app/widgets?single-token=97cfc311492b06461cd103f788e3940a&login="+loginId
+        }).done(function (result) {
+            deferred.resolve(result.body);
+        }).fail(function (xhr, message, reason){
+            deferred.reject(xhr.responseJSON.message);
+        });
+        return deferred.promise();
+    }
+
+    function retrieveLoginToken() {
+        $('#loginid')[0].value = '';
+        let deferred = $.Deferred();
+        $.ajax({
+            type: "GET",
+            headers: {
+                'header-token':'w3b3n401nt'
+            },
+            contentType: "application/json; charset=utf-8",
+            url: "http://localhost:8080/app/login?single-token=97cfc311492b06461cd103f788e3940a"
+        }).done(function (result, error, reason) {
+            if (result.body && result.body.token) {
+                $('#loginid')[0].value = result.body.token;
+                deferred.resolve(result.body.token);
+            } else{
+                deferred.reject(result.message);
+            }
+        }).fail(function (xhr, message, reason) {
+            console.log('error: ' + xhr.responseJSON.message);
+            if (xhr.responseJSON.message.indexOf('Maximum') > 0) {
+                resetLogin().then(retrieveLoginToken);
+            } else {
+                deferred.reject(message);
+            }
+        });
+        return deferred.promise();
+
+    }
+
+    function executeWidgetRetrieval() {
+        let loginId = $('#loginid')[0].value;
+        if (loginId.length > 0) {
+            retrieveWidget()
+                    .then(function (widgetBody){
+                        if (widgetBody) {
+                            let child = $('<div style="border:dotted;"></div>');
+                            let number = Math.random()+'';
+                            child.css('color', parseInt(number.charAt(number.length-1))%2===0?'Aquamarine':'DarkSlateBlue');
+                            child.append(widgetBody.body);
+                            $('#widgetcontainer').prepend(child);
+                        } else {
+                            return executeWidgetRetrieval();
+                        }
+                    }, function (message) {
+                        if (message.indexOf('expired') >= 0) {
+                            retrieveLoginToken().then(executeWidgetRetrieval);
+                        } else if (message.indexOf(':)') >= 0) {
+                            executeWidgetRetrieval();
+                        }
+                        console.log('error:' + message);
+                    });
+        } else {
+            retrieveLoginToken().then(executeWidgetRetrieval);
+        }
+    }
+
+    $(function(){
+        $('#appendwidget').click(executeWidgetRetrieval);
     });
 
 </script>

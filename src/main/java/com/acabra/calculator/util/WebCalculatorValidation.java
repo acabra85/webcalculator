@@ -12,13 +12,6 @@ import java.util.*;
  */
 public class WebCalculatorValidation {
 
-
-    private static final Map<String, String> CLOSE_PARENTHESIS_CONTROL = Collections.unmodifiableMap(new HashMap<String, String>() {{
-        put(Operator.CLOSE_GROUP_SYMBOLS.get(0), Operator.OPEN_GROUP_SYMBOLS.get(0));
-        put(Operator.CLOSE_GROUP_SYMBOLS.get(1), Operator.OPEN_GROUP_SYMBOLS.get(1));
-        put(Operator.CLOSE_GROUP_SYMBOLS.get(2), Operator.OPEN_GROUP_SYMBOLS.get(2));
-    }});
-
     /**
      * Validates that a request complies with the restrictions of the system, throws runtime
      * exception in case criteria is not met.
@@ -58,7 +51,7 @@ public class WebCalculatorValidation {
             if (Operator.OPEN_GROUP_SYMBOLS_SET.contains(token)) {
                 stackControl.push(token);
             } else if (Operator.CLOSE_GROUP_SYMBOLS_SET.contains(token)) {
-                if (stackControl.isEmpty() || !stackControl.pop().equals(CLOSE_PARENTHESIS_CONTROL.get(token))) {
+                if (stackControl.isEmpty() || !stackControl.pop().equals(Operator.CLOSE_PARENTHESIS_CONTROL.get(token))) {
                     return false;
                 }
             } else if (!Operator.OPERATOR_MAP.containsKey(token) && !NumberUtils.isNumber(token)) {

@@ -74,6 +74,7 @@ public class Calculator {
     }
 
     private static void operateAndUpdate(Stack<BigDecimal> stack, Operator operator) {
+        boolean selfElement = stack.size() == 1;
         switch (operator) {
             case ADD:
                 stack.push(stack.pop().add(stack.pop()));

@@ -317,6 +317,38 @@ public class CalculatorTest {
     }
 
     @Test
+    public void should_fail_invalid_expression_test_8() {
+        String expression = "-26 - ( - 6 )";
+        double expected = -20;
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("-26 6 - -".split("\\s+")));
+
+        BigDecimal actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(expected+"", actual.toString());
+    }
+
+    @Test
+    public void should_return_minus_20_test_9() {
+        String expression = "-26 - ( -6 )";
+        double expected = -20;
+
+        PowerMockito.mockStatic(ShuntingYard.class);
+        when(ShuntingYard.postfix(expression)).thenReturn(Arrays.asList("-26 -6 - -".split("\\s+")));
+
+        BigDecimal actual = calculator.solveArithmeticExpression(expression);
+
+        PowerMockito.verifyStatic(times(1));
+        ShuntingYard.postfix(expression);
+
+        assertEquals(expected+"", actual.toString());
+    }
+
+    @Test
     public void should_return_minus_twelve_1() {
         String expression = "6 - ( 3 * { 6 } )";
         BigDecimal expected = new BigDecimal(-12.0);
