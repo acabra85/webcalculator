@@ -16,3 +16,5 @@ hs_err_pid*
 dependency-reduced-pom.xml
 
 /.DS_STORE
+
+src/main/resources/assets/localhost*/

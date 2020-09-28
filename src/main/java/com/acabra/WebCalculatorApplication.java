@@ -7,6 +7,7 @@ import com.acabra.calculator.resources.WebCalculatorResource;
 import com.acabra.calculator.view.RenderType;
 import com.acabra.calculator.view.WebCalculatorRenderFactory;
 import com.acabra.health.TemplateHealthCheck;
+import com.acabra.roulette.resource.RouletteResource;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.java8.Java8Bundle;
@@ -82,6 +83,7 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
         WebCalculatorManager webCalculatorManager = new WebCalculatorManager(WebCalculatorRenderFactory.createRenderer(RenderType.HTML));
 
         environment.jersey().register(new WebCalculatorResource(webCalculatorManager));
+        environment.jersey().register(new RouletteResource());
 
         registerHealthChecks(configuration, environment);
 

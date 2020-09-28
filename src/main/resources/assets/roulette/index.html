@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JRoulette</title>
+    <link rel="stylesheet" href="css/roulette.css">
+    <link rel="stylesheet" href="css/provider/4.5.2/bootstrap.min.css">
+</head>
+<body>
+<script src="../js/provider/jquery.min.js"></script>
+<script src="js/provider/4.5.2/bootstrap.min.js"></script>
+<div class="main-container">
+    <div class="form-group" style="width: 60%">
+        <div class="input-group form-inline" style="width: 80%">
+            <div class="left-pane">
+                <button type="button" class="btn btn-success large" id="spin-button" onclick="Main.spinRoulette()" disabled><span style="font-weight: bold;">SPIN ROULETTE</span></button>
+            </div>
+            <div class="right-pane">
+                <form action="#" class="form-inline" id="roulette-form">
+                    <div class="form-group mx-sm-4 mb-2">
+                        <input type="number" class="form-control" placeholder="number" aria-label="provide the number" min="0" max="36" id="rolled" />
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2" ><span style="font-weight: bold;">Spinned?</span></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-danger" role="alert" id="error-alert" style="display: none;">
+    </div>
+    <div style="width: 60%">
+        <div class="input-group" style="width: 80%">
+            <div class="left-summary">
+                <table id="history" class="table table-sm">
+                    <thead>
+                    <th scope="col" class="red-cell board-cell"></th>
+                    <th scope="col" class="black-cell board-cell"></th>
+                    <th scope="col" class="green-cell board-cell"></th>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="right-summary">
+                <div class="right-summary-top">
+                    <div class="card" id="result-card">
+                        <div class="card-body">
+                            <h1 class="card-title" style="font-size: 8rem"><span id="lastnumber">00</span></h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="right-summary-bottom">
+                    <div class="right-summary-bottom-first">
+                        <div class="btn-group" id="tags" role="group">
+                            <button type="button" class="btn btn-danger" id="tag-red">Red</button>
+                            <button type="button" class="btn btn-dark" id="tag-black">Black</button>
+                            <button type="button" class="btn btn-primary" id="tag-even">Even</button>
+                            <button type="button" class="btn btn-primary" id="tag-odd">Odd</button>
+                            <button type="button" class="btn btn-secondary" id="tag-low">1-18</button>
+                            <button type="button" class="btn btn-secondary" id="tag-high">19-36</button>
+                        </div>
+                    </div>
+                    <div class="right-summary-bottom-second">
+                        <div class="hot-pane">
+                            <button type="button" class="btn btn-primary"><span>🔥</span>Hot Numbers coming soon!!!!</button>
+                        </div>
+                        <div class="cold-pane">
+                            <button type="button" class="btn btn-primary"><span>❄Cold Numbers coming soon!!!!</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/roulette.js"></script>
+</body>
+</html>

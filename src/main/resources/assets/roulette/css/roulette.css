@@ -1,0 +1,138 @@
+.board-cell {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 13px;
+    text-align: center;
+}
+
+.black-cell {
+    background-color: black !important;
+}
+
+.red-cell {
+    background-color: red !important;
+}
+
+.green-cell {
+    background-color: #5cb85c !important;
+}
+
+.left-pane {
+    float: left;
+    width: 22%;
+    height: 50px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.right-pane {
+    float: right;
+    width: 76%;
+    height: 50px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.left-summary {
+    float: left;
+    height: 700px;
+    width: 45.5%;
+    overflow: hidden;
+    border-radius: .45rem;
+    background-color: rgb(219 228 219);
+}
+
+.right-summary {
+    float: right;
+    height: 700px;
+    width: 45.5%;
+}
+
+.right-summary-top {
+    float: top;
+    height: 230px;
+    width: 95%;
+    border-radius: .45rem;
+    padding-top: 3%;
+}
+
+.right-summary-bottom {
+    float: bottom;
+    height: 465px;
+    width: 95%;
+    border-radius: .45rem;
+}
+
+#result-card {
+    width: 80%;
+}
+
+.right-summary-bottom-first {
+    float: top;
+    height: 65px;
+    border-radius: .45rem;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
+    padding-top: 3%;
+}
+
+.right-summary-bottom-second {
+    float: bottom;
+    height: 400px;
+    background-color: cornflowerblue;
+    border-radius: .45rem;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
+}
+
+.card {
+    margin: 0 auto; /* Added */
+    float: none; /* Added */
+    margin-bottom: 10px; /* Added */
+    text-align: center;
+    color: #ffffff;
+    background-color: black;
+}
+
+#tag-black {
+    display: none;
+}
+#tag-red {
+    display: none;
+}
+#tag-even {
+    display: none;
+}
+#tag-odd {
+    display: none;
+}
+#tag-high {
+    display: none;
+}
+#tag-low {
+    display: none;
+}
+
+#tags {
+    display: flex;
+    justify-content: center;
+}
+
+.hot-pane {
+    float: left;
+    width: 49%;
+    height: 99%;
+}
+
+.cold-pane {
+    float: right;
+    width: 49%;
+    height: 99%;
+}
+
+.main-container {
+    justify-content: center;
+    padding-top: 2.5%;
+    padding-left: 10%;
+    background-color: #afb3ca;
+}
