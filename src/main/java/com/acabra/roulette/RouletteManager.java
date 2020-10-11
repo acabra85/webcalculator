@@ -3,20 +3,32 @@ package com.acabra.roulette;
 import com.acabra.roulette.response.RouletteConfigResponse;
 import com.acabra.roulette.response.RouletteResponse;
 import com.acabra.calculator.response.SimpleResponse;
+import jdk.nashorn.internal.objects.NativeRegExp;
 
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 public class RouletteManager {
-    final static int MAX_SIZE = 25;
+    final static int MAX_HISTORY_SIZE = 300;
+    private static final Comparator<? super Map.Entry<Integer, Integer>> COMP = (a, b) -> Integer.compare(b.getValue(), a.getValue());
     private final Long id;
+    private final int MAX_HOT_NUMBERS = 4;
+    private final int MAX_COLD_NUMBERS = 4;
+    private final int MAX_HISTORY_DISPLAY = 25;
 
-    private ArrayDeque<Integer> history25 = new ArrayDeque<>(25);
-    private List<Integer> coldNumbers = new LinkedList<>();
-    private List<Integer> hotNumbers = new LinkedList<>();
+    private final Predicate<PriorityQueue<Map.Entry<Integer, Integer>>> HAS_HOT_NUMBERS = pq -> pq.size() > 0 && pq.peek().getValue() >= 3;
+
+    private ArrayDeque<Integer> history = new ArrayDeque<>(MAX_HISTORY_SIZE);
+    private final ArrayDeque<Integer> historyDisplay = new ArrayDeque<>(MAX_HISTORY_DISPLAY);
     private AtomicInteger counter = new AtomicInteger();
+    private final Map<Integer, Integer> frequency = new HashMap<Integer, Integer>() {{
+        for (int i = 0; i <= 36; ++i) put(i, 0);
+    }};
+
+    private final RouletteStats rouletteStats =  new RouletteStats();
 
     private static final Map<Integer, Integer> NUMBER_COLORS = new HashMap<Integer, Integer>() {{
         put(0, RouletteColor.GREEN.getId());
@@ -58,25 +70,47 @@ public class RouletteManager {
         put(35, RouletteColor.BLACK.getId());
     }};
 
-    private AtomicReference<Long> lastAccessed;
+    private final AtomicReference<Long> lastAccessed;
 
     public RouletteManager(long id) {
         this.id = id;
-        this.lastAccessed = new AtomicReference<Long>(){{this.set(System.currentTimeMillis());}};
+        this.lastAccessed = new AtomicReference<Long>() {{
+            this.set(System.currentTimeMillis());
+        }};
     }
 
     private SimpleResponse buildResponse() {
-        return new RouletteResponse(counter.getAndIncrement(), false, hotNumbers, coldNumbers, new ArrayList<>(history25));
+        PriorityQueue<Map.Entry<Integer, Integer>> pq = new PriorityQueue<>(COMP);
+        pq.addAll(frequency.entrySet());
+        ArrayList<Integer> hotNums = new ArrayList<Integer>() {{
+            for (int i = 0; i < MAX_HOT_NUMBERS && i < history.size() && HAS_HOT_NUMBERS.test(pq) ; ++i) {
+                add(pq.remove().getKey());
+            }
+        }};
+        while (pq.size() > MAX_COLD_NUMBERS) pq.remove();
+        ArrayList<Integer> history = new ArrayList<>(historyDisplay);
+        ArrayList<Integer> coldNumbers = new ArrayList<Integer>() {{
+            while (!pq.isEmpty()) add(pq.remove().getKey());
+        }};
+
+        return new RouletteResponse(counter.getAndIncrement(), false, hotNums, coldNumbers, history, rouletteStats);
     }
 
     public SimpleResponse addResult(Integer result) {
         synchronized (lastAccessed) {
             lastAccessed.set(System.currentTimeMillis());
         }
-        if(history25.size() == MAX_SIZE) {
-            history25.removeFirst();
+        if (history.size() == MAX_HISTORY_SIZE) {
+            Integer removed = history.removeFirst();
+            frequency.put(removed, Math.max(frequency.get(removed) - 1, 0));
         }
-        history25.addLast(result);
+        if (historyDisplay.size() == MAX_HISTORY_DISPLAY) {
+            historyDisplay.removeFirst();
+        }
+        history.addLast(result);
+        historyDisplay.addLast(result);
+        frequency.put(result, frequency.get(result) + 1);
+        rouletteStats.accept(result, NUMBER_COLORS.get(result));
         return buildResponse();
     }
 

@@ -1,6 +1,7 @@
 package com.acabra.roulette.response;
 
 import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.roulette.RouletteStats;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,17 +15,21 @@ public class RouletteResponse extends SimpleResponse {
     private final List<Integer> hotNumbers;
     private final List<Integer> coldNumbers;
     private final List<Integer> history;
+    private final RouletteStatsDTO stats;
 
     @JsonCreator
     public RouletteResponse(@JsonProperty("id") long id,
                             @JsonProperty("failure") boolean failure,
                             @JsonProperty("hotNumbers") List<Integer> hotNumbers,
                             @JsonProperty("coldNumbers") List<Integer> coldNumbers,
-                            @JsonProperty("history") List<Integer> history) {
+                            @JsonProperty("history") List<Integer> history,
+                            RouletteStats stats
+                            ) {
         super(id, failure);
         this.hotNumbers = hotNumbers;
         this.coldNumbers = coldNumbers;
         this.history = history;
+        this.stats = stats.toDto();
     }
 
     public List<Integer> getHotNumbers() {
@@ -37,5 +42,10 @@ public class RouletteResponse extends SimpleResponse {
 
     public List<Integer> getHistory() {
         return history;
+    }
+
+    @JsonProperty("stats")
+    public RouletteStatsDTO getStats() {
+        return stats;
     }
 }

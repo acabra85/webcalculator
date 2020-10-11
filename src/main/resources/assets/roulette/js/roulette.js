@@ -21,21 +21,20 @@ let Main = (function () {
         function updateHistory(lastNumber, resultCard) {
             let row = $('<tr></tr>');
             let cell = $('<td class="board-cell"></td>');
-            cell.html(lastNumber);
             if (colorsMap.get(lastNumber) === BLACK) {
-                cell.addClass("black-cell");
+                cell.append('<button type="button" class="btn btn-dark btn-sm btn-block">' + lastNumber + '</button>');
                 resultCard.addClass("black-cell");
                 row.append(EMPTY_CELL);
                 row.append(cell);
                 row.append(EMPTY_CELL);
             } else if (colorsMap.get(lastNumber) === RED) {
-                cell.addClass("red-cell");
+                cell.append('<button type="button" class="btn btn-danger btn-sm btn-block">' + lastNumber + '</button>');
                 resultCard.addClass("red-cell");
                 row.append(cell);
                 row.append(EMPTY_CELL);
                 row.append(EMPTY_CELL);
             } else {
-                cell.addClass("green-cell");
+                cell.append('<button type="button" class="btn btn-success btn-sm btn-block">' + lastNumber + '</button>');
                 resultCard.addClass("green-cell");
                 row.append(EMPTY_CELL);
                 row.append(EMPTY_CELL);
@@ -44,14 +43,41 @@ let Main = (function () {
             row.prependTo("#history > tbody");
         }
 
-        function updateTags(number) {
+        function updateTags(number, stats) {
             let tags = $('#tags');
             tags.children().hide();
+
+            tags.find('#tag-even span').text(stats.even);
+            tags.find('#tag-odd span').text(stats.odd);
+            tags.find('#tag-zero span').text(stats.zero);
+            tags.find('#tag-red span').text(stats.red);
+            tags.find('#tag-black span').text(stats.black);
+            tags.find('#tag-high span').text(stats.high);
+            tags.find('#tag-low span').text(stats.low);
+
             if (number > 0) {
                 tags.find(number % 2 === 0 ? '#tag-even' : '#tag-odd').show();
                 tags.find(colorsMap.get(number) === RED ? '#tag-red' : '#tag-black').show();
                 tags.find(number > 18 ? '#tag-high' : '#tag-low').show();
+            } else {
+                tags.find('#tag-zero').show();
             }
+        }
+
+        function buildButton(strClass, value, icon) {
+            let badgeType = value === 0 ? 'success' : (colorsMap.get(value) === RED ? 'danger' : 'dark');
+            let contents = '<span class="badge badge-pill badge-' + badgeType + '">' + value + '</span>';
+            return '<button type="button" class="btn'+ (strClass ? ' ' + strClass : '') + '">'+ icon + contents +'</button>'
+        }
+
+        function updateHotNumbers(hotNumbers) {
+            $('#hot_nums_table tbody tr').remove();
+            hotNumbers.forEach((hotNum) => $('#hot_nums_table tbody').append('<tr><td>' + buildButton('btn-danger', hotNum, '🔥') + '</td></tr>'));
+        }
+
+        function updateColdNumbers(coldNumbers) {
+            $('#cold_nums_table tbody tr').remove();
+            coldNumbers.forEach((coldNum) => $('#cold_nums_table tbody').append('<tr><td>' + buildButton('btn-info', coldNum, '❄') + '</td></tr>'));
         }
 
         let updateView = function (body) {
@@ -59,8 +85,10 @@ let Main = (function () {
                 let lastNumber = body.history[body.history.length - 1];
                 let resultCard = $('#result-card');
                 updateResultCard(resultCard, lastNumber, body.history.length > 1 ? body.history[body.history.length - 2] : -1);
-                updateTags(lastNumber);
+                updateTags(lastNumber, body.stats);
                 updateHistory(lastNumber, resultCard);
+                updateHotNumbers(body.hotNumbers);
+                updateColdNumbers(body.coldNumbers);
                 $("#history").show();
             }
         };
@@ -80,15 +108,19 @@ let Main = (function () {
                     data: JSON.stringify({token: token}),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json"
-                })
-                    .done(function(res) {
+                }).done(function(res) {
+                    window.setTimeout(function () {
                         if(!res.failure) {
                             renderer.updateView(res.body);
                         }
-                    })
-                    .fail(function(res) {
-                        console.log(res);
-                    });
+                        $('#roulette-animation').hide();
+                        $('#result-card').show();
+                        q.resolve();
+                    }, 2000);
+                }).fail(function(res) {
+                    console.log(res);
+                    q.resolve();
+                });
                 return q.promise();
             },
             SendNumber: function (num) {
@@ -104,9 +136,11 @@ let Main = (function () {
                         if(!res.failure) {
                             renderer.updateView(res.body);
                         }
+                        q.resolve();
                     })
                     .fail(function(res) {
                         console.log(res);
+                        q.resolve();
                     });
                 return q.promise();
             }
@@ -130,32 +164,41 @@ let Main = (function () {
     let alerts = Alerts();
     let renderer = Renderer();
 
-    let addButton = $("#add-button");
-    let spinButton = $("#spin-button");
 
     return {
         spinRoulette: function () {
             if(token != null) {
-                spinButton.attr('disabled', 'disabled');
-                roulette.SpinRoulette();
-                spinButton.removeAttr('disabled');
+                $("#spin-button").prop('disabled', true);
+                $('#result-card').hide();
+                $('#roulette-animation').show();
+                roulette.SpinRoulette().then(function () {
+                    $("#spin-button").prop('disabled', false);
+                });
             }
         },
         sendNumber: function (evt) {
             evt.preventDefault();
             if(token != null) {
-                addButton.attr('disabled', 'disabled');
-                if($("#rolled").val() && $("#rolled").val().trim().length > 0) {
-                    let num = parseInt($("#rolled").val());
+                let addButton = $("#add-button");
+                addButton.prop('disabled', true);
+                let rolledNumber = $("#rolled");
+                if(rolledNumber.val() && rolledNumber.val().trim().length > 0) {
+                    let num = parseInt(rolledNumber.val());
                     if (num >= 0 && num <= 36) {
-                        roulette.SendNumber(num);
+                        roulette.SendNumber(num).then(function() {
+                            window.setTimeout(()=> {
+                                $('#rolled').val('');
+                                $("#add-button").prop('disabled', false)
+                            }, 500);
+                        });
                     } else {
                         alerts.showError("Invalid: Numbers go from 0 to 36", 1500);
+                        addButton.prop('disabled', false);
                     }
                 } else {
                     alerts.showError("Invalid: Number to send must not be empty", 1500);
+                    addButton.prop('disabled', false);
                 }
-                addButton.removeAttr('disabled');
             }
         }
     };
@@ -177,8 +220,8 @@ $(document).ready(function(){
     }
     retrieveToken().then(function(data) {
         if (data.success) {
-            $("#add-button").removeAttr('disabled');
-            $("#spin-button").removeAttr('disabled');
+            $("#add-button").prop('disabled', false);
+            $("#spin-button").prop('disabled', false);
         }
     });
     $('#roulette-form').submit(Main.sendNumber);

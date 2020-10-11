@@ -20,7 +20,7 @@
                     <div class="form-group mx-sm-4 mb-2">
                         <input type="number" class="form-control" placeholder="number" aria-label="provide the number" min="0" max="36" id="rolled" />
                     </div>
-                    <button type="submit" class="btn btn-primary mb-2" ><span style="font-weight: bold;">Spinned?</span></button>
+                    <button type="submit" class="btn btn-primary mb-2" id="add-button"><span style="font-weight: bold;">Spinned?</span></button>
                 </form>
             </div>
         </div>
@@ -32,9 +32,11 @@
             <div class="left-summary">
                 <table id="history" class="table table-sm">
                     <thead>
-                    <th scope="col" class="red-cell board-cell"></th>
-                    <th scope="col" class="black-cell board-cell"></th>
-                    <th scope="col" class="green-cell board-cell"></th>
+                    <tr>
+                        <th scope="col" class="red-cell board-cell"></th>
+                        <th scope="col" class="black-cell board-cell"></th>
+                        <th scope="col" class="green-cell board-cell"></th>
+                    </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -46,24 +48,38 @@
                             <h1 class="card-title" style="font-size: 8rem"><span id="lastnumber">00</span></h1>
                         </div>
                     </div>
+                    <div class="card" id="roulette-animation">
+                        <img src="animation.gif" alt="">
+                    </div>
                 </div>
                 <div class="right-summary-bottom">
                     <div class="right-summary-bottom-first">
                         <div class="btn-group" id="tags" role="group">
-                            <button type="button" class="btn btn-danger" id="tag-red">Red</button>
-                            <button type="button" class="btn btn-dark" id="tag-black">Black</button>
-                            <button type="button" class="btn btn-primary" id="tag-even">Even</button>
-                            <button type="button" class="btn btn-primary" id="tag-odd">Odd</button>
-                            <button type="button" class="btn btn-secondary" id="tag-low">1-18</button>
-                            <button type="button" class="btn btn-secondary" id="tag-high">19-36</button>
+                            <button type="button" class="btn btn-danger" id="tag-red">Red<span class="badge badge-light">0%</span></button>
+                            <button type="button" class="btn btn-dark" id="tag-black">Black<span class="badge badge-light">0%</span></button>
+                            <button type="button" class="btn btn-primary" id="tag-even">Even<span class="badge badge-light">0%</span></button>
+                            <button type="button" class="btn btn-primary" id="tag-odd">Odd<span class="badge badge-light">0%</span></button>
+                            <button type="button" class="btn btn-secondary" id="tag-low">1-18<span class="badge badge-light">0%</span></button>
+                            <button type="button" class="btn btn-secondary" id="tag-high">19-36<span class="badge badge-light">0%</span></button>
+                            <button type="button" class="btn btn-success" id="tag-zero">0<span class="badge badge-light">0%</span></button>
                         </div>
                     </div>
                     <div class="right-summary-bottom-second">
                         <div class="hot-pane">
-                            <button type="button" class="btn btn-primary"><span>🔥</span>Hot Numbers coming soon!!!!</button>
+                            <table id="hot_nums_table">
+                                <thead class="thead-dark">
+                                <tr><th> Hot Numbers</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                         <div class="cold-pane">
-                            <button type="button" class="btn btn-primary"><span>❄Cold Numbers coming soon!!!!</span></button>
+                            <table id="cold_nums_table">
+                                <thead class="thead-dark">
+                                <tr><th> Cold Numbers</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

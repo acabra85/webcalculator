@@ -30,10 +30,10 @@ public class RouletteResource implements AppResource, AutoCloseable {
      */
     private static final String UTF8_ENC = "UTF-8";
     private static final int MAX_CONCURRENT_SESSIONS = 50;
-    private static final long EXPIRE_TIMEOUT = 180000L; // 3 minutes
+    private static final long EXPIRE_TIMEOUT = 1800000L; // 30 minutes
     private AtomicLong counter = new AtomicLong();
     private SecureRandom secureRandom = new SecureRandom();
-    private Map<Long, RouletteManager> rouletteManagerMap = new ConcurrentHashMap<Long, RouletteManager>();
+    private Map<Long, RouletteManager> rouletteManagerMap = new ConcurrentHashMap<>();
     private ScheduledExecutorService ex;
 
     public RouletteResource() {

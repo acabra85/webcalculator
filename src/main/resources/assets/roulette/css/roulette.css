@@ -112,6 +112,9 @@
 #tag-low {
     display: none;
 }
+#tag-zero {
+    display: none;
+}
 
 #tags {
     display: flex;
@@ -120,14 +123,16 @@
 
 .hot-pane {
     float: left;
-    width: 49%;
+    width: 50%;
     height: 99%;
+    text-align:center;
 }
 
 .cold-pane {
     float: right;
-    width: 49%;
+    width: 50%;
     height: 99%;
+    text-align:center;
 }
 
 .main-container {
@@ -135,4 +140,10 @@
     padding-top: 2.5%;
     padding-left: 10%;
     background-color: #afb3ca;
+}
+
+#roulette-animation {
+    display: none;
+    background-color: #076f1f;
+    width: 80%;
 }
