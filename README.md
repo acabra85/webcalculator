@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/acabra85/webcalculator.svg?branch=master)](https://travis-ci.org/acabra85/webcalculator)
+[![codecov](https://codecov.io/gh/acabra85/webcalculator/branch/master/graph/badge.svg)](https://codecov.io/gh/acabra85/webcalculator)
+
 # WebCalculator 1.0 (http://webmathcalculator.herokuapp.com)
 
 Basic web calculator that performs calculation on the server side.
