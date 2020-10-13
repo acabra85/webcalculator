@@ -13,14 +13,29 @@
     <div class="form-group" style="width: 60%">
         <div class="input-group form-inline" style="width: 80%">
             <div class="left-pane">
-                <button type="button" class="btn btn-success large" id="spin-button" onclick="Main.spinRoulette()" disabled><span style="font-weight: bold;">SPIN ROULETTE</span></button>
+                <button type="button" class="btn btn-success large" id="spin-button" disabled>
+                    <span style="font-weight: bold;">SPIN ROULETTE</span>
+                </button>
             </div>
-            <div class="right-pane">
+            <div>
+                <button type="button" class="btn btn-info" id="toggle-controls" disabled>
+                    <span style="font-weight: bold;">MORE...</span>
+                </button>
+            </div>
+            <div class="right-pane" id="other-controls" style="display: none !important;">
                 <form action="#" class="form-inline" id="roulette-form">
-                    <div class="form-group mx-sm-4 mb-2">
-                        <input type="number" class="form-control" placeholder="number" aria-label="provide the number" min="0" max="36" id="rolled" />
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-check-label" for="roulette-speed"><span class="badge badge-warning">Spinning Speed</span></label>
+                            <input type="range" id="roulette-speed" class="form-control-range" min="0" max="5" value="0" >
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary mb-2" id="add-button"><span style="font-weight: bold;">Spinned?</span></button>
+                    <div class="form-row">
+                        <div class="form-group mx-sm-4 mb-2">
+                            <input type="number" class="form-control" placeholder="number" aria-label="provide the number" min="0" max="36" id="rolled" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2" id="add-button"><span style="font-weight: bold;">SEND</span></button>
                 </form>
             </div>
         </div>
@@ -32,24 +47,33 @@
             <div class="left-summary">
                 <table id="history" class="table table-sm">
                     <thead>
-                    <tr>
-                        <th scope="col" class="red-cell board-cell"></th>
-                        <th scope="col" class="black-cell board-cell"></th>
-                        <th scope="col" class="green-cell board-cell"></th>
-                    </tr>
+                        <tr>
+                            <th scope="col" class="red-cell board-cell">
+                                <div style=""><button type="button" class="btn btn-sm btn-block" style="background-color: red; color: red;">00</button></div>
+                            </th>
+                            <th scope="col" class="black-cell board-cell">
+                                <div style=""><button type="button" class="btn btn-sm btn-block" style="background-color: black;color: black;">00</button></div>
+                            </th>
+                            <th scope="col" class="green-cell board-cell">
+                                <div style=""><button type="button" class="btn btn-sm btn-block" style="background-color: #5cb85c; color: #5cb85c;">00</button></div>
+                            </th>
+                        </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
             <div class="right-summary">
-                <div class="right-summary-top">
-                    <div class="card" id="result-card">
+                <div class="right-summary-top" id="results-display">
+                    <div class="card results-display" id="result-card">
                         <div class="card-body">
                             <h1 class="card-title" style="font-size: 8rem"><span id="lastnumber">00</span></h1>
                         </div>
                     </div>
-                    <div class="card" id="roulette-animation">
-                        <img src="animation.gif" alt="">
+                    <div class="card results-display" id="roulette-animation">
+                        <img src="img/roulette.gif" alt="">
+                    </div>
+                    <div class="card results-display" id="roulette-number">
+                        <img src="img/01.jpg" alt="">
                     </div>
                 </div>
                 <div class="right-summary-bottom">

@@ -14,33 +14,40 @@ let Main = (function () {
         function updateResultCard(resultCard, currNumber) {
             resultCard.removeClass();
             resultCard.addClass("card");
-            resultCard.addClass(idToColorMap.get(colorsMap.get(currNumber))+'-cell');
+            resultCard.addClass(idToColorMap.get(colorsMap[currNumber])+'-cell');
             $('#lastnumber').html(currNumber);
         }
 
         function updateHistory(lastNumber, resultCard) {
             let row = $('<tr></tr>');
             let cell = $('<td class="board-cell"></td>');
-            if (colorsMap.get(lastNumber) === BLACK) {
-                cell.append('<button type="button" class="btn btn-dark btn-sm btn-block">' + lastNumber + '</button>');
+            let divContent = $('<div></div>');
+            divContent.hide();
+            if (colorsMap[lastNumber] === BLACK) {
+                divContent.append('<button type="button" class="btn btn-dark btn-sm btn-block">' + lastNumber + '</button>');
+                cell.append(divContent);
                 resultCard.addClass("black-cell");
                 row.append(EMPTY_CELL);
                 row.append(cell);
                 row.append(EMPTY_CELL);
-            } else if (colorsMap.get(lastNumber) === RED) {
-                cell.append('<button type="button" class="btn btn-danger btn-sm btn-block">' + lastNumber + '</button>');
+            } else if (colorsMap[lastNumber] === RED) {
+                divContent.append('<button type="button" class="btn btn-danger btn-sm btn-block">' + lastNumber + '</button>');
+                cell.append(divContent);
                 resultCard.addClass("red-cell");
                 row.append(cell);
                 row.append(EMPTY_CELL);
                 row.append(EMPTY_CELL);
             } else {
-                cell.append('<button type="button" class="btn btn-success btn-sm btn-block">' + lastNumber + '</button>');
+                divContent.append('<button type="button" class="btn btn-success btn-sm btn-block">' + lastNumber + '</button>');
+                cell.append(divContent);
                 resultCard.addClass("green-cell");
                 row.append(EMPTY_CELL);
                 row.append(EMPTY_CELL);
                 row.append(cell);
             }
             row.prependTo("#history > tbody");
+            divContent.fadeIn("slow");
+
         }
 
         function updateTags(number, stats) {
@@ -56,16 +63,16 @@ let Main = (function () {
             tags.find('#tag-low span').text(stats.low);
 
             if (number > 0) {
-                tags.find(number % 2 === 0 ? '#tag-even' : '#tag-odd').show();
-                tags.find(colorsMap.get(number) === RED ? '#tag-red' : '#tag-black').show();
-                tags.find(number > 18 ? '#tag-high' : '#tag-low').show();
+                tags.find(number % 2 === 0 ? '#tag-even' : '#tag-odd').fadeIn("slow");
+                tags.find(colorsMap[number] === RED ? '#tag-red' : '#tag-black').fadeIn("slow");
+                tags.find(number > 18 ? '#tag-high' : '#tag-low').fadeIn("slow");
             } else {
-                tags.find('#tag-zero').show();
+                tags.find('#tag-zero').fadeIn("slow");
             }
         }
 
         function buildButton(strClass, value, icon) {
-            let badgeType = value === 0 ? 'success' : (colorsMap.get(value) === RED ? 'danger' : 'dark');
+            let badgeType = value === 0 ? 'success' : (colorsMap[value] === RED ? 'danger' : 'dark');
             let contents = '<span class="badge badge-pill badge-' + badgeType + '">' + value + '</span>';
             return '<button type="button" class="btn'+ (strClass ? ' ' + strClass : '') + '">'+ icon + contents +'</button>'
         }
@@ -81,15 +88,13 @@ let Main = (function () {
         }
 
         let updateView = function (body) {
-            if (body.history.length > 0) {
-                let lastNumber = body.history[body.history.length - 1];
+            if (body.number >= 0) {
                 let resultCard = $('#result-card');
-                updateResultCard(resultCard, lastNumber, body.history.length > 1 ? body.history[body.history.length - 2] : -1);
-                updateTags(lastNumber, body.stats);
-                updateHistory(lastNumber, resultCard);
+                updateResultCard(resultCard, body.number);
+                updateTags(body.number, body.stats);
+                updateHistory(body.number, resultCard);
                 updateHotNumbers(body.hotNumbers);
                 updateColdNumbers(body.coldNumbers);
-                $("#history").show();
             }
         };
 
@@ -99,51 +104,67 @@ let Main = (function () {
     };
 
     let Roulette = function () {
-        return {
-            SpinRoulette: function() {
-                let q = $.Deferred();
-                $.ajax({
-                    type: "POST",
-                    url: '/api/roulette/spin',
-                    data: JSON.stringify({token: token}),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json"
-                }).done(function(res) {
-                    window.setTimeout(function () {
-                        if(!res.failure) {
-                            renderer.updateView(res.body);
-                        }
+        function rouletteSpeed(speed) {
+            let step = speed / 5;
+            return speed - ($('#roulette-speed').val() * step) + 100;
+        }
+
+        let spinRoulette = function() {
+            let q = $.Deferred();
+
+
+            $.ajax({
+                type: "POST",
+                url: '/api/roulette/spin',
+                data: JSON.stringify({token: token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(res) {
+                window.setTimeout(function () {
+                    if(!res.failure) {
+                        $('#roulette-number img').attr('src', 'img/0' + res.body.number + '.jpg');
                         $('#roulette-animation').hide();
-                        $('#result-card').show();
+                        $('#roulette-number').show();
+                        renderer.updateView(res.body);
+                        window.setTimeout(function () {
+                            $('#roulette-number').hide();
+                            $('#result-card').fadeIn();
+                            q.resolve();
+                        }, rouletteSpeed(1100));
+                    } else {
                         q.resolve();
-                    }, 2000);
-                }).fail(function(res) {
+                    }
+                }, rouletteSpeed(1900));
+            }).fail(function(res) {
+                console.log(res);
+                q.resolve();
+            });
+            return q.promise();
+        };
+
+        let sendNumber = function (num) {
+            let q = $.Deferred();
+            $.ajax({
+                type: "POST",
+                url: encodeURI('/api/roulette/submit?number=' + num),
+                data: JSON.stringify({token: token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            }).done(function(res) {
+                if(!res.failure) {
+                    renderer.updateView(res.body);
+                }
+                q.resolve();
+            })
+                .fail(function(res) {
                     console.log(res);
                     q.resolve();
                 });
-                return q.promise();
-            },
-            SendNumber: function (num) {
-                let q = $.Deferred();
-                $.ajax({
-                    type: "POST",
-                    url: encodeURI('/api/roulette/submit?number=' + num),
-                    data: JSON.stringify({token: token}),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json"
-                })
-                    .done(function(res) {
-                        if(!res.failure) {
-                            renderer.updateView(res.body);
-                        }
-                        q.resolve();
-                    })
-                    .fail(function(res) {
-                        console.log(res);
-                        q.resolve();
-                    });
-                return q.promise();
-            }
+            return q.promise();
+        };
+        return {
+            SpinRoulette: spinRoulette,
+            SendNumber: sendNumber
         };
     };
 
@@ -170,7 +191,7 @@ let Main = (function () {
             if(token != null) {
                 $("#spin-button").prop('disabled', true);
                 $('#result-card').hide();
-                $('#roulette-animation').show();
+                $('#roulette-animation').fadeIn();
                 roulette.SpinRoulette().then(function () {
                     $("#spin-button").prop('disabled', false);
                 });
@@ -180,15 +201,15 @@ let Main = (function () {
             evt.preventDefault();
             if(token != null) {
                 let addButton = $("#add-button");
+                let rolled = $('#rolled');
                 addButton.prop('disabled', true);
-                let rolledNumber = $("#rolled");
-                if(rolledNumber.val() && rolledNumber.val().trim().length > 0) {
-                    let num = parseInt(rolledNumber.val());
+                if(rolled.val() && rolled.val().trim().length > 0) {
+                    let num = parseInt(rolled.val());
                     if (num >= 0 && num <= 36) {
                         roulette.SendNumber(num).then(function() {
-                            window.setTimeout(()=> {
-                                $('#rolled').val('');
-                                $("#add-button").prop('disabled', false)
+                            window.setTimeout(function() {
+                                rolled.val('');
+                                addButton.prop('disabled', false)
                             }, 500);
                         });
                     } else {
@@ -210,7 +231,7 @@ $(document).ready(function(){
         $.when($.get('/api/roulette/config')).then(function (data, textStatus, jqXHR) {
             if (jqXHR.status === 200) {
                 token = data.body.token;
-                colorsMap = new Map(JSON.parse(data.body.configMap));
+                colorsMap = data.body.colorsMap;
             }
             q.resolve({success: token !== null});
         }, function (a, b, c) {
@@ -218,11 +239,32 @@ $(document).ready(function(){
         });
         return q.promise();
     }
-    retrieveToken().then(function(data) {
-        if (data.success) {
+
+    function preloadImages() {
+        let q = $.Deferred();
+        setTimeout(function () {
+            let imagesDiv = $('<div id="images-src"></div>');
+            imagesDiv.hide();
+            for (let i = 0; i < 37; ++i) {
+                let img = $('<img src="img/0' + i + '.jpg" alt=""/>');
+                imagesDiv.append(img);
+            }
+            console.log("images downloaded");
+            $('body').append(imagesDiv);
+            q.resolve();
+        }, 1000);
+        return q.promise();
+    }
+    $.when(preloadImages(), retrieveToken()).then(function(v1, tokenResult) {
+        if (tokenResult && tokenResult.success) {
+            $('#roulette-form').submit(Main.sendNumber);
+            $('#spin-button').click(Main.spinRoulette);
+            $('#toggle-controls').click(function() {
+                $('#other-controls').toggle();
+            });
             $("#add-button").prop('disabled', false);
             $("#spin-button").prop('disabled', false);
+            $("#toggle-controls").prop('disabled', false);
         }
     });
-    $('#roulette-form').submit(Main.sendNumber);
 });

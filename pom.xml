@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.acabra</groupId>
-    <version>1.4.10</version>
+    <version>1.4.11</version>
     <artifactId>webcalculator</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -179,7 +179,7 @@
                         <include>target/testdiscoveryapp-0.0.1.jar</include>
                     </includes>
                     <processTypes>
-                        <web>java $JAVA_OPTS -Ddw.server.connector.port=$PORT -jar target/webcalculator-${version}.jar server config/heroku.yml</web>
+                        <web>java $JAVA_OPTS -Ddw.server.connector.port=$PORT -jar target/webcalculator-${project.version}.jar server config/heroku.yml</web>
                         <scheduler>java $JAVA_OPTS -cp target/classes:target/dependency/* com.acabra.calculator.job.WebCalculatorJobManager</scheduler>
                     </processTypes>
                 </configuration>

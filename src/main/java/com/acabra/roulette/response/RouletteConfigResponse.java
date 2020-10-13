@@ -1,27 +1,25 @@
 package com.acabra.roulette.response;
 
 import com.acabra.calculator.response.SimpleResponse;
-import com.acabra.calculator.util.RouletteConfigResponseMapper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Map;
-
 public class RouletteConfigResponse extends SimpleResponse {
 
-    private final String configMap;
+    private final int[] colorsMap;
     private final String token;
 
     @JsonCreator
-    public RouletteConfigResponse(long id, boolean failed, @JsonProperty("token") String token, Map<Integer, Integer> configMap) {
+    public RouletteConfigResponse(long id, boolean failed,
+                                  @JsonProperty("token") String token,
+                                  @JsonProperty("colorsMap") int[] colorsMap) {
         super(id, failed);
         this.token = token;
-        this.configMap = RouletteConfigResponseMapper.toJsonMap(configMap);
+        this.colorsMap = colorsMap;
     }
 
-    @JsonProperty("configMap")
-    public String getConfigMap() {
-        return configMap;
+    public int[] getColorsMap() {
+        return colorsMap;
     }
 
     public String getToken() {

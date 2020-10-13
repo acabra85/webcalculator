@@ -35,6 +35,7 @@ public class RouletteResource implements AppResource, AutoCloseable {
     private SecureRandom secureRandom = new SecureRandom();
     private Map<Long, RouletteManager> rouletteManagerMap = new ConcurrentHashMap<>();
     private ScheduledExecutorService ex;
+    private final Executor spinDispatcher = Executors.newSingleThreadScheduledExecutor();
 
     public RouletteResource() {
         this.ex = Executors.newSingleThreadScheduledExecutor();
@@ -53,7 +54,7 @@ public class RouletteResource implements AppResource, AutoCloseable {
                 return null;
             }
         }
-        RouletteManager newRouletteManager = new RouletteManager(this.secureRandom.nextLong());
+        RouletteManager newRouletteManager = new RouletteManager(this.secureRandom.nextLong(), spinDispatcher);
         logger.info("new manager created with id:" + newRouletteManager.getId());
         this.rouletteManagerMap.put(newRouletteManager.getId(), newRouletteManager);
         return newRouletteManager;

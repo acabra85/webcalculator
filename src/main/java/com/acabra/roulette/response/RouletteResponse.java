@@ -14,7 +14,7 @@ public class RouletteResponse extends SimpleResponse {
     private static final long serialVersionUID = -6689095279599722534L;
     private final List<Integer> hotNumbers;
     private final List<Integer> coldNumbers;
-    private final List<Integer> history;
+    private final int number;
     private final RouletteStatsDTO stats;
 
     @JsonCreator
@@ -22,13 +22,13 @@ public class RouletteResponse extends SimpleResponse {
                             @JsonProperty("failure") boolean failure,
                             @JsonProperty("hotNumbers") List<Integer> hotNumbers,
                             @JsonProperty("coldNumbers") List<Integer> coldNumbers,
-                            @JsonProperty("history") List<Integer> history,
+                            @JsonProperty("number") int number,
                             RouletteStats stats
                             ) {
         super(id, failure);
         this.hotNumbers = hotNumbers;
         this.coldNumbers = coldNumbers;
-        this.history = history;
+        this.number = number;
         this.stats = stats.toDto();
     }
 
@@ -40,8 +40,8 @@ public class RouletteResponse extends SimpleResponse {
         return coldNumbers;
     }
 
-    public List<Integer> getHistory() {
-        return history;
+    public int getNumber() {
+        return number;
     }
 
     @JsonProperty("stats")

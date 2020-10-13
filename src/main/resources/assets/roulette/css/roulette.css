@@ -142,8 +142,16 @@
     background-color: #afb3ca;
 }
 
+.results-display {
+    width: 80% !important;
+}
+
 #roulette-animation {
     display: none;
     background-color: #076f1f;
-    width: 80%;
+}
+
+#roulette-number {
+    display: none;
+    background-color: #076f1f;
 }
