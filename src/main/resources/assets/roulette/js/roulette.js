@@ -62,6 +62,19 @@ let Main = (function () {
             tags.find('#tag-high span').text(stats.high);
             tags.find('#tag-low span').text(stats.low);
 
+            $('.stats-badge').each(function(idx, e) {
+                if(e.id === 'even_fld_badge') $(e).text(stats.even);
+                if(e.id === 'odd_fld_badge') $(e).text(stats.odd);
+                if(e.id === 'zero_fld_badge') $(e).text(stats.zero);
+                if(e.id === 'red_fld_badge') $(e).text(stats.red);
+                if(e.id === 'black_fld_badge') $(e).text(stats.black);
+                if(e.id === 'high_fld_badge') $(e).text(stats.high);
+                if(e.id === 'low_fld_badge') $(e).text(stats.low);
+                if(e.id === 'first12_fld_badge') $(e).text(stats.first);
+                if(e.id === 'second12_fld_badge') $(e).text(stats.second);
+                if(e.id === 'third12_fld_badge') $(e).text(stats.third);
+            });
+
             if (number > 0) {
                 tags.find(number % 2 === 0 ? '#tag-even' : '#tag-odd').fadeIn("slow");
                 tags.find(colorsMap[number] === RED ? '#tag-red' : '#tag-black').fadeIn("slow");
@@ -87,14 +100,87 @@ let Main = (function () {
             coldNumbers.forEach((coldNum) => $('#cold_nums_table tbody').append('<tr><td>' + buildButton('btn-info', coldNum, '❄') + '</td></tr>'));
         }
 
+        function duplicateValue(field) {
+            field.val(field.val() * 2);
+        }
+
+        function clearIfWin(fld) {
+            if(fld.val() > 0) {
+                fld.val(0);
+            }
+        }
+        function duplicateIfSet(fld) {
+            if(fld.val() > 0) {
+                duplicateValue(fld);
+            }
+        }
+
+        function fiftyChance(isDuplicateAll, criteria, fldCriteria1, oppositeField) {
+            if(isDuplicateAll) {
+                duplicateAll([fldCriteria1, oppositeField]);
+                return;
+            }
+            if (criteria) {
+                clearIfWin(fldCriteria1);
+                duplicateIfSet(oppositeField);
+            } else {
+                clearIfWin(oppositeField);
+                duplicateIfSet(fldCriteria1);
+            }
+        }
+
+        function duplicateAll(fields) {
+            fields.forEach(f => duplicateValue(f));
+        }
+
+        function thirtyThirdChance(isDuplicateAll, criteria1, criteria2, fldCriteria1, fldCriteria2, oppositeField) {
+            if(isDuplicateAll) {
+                duplicateAll([fldCriteria1, fldCriteria2, oppositeField]);
+                return;
+            }
+            if (criteria1) {
+                clearIfWin(fldCriteria1);
+                duplicateIfSet(fldCriteria2);
+                duplicateIfSet(oppositeField);
+
+            } else if (criteria2) {
+                clearIfWin(fldCriteria2);
+                duplicateIfSet(fldCriteria1);
+                duplicateIfSet(oppositeField);
+            } else {
+                clearIfWin(oppositeField);
+                duplicateIfSet(fldCriteria1);
+                duplicateIfSet(fldCriteria2);
+            }
+        }
+
+        function executeBets(num) {
+            let black_fld = $('#black_fld');
+            let red_fld = $('#red_fld');
+            let even_fld = $('#even_fld');
+            let odd_fld = $('#odd_fld');
+            let high_fld = $('#high_fld');
+            let low_fld = $('#low_fld');
+            let first12_fld = $('#first12_fld');
+            let second12_fld = $('#second12_fld');
+            let third12_fld = $('#third12_fld');
+
+            let isGreen = colorsMap[num] === GREEN;
+            fiftyChance(isGreen, num % 2 === 0, even_fld, odd_fld);
+            fiftyChance(isGreen, colorsMap[num] === RED, red_fld, black_fld);
+            fiftyChance(isGreen, num < 19, low_fld, high_fld);
+            thirtyThirdChance(isGreen, num > 0 && num < 13, num > 12 && num < 25, first12_fld, second12_fld, third12_fld);
+        }
+
         let updateView = function (body) {
             if (body.number >= 0) {
                 let resultCard = $('#result-card');
                 updateResultCard(resultCard, body.number);
-                updateTags(body.number, body.stats);
+                updateTags(body.number, $('#window_stats').prop('checked') ? body.statsWindow : body.stats);
                 updateHistory(body.number, resultCard);
                 updateHotNumbers(body.hotNumbers);
                 updateColdNumbers(body.coldNumbers);
+                executeBets(body.number);
             }
         };
 
@@ -122,12 +208,14 @@ let Main = (function () {
             }).done(function(res) {
                 window.setTimeout(function () {
                     if(!res.failure) {
-                        $('#roulette-number img').attr('src', 'img/0' + res.body.number + '.jpg');
+                        let img_result = $('#0' + res.body.number + '_img');
                         $('#roulette-animation').hide();
+                        img_result.show();
                         $('#roulette-number').show();
                         renderer.updateView(res.body);
                         window.setTimeout(function () {
                             $('#roulette-number').hide();
+                            img_result.hide();
                             $('#result-card').fadeIn();
                             q.resolve();
                         }, rouletteSpeed(1100));
@@ -185,7 +273,6 @@ let Main = (function () {
     let alerts = Alerts();
     let renderer = Renderer();
 
-
     return {
         spinRoulette: function () {
             if(token != null) {
@@ -221,6 +308,17 @@ let Main = (function () {
                     addButton.prop('disabled', false);
                 }
             }
+        },
+        clearBets: function () {
+            $('#black_fld').val(0);
+            $('#red_fld').val(0);
+            $('#even_fld').val(0);
+            $('#odd_fld').val(0);
+            $('#high_fld').val(0);
+            $('#low_fld').val(0);
+            $('#first12_fld').val(0);
+            $('#second12_fld').val(0);
+            $('#third12_fld').val(0);
         }
     };
 })();
@@ -239,23 +337,7 @@ $(document).ready(function(){
         });
         return q.promise();
     }
-
-    function preloadImages() {
-        let q = $.Deferred();
-        setTimeout(function () {
-            let imagesDiv = $('<div id="images-src"></div>');
-            imagesDiv.hide();
-            for (let i = 0; i < 37; ++i) {
-                let img = $('<img src="img/0' + i + '.jpg" alt=""/>');
-                imagesDiv.append(img);
-            }
-            console.log("images downloaded");
-            $('body').append(imagesDiv);
-            q.resolve();
-        }, 1000);
-        return q.promise();
-    }
-    $.when(preloadImages(), retrieveToken()).then(function(v1, tokenResult) {
+    retrieveToken().then(function(tokenResult) {
         if (tokenResult && tokenResult.success) {
             $('#roulette-form').submit(Main.sendNumber);
             $('#spin-button').click(Main.spinRoulette);
@@ -265,6 +347,7 @@ $(document).ready(function(){
             $("#add-button").prop('disabled', false);
             $("#spin-button").prop('disabled', false);
             $("#toggle-controls").prop('disabled', false);
+            $('#clear-flds-button').click(Main.clearBets);
         }
     });
 });

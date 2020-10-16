@@ -3,12 +3,14 @@ package com.acabra.roulette;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.roulette.response.RouletteConfigResponse;
 import com.acabra.roulette.response.RouletteResponse;
+import com.acabra.roulette.stats.RouletteStats;
+import com.acabra.roulette.stats.RouletteStatsFull;
+import com.acabra.roulette.stats.RouletteStatsWindow;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -31,52 +33,14 @@ public class RouletteManager {
     private AtomicInteger counter = new AtomicInteger();
     private final int[] frequency = new int[ROULETTE_SIZE];
 
-    private final RouletteStats rouletteStats =  new RouletteStats();
+    private final RouletteStats rouletteStatsFull = new RouletteStatsFull();
+    private final RouletteStatsWindow rouletteStats25 = new RouletteStatsWindow(TEMPERATURE_WINDOW_SIZE);
 
-    private static final int[] NUMBER_COLORS = new int[ROULETTE_SIZE];
-
-    static {
-        NUMBER_COLORS[0] = RouletteColor.GREEN.getId();
-        NUMBER_COLORS[1] = RouletteColor.RED.getId();
-        NUMBER_COLORS[3] = RouletteColor.RED.getId();
-        NUMBER_COLORS[5] = RouletteColor.RED.getId();
-        NUMBER_COLORS[7] = RouletteColor.RED.getId();
-        NUMBER_COLORS[9] = RouletteColor.RED.getId();
-        NUMBER_COLORS[12] = RouletteColor.RED.getId();
-        NUMBER_COLORS[14] = RouletteColor.RED.getId();
-        NUMBER_COLORS[16] = RouletteColor.RED.getId();
-        NUMBER_COLORS[18] = RouletteColor.RED.getId();
-        NUMBER_COLORS[19] = RouletteColor.RED.getId();
-        NUMBER_COLORS[21] = RouletteColor.RED.getId();
-        NUMBER_COLORS[23] = RouletteColor.RED.getId();
-        NUMBER_COLORS[25] = RouletteColor.RED.getId();
-        NUMBER_COLORS[27] = RouletteColor.RED.getId();
-        NUMBER_COLORS[30] = RouletteColor.RED.getId();
-        NUMBER_COLORS[32] = RouletteColor.RED.getId();
-        NUMBER_COLORS[34] = RouletteColor.RED.getId();
-        NUMBER_COLORS[36] = RouletteColor.RED.getId();
-        NUMBER_COLORS[2] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[4] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[6] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[8] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[10] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[11] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[13] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[15] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[17] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[20] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[22] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[24] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[26] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[28] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[29] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[31] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[33] = RouletteColor.BLACK.getId();
-        NUMBER_COLORS[35] = RouletteColor.BLACK.getId();
-    }
+    private static final int[] NUMBER_COLORS = buildNumberIndexColors();
 
     private final AtomicReference<Long> lastAccessed;
     private final Executor ex;
+    private final ArrayDeque<Integer> history25 = new ArrayDeque<>();
 
     public RouletteManager(long id, Executor ex) {
         this.id = id;
@@ -84,6 +48,48 @@ public class RouletteManager {
             this.set(System.currentTimeMillis());
         }};
         this.ex = ex;
+    }
+
+    private static int[] buildNumberIndexColors() {
+        int[] numberColors = new int[ROULETTE_SIZE];
+        numberColors[0] = RouletteColor.GREEN.getId();
+        numberColors[1] = RouletteColor.RED.getId();
+        numberColors[3] = RouletteColor.RED.getId();
+        numberColors[5] = RouletteColor.RED.getId();
+        numberColors[7] = RouletteColor.RED.getId();
+        numberColors[9] = RouletteColor.RED.getId();
+        numberColors[12] = RouletteColor.RED.getId();
+        numberColors[14] = RouletteColor.RED.getId();
+        numberColors[16] = RouletteColor.RED.getId();
+        numberColors[18] = RouletteColor.RED.getId();
+        numberColors[19] = RouletteColor.RED.getId();
+        numberColors[21] = RouletteColor.RED.getId();
+        numberColors[23] = RouletteColor.RED.getId();
+        numberColors[25] = RouletteColor.RED.getId();
+        numberColors[27] = RouletteColor.RED.getId();
+        numberColors[30] = RouletteColor.RED.getId();
+        numberColors[32] = RouletteColor.RED.getId();
+        numberColors[34] = RouletteColor.RED.getId();
+        numberColors[36] = RouletteColor.RED.getId();
+        numberColors[2] = RouletteColor.BLACK.getId();
+        numberColors[4] = RouletteColor.BLACK.getId();
+        numberColors[6] = RouletteColor.BLACK.getId();
+        numberColors[8] = RouletteColor.BLACK.getId();
+        numberColors[10] = RouletteColor.BLACK.getId();
+        numberColors[11] = RouletteColor.BLACK.getId();
+        numberColors[13] = RouletteColor.BLACK.getId();
+        numberColors[15] = RouletteColor.BLACK.getId();
+        numberColors[17] = RouletteColor.BLACK.getId();
+        numberColors[20] = RouletteColor.BLACK.getId();
+        numberColors[22] = RouletteColor.BLACK.getId();
+        numberColors[24] = RouletteColor.BLACK.getId();
+        numberColors[26] = RouletteColor.BLACK.getId();
+        numberColors[28] = RouletteColor.BLACK.getId();
+        numberColors[29] = RouletteColor.BLACK.getId();
+        numberColors[31] = RouletteColor.BLACK.getId();
+        numberColors[33] = RouletteColor.BLACK.getId();
+        numberColors[35] = RouletteColor.BLACK.getId();
+        return numberColors;
     }
 
     private SimpleResponse buildResponse() {
@@ -98,27 +104,32 @@ public class RouletteManager {
         ArrayList<Integer> coldNumbers = new ArrayList<Integer>() {{
             while (!pq.isEmpty()) add(pq.remove().getKey());
         }};
-        return new RouletteResponse(counter.getAndIncrement(), false, hotNums, coldNumbers, history.getLast(), rouletteStats);
+        return new RouletteResponse(counter.getAndIncrement(), false, hotNums, coldNumbers, history.getLast(),
+                rouletteStatsFull.toDto(), rouletteStats25.toDto());
     }
 
     public SimpleResponse addResult(Integer result) {
-        synchronized (lastAccessed) {
-            lastAccessed.set(System.currentTimeMillis());
-        }
-        if (history.size() > TEMPERATURE_WINDOW_SIZE) {
-            --frequency[history.getFirst()];
+        lastAccessed.set(System.currentTimeMillis());
+        if (history25.size() >= TEMPERATURE_WINDOW_SIZE) {
+            int first = history25.removeFirst();
+            if (rouletteStats25.isFull()) {
+                rouletteStats25.decreaseCountersByOne(first, NUMBER_COLORS[first]);
+            }
+            --frequency[first];
         }
         if (history.size() == MAX_HISTORY_SIZE) {
             history.removeFirst();
         }
         history.addLast(result);
+        history25.addLast(result);
         ++frequency[result];
-        rouletteStats.accept(result, NUMBER_COLORS[result]);
+        rouletteStatsFull.accept(result, NUMBER_COLORS[result]);
+        rouletteStats25.accept(result, NUMBER_COLORS[result]);
         return buildResponse();
     }
 
     public SimpleResponse getConfig() {
-        return new RouletteConfigResponse(counter.getAndIncrement(), false, id.toString(), NUMBER_COLORS.clone());
+        return new RouletteConfigResponse(counter.getAndIncrement(), false, id.toString(), NUMBER_COLORS);
     }
 
     public SimpleResponse spinRoulette() {

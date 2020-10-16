@@ -1,6 +1,6 @@
 .board-cell {
-    color: #ffffff;
-    font-weight: bold;
+    color: #ffffff !important;
+    font-weight: bold !important;
     font-size: 13px;
     text-align: center;
 }
@@ -28,7 +28,7 @@
 .right-pane {
     float: right;
     width: 76%;
-    height: 50px;
+    /* height: 50px; */
     padding-left: 2px;
     padding-right: 2px;
 }
@@ -36,7 +36,7 @@
 .left-summary {
     float: left;
     height: 700px;
-    width: 45.5%;
+    width: 30%;
     overflow: hidden;
     border-radius: .45rem;
     background-color: rgb(219 228 219);
@@ -45,7 +45,7 @@
 .right-summary {
     float: right;
     height: 700px;
-    width: 45.5%;
+    width: 65%;
 }
 
 .right-summary-top {
@@ -154,4 +154,8 @@
 #roulette-number {
     display: none;
     background-color: #076f1f;
+}
+
+.board-field {
+    width: 80px !important;
 }

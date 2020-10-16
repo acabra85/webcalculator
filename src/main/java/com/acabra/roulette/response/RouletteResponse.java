@@ -1,7 +1,8 @@
 package com.acabra.roulette.response;
 
 import com.acabra.calculator.response.SimpleResponse;
-import com.acabra.roulette.RouletteStats;
+import com.acabra.roulette.stats.RouletteStats;
+import com.acabra.roulette.stats.RouletteStatsFull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,6 +17,7 @@ public class RouletteResponse extends SimpleResponse {
     private final List<Integer> coldNumbers;
     private final int number;
     private final RouletteStatsDTO stats;
+    private final RouletteStatsDTO statsWindow;
 
     @JsonCreator
     public RouletteResponse(@JsonProperty("id") long id,
@@ -23,13 +25,15 @@ public class RouletteResponse extends SimpleResponse {
                             @JsonProperty("hotNumbers") List<Integer> hotNumbers,
                             @JsonProperty("coldNumbers") List<Integer> coldNumbers,
                             @JsonProperty("number") int number,
-                            RouletteStats stats
+                            @JsonProperty("stats") RouletteStatsDTO stats,
+                            @JsonProperty("statsWindow") RouletteStatsDTO statsWindow
                             ) {
         super(id, failure);
         this.hotNumbers = hotNumbers;
         this.coldNumbers = coldNumbers;
         this.number = number;
-        this.stats = stats.toDto();
+        this.stats = stats;
+        this.statsWindow = statsWindow;
     }
 
     public List<Integer> getHotNumbers() {
@@ -44,8 +48,11 @@ public class RouletteResponse extends SimpleResponse {
         return number;
     }
 
-    @JsonProperty("stats")
     public RouletteStatsDTO getStats() {
         return stats;
+    }
+
+    public RouletteStatsDTO getStatsWindow() {
+        return statsWindow;
     }
 }

@@ -15,11 +15,11 @@ public class RouletteConfigResponse extends SimpleResponse {
                                   @JsonProperty("colorsMap") int[] colorsMap) {
         super(id, failed);
         this.token = token;
-        this.colorsMap = colorsMap;
+        this.colorsMap = colorsMap.clone();
     }
 
     public int[] getColorsMap() {
-        return colorsMap;
+        return colorsMap.clone();
     }
 
     public String getToken() {

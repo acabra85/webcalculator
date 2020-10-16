@@ -10,7 +10,7 @@
 <script src="../js/provider/jquery.min.js"></script>
 <script src="js/provider/4.5.2/bootstrap.min.js"></script>
 <div class="main-container">
-    <div class="form-group" style="width: 60%">
+    <div class="form-group" style="width: 80%">
         <div class="input-group form-inline" style="width: 80%">
             <div class="left-pane">
                 <button type="button" class="btn btn-success large" id="spin-button" disabled>
@@ -22,21 +22,133 @@
                     <span style="font-weight: bold;">MORE...</span>
                 </button>
             </div>
-            <div class="right-pane" id="other-controls" style="display: none !important;">
-                <form action="#" class="form-inline" id="roulette-form">
+            <div id="other-controls" style="display: none !important;">
+                <form action="#" class="form" id="roulette-form">
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-check-label" for="roulette-speed"><span class="badge badge-warning">Spinning Speed</span></label>
-                            <input type="range" id="roulette-speed" class="form-control-range" min="0" max="5" value="0" >
+                            <input type="range" id="roulette-speed" class="form-control-range" min="0" max="5" value="0">
+                        </div>
+                        <div class="form-group mx-sm-4 mb-2">
+                            <input type="number" class="form-control" placeholder="number" aria-label="provide the number" min="0" max="36" id="rolled">
+                        </div>
+                        <div class="col-auto my-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="window_stats">
+                                <label class="form-check-label" for="window_stats">
+                                    <span class="badge badge-warning">Window Stats (25)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-2" id="add-button"><span style="font-weight: bold;">SEND</span></button>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="sr-only" for="first12_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">1st 12<span class="badge badge-light stats-badge" id="first12_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="first12_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="sr-only" for="second12_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">2nd 12<span class="badge badge-light stats-badge" id="second12_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="second12_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="sr-only" for="third12_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">3rd 12<span class="badge badge-light stats-badge" id="third12_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="third12_fld" step="0.5" value="0" placeholder="">
+                            </div>
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group mx-sm-4 mb-2">
-                            <input type="number" class="form-control" placeholder="number" aria-label="provide the number" min="0" max="36" id="rolled" />
+                        <div class="col-sm my-1">
+                            <div class="input-group">
+                                <label class="sr-only" for="low_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">1-18<span class="badge badge-light stats-badge" id="low_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="low_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm my-1">
+                            <div class="input-group">
+                                <label class="sr-only" for="even_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">Even<span class="badge badge-light stats-badge" id="even_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="even_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm my-1">
+                            <div class="input-group">
+                                <label class="sr-only" for="red_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text red-cell board-cell">Red
+                                      <span class="badge badge-light stats-badge" id="red_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="red_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm my-1">
+                            <div class="input-group">
+                                <label class="sr-only" for="black_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text black-cell board-cell">
+                                      Black
+                                      <span class="badge badge-light stats-badge" id="black_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="black_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm my-1">
+                            <div class="input-group">
+                                <label class="sr-only" for="odd_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">Odd<span class="badge badge-light stats-badge" id="odd_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="odd_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm my-1">
+                            <div class="input-group ">
+                                <label class="sr-only" for="high_fld"></label>
+                                <div class="input-group-prepend">
+                                  <div class="input-group-text">19-36<span class="badge badge-light stats-badge" id="high_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="high_fld" step="0.5" value="0" placeholder="">
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary mb-2" id="add-button"><span style="font-weight: bold;">SEND</span></button>
-                </form>
+                    <div class="form-row">
+                        <div class="col-sm my-1">
+                            <div class="input-group ">
+                                <label class="sr-only" for="high_fld"></label>
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text green-cell board-cell">0<span class="badge badge-light stats-badge" id="zero_fld_badge">0%</span></div>
+                                </div>
+                                <input type="number" class="form-control" id="zero_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-sm my-1">
+                            <div class="input-group ">
+                                <button type="button" class="btn btn-info mb-2" id="clear-flds-button"><span style="font-weight: bold;">CLEAR</span></button>
+                            </div>
+                        </div>
+                        <div class="col-sm-8 my-1">
+                        </div>
+                    </div>
+                 </form>
             </div>
         </div>
     </div>
@@ -73,7 +185,43 @@
                         <img src="img/roulette.gif" alt="">
                     </div>
                     <div class="card results-display" id="roulette-number">
-                        <img src="img/01.jpg" alt="">
+                        <img src="img/00.jpg" id="00_img" alt="" style="display: none;">
+                        <img src="img/01.jpg" id="01_img" alt="" style="display: none;">
+                        <img src="img/02.jpg" id="02_img" alt="" style="display: none;">
+                        <img src="img/03.jpg" id="03_img" alt="" style="display: none;">
+                        <img src="img/04.jpg" id="04_img" alt="" style="display: none;">
+                        <img src="img/05.jpg" id="05_img" alt="" style="display: none;">
+                        <img src="img/06.jpg" id="06_img" alt="" style="display: none;">
+                        <img src="img/07.jpg" id="07_img" alt="" style="display: none;">
+                        <img src="img/08.jpg" id="08_img" alt="" style="display: none;">
+                        <img src="img/09.jpg" id="09_img" alt="" style="display: none;">
+                        <img src="img/010.jpg" id="010_img" alt="" style="display: none;">
+                        <img src="img/011.jpg" id="011_img" alt="" style="display: none;">
+                        <img src="img/012.jpg" id="012_img" alt="" style="display: none;">
+                        <img src="img/013.jpg" id="013_img" alt="" style="display: none;">
+                        <img src="img/014.jpg" id="014_img" alt="" style="display: none;">
+                        <img src="img/015.jpg" id="015_img" alt="" style="display: none;">
+                        <img src="img/016.jpg" id="016_img" alt="" style="display: none;">
+                        <img src="img/017.jpg" id="017_img" alt="" style="display: none;">
+                        <img src="img/018.jpg" id="018_img" alt="" style="display: none;">
+                        <img src="img/019.jpg" id="019_img" alt="" style="display: none;">
+                        <img src="img/020.jpg" id="020_img" alt="" style="display: none;">
+                        <img src="img/021.jpg" id="021_img" alt="" style="display: none;">
+                        <img src="img/022.jpg" id="022_img" alt="" style="display: none;">
+                        <img src="img/023.jpg" id="023_img" alt="" style="display: none;">
+                        <img src="img/024.jpg" id="024_img" alt="" style="display: none;">
+                        <img src="img/025.jpg" id="025_img" alt="" style="display: none;">
+                        <img src="img/026.jpg" id="026_img" alt="" style="display: none;">
+                        <img src="img/027.jpg" id="027_img" alt="" style="display: none;">
+                        <img src="img/028.jpg" id="028_img" alt="" style="display: none;">
+                        <img src="img/029.jpg" id="029_img" alt="" style="display: none;">
+                        <img src="img/030.jpg" id="030_img" alt="" style="display: none;">
+                        <img src="img/031.jpg" id="031_img" alt="" style="display: none;">
+                        <img src="img/032.jpg" id="032_img" alt="" style="display: none;">
+                        <img src="img/033.jpg" id="033_img" alt="" style="display: none;">
+                        <img src="img/034.jpg" id="034_img" alt="" style="display: none;">
+                        <img src="img/035.jpg" id="035_img" alt="" style="display: none;">
+                        <img src="img/036.jpg" id="036_img" alt="" style="display: none;">
                     </div>
                 </div>
                 <div class="right-summary-bottom">

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.acabra</groupId>
-    <version>1.4.11</version>
+    <version>1.4.12</version>
     <artifactId>webcalculator</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,6 +13,8 @@
         <pittest.version>1.1.5</pittest.version>
         <quartz.version>2.2.1</quartz.version>
         <jdkversion>1.8</jdkversion>
+        <roulette.assets>${project.basedir}/src/main/resources/assets/roulette</roulette.assets>
+        <roulette.assets.ovr>${project.basedir}/src/main/resources/assets/localhost%3a8080/roulette</roulette.assets.ovr>
     </properties>
     <dependencies>
         <dependency>
@@ -97,6 +99,22 @@
             <groupId>com.heroku.sdk</groupId>
             <artifactId>heroku-maven-plugin</artifactId>
             <version>3.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>ant-contrib</groupId>
+            <artifactId>ant-contrib</artifactId>
+            <version>1.0b3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ant</groupId>
+                    <artifactId>ant</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-nodeps</artifactId>
+            <version>1.8.1</version>
         </dependency>
     </dependencies>
     <build>
@@ -196,6 +214,46 @@
                         <param>com.acabra.calculator.*</param>
                     </targetTests>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>clean-browser-overrides</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="clean-roulette-overrides">
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
+                                <if>
+                                    <available file="${roulette.assets.ovr}/index.html" />
+                                    <then>
+                                        <copy file="${roulette.assets}/index.html" tofile="${roulette.assets}/index.html.orig" />
+                                        <copy file="${roulette.assets.ovr}/index.html" tofile="${roulette.assets}/index.html" />
+                                    </then>
+                                </if>
+                                <if>
+                                    <available file="${roulette.assets.ovr}/js/roulette.js" />
+                                    <then>
+                                        <copy file="${roulette.assets}/js/roulette.js" tofile="${roulette.assets}/js/roulette.js.orig" />
+                                        <copy file="${roulette.assets.ovr}/js/roulette.js" tofile="${roulette.assets}/js/roulette.js" />
+                                    </then>
+                                </if>
+                                <if>
+                                    <available file="${roulette.assets.ovr}/css/roulette.css" />
+                                    <then>
+                                        <copy file="${roulette.assets}/css/roulette.css" tofile="${roulette.assets}/css/roulette.css.orig" />
+                                        <copy file="${roulette.assets.ovr}/css/roulette.css" tofile="${roulette.assets}/css/roulette.css" />
+                                    </then>
+                                </if>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
