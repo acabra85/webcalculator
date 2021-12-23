@@ -10,8 +10,8 @@
 <script src="../js/provider/jquery.min.js"></script>
 <script src="js/provider/4.5.2/bootstrap.min.js"></script>
 <div class="main-container">
-    <div class="form-group" style="width: 80%">
-        <div class="input-group form-inline" style="width: 80%">
+    <div class="form-group additional-options-panel">
+        <div class="input-group form-inline" style="width: 90%">
             <div class="left-pane">
                 <button type="button" class="btn btn-success large" id="spin-button" disabled>
                     <span style="font-weight: bold;">SPIN ROULETTE</span>
@@ -41,121 +41,129 @@
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary mb-2" id="add-button"><span style="font-weight: bold;">SEND</span></button>
-                    </div>
-                    <div class="form-row">
-                        <div class="col-sm-4">
-                            <div class="input-group">
-                                <label class="sr-only" for="first12_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text">1st 12<span class="badge badge-light stats-badge" id="first12_fld_badge">0%</span></div>
-                                </div>
-                                <input type="number" class="form-control" id="first12_fld" step="0.5" value="0" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="input-group">
-                                <label class="sr-only" for="second12_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text">2nd 12<span class="badge badge-light stats-badge" id="second12_fld_badge">0%</span></div>
-                                </div>
-                                <input type="number" class="form-control" id="second12_fld" step="0.5" value="0" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="input-group">
-                                <label class="sr-only" for="third12_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text">3rd 12<span class="badge badge-light stats-badge" id="third12_fld_badge">0%</span></div>
-                                </div>
-                                <input type="number" class="form-control" id="third12_fld" step="0.5" value="0" placeholder="">
+                        <div class="form-row">
+                            <div class="col-auto my-1">
+                                <button type="button" class="btn btn-info mb-2" id="betting-panel-btn"><span style="font-weight: bold;">BETTING PANEL</span></button>
                             </div>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="col-sm my-1">
-                            <div class="input-group">
-                                <label class="sr-only" for="low_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text">1-18<span class="badge badge-light stats-badge" id="low_fld_badge">0%</span></div>
+                </form>
+                <div id="betting-panel">
+                    <form>
+                        <div class="form-row">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <label class="sr-only" for="first12_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">1st 12<span class="badge badge-light stats-badge" id="first12_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="first12_fld" step="0.5" value="0" placeholder="">
                                 </div>
-                                <input type="number" class="form-control" id="low_fld" step="0.5" value="0" placeholder="">
                             </div>
-                        </div>
-                        <div class="col-sm my-1">
-                            <div class="input-group">
-                                <label class="sr-only" for="even_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text">Even<span class="badge badge-light stats-badge" id="even_fld_badge">0%</span></div>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <label class="sr-only" for="second12_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">2nd 12<span class="badge badge-light stats-badge" id="second12_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="second12_fld" step="0.5" value="0" placeholder="">
                                 </div>
-                                <input type="number" class="form-control" id="even_fld" step="0.5" value="0" placeholder="">
                             </div>
-                        </div>
-                        <div class="col-sm my-1">
-                            <div class="input-group">
-                                <label class="sr-only" for="red_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text red-cell board-cell">Red
-                                      <span class="badge badge-light stats-badge" id="red_fld_badge">0%</span></div>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <label class="sr-only" for="third12_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">3rd 12<span class="badge badge-light stats-badge" id="third12_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="third12_fld" step="0.5" value="0" placeholder="">
                                 </div>
-                                <input type="number" class="form-control" id="red_fld" step="0.5" value="0" placeholder="">
                             </div>
                         </div>
-                        <div class="col-sm my-1">
-                            <div class="input-group">
-                                <label class="sr-only" for="black_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text black-cell board-cell">
-                                      Black
-                                      <span class="badge badge-light stats-badge" id="black_fld_badge">0%</span></div>
+                        <div class="form-row">
+                            <div class="col-sm my-1">
+                                <div class="input-group">
+                                    <label class="sr-only" for="low_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">1-18<span class="badge badge-light stats-badge" id="low_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="low_fld" step="0.5" value="0" placeholder="">
                                 </div>
-                                <input type="number" class="form-control" id="black_fld" step="0.5" value="0" placeholder="">
                             </div>
-                        </div>
-                        <div class="col-sm my-1">
-                            <div class="input-group">
-                                <label class="sr-only" for="odd_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text">Odd<span class="badge badge-light stats-badge" id="odd_fld_badge">0%</span></div>
+                            <div class="col-sm my-1">
+                                <div class="input-group">
+                                    <label class="sr-only" for="even_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">Even<span class="badge badge-light stats-badge" id="even_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="even_fld" step="0.5" value="0" placeholder="">
                                 </div>
-                                <input type="number" class="form-control" id="odd_fld" step="0.5" value="0" placeholder="">
                             </div>
-                        </div>
-                        <div class="col-sm my-1">
-                            <div class="input-group ">
-                                <label class="sr-only" for="high_fld"></label>
-                                <div class="input-group-prepend">
-                                  <div class="input-group-text">19-36<span class="badge badge-light stats-badge" id="high_fld_badge">0%</span></div>
+                            <div class="col-sm my-1">
+                                <div class="input-group">
+                                    <label class="sr-only" for="red_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text red-cell board-cell">Red
+                                          <span class="badge badge-light stats-badge" id="red_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="red_fld" step="0.5" value="0" placeholder="">
                                 </div>
-                                <input type="number" class="form-control" id="high_fld" step="0.5" value="0" placeholder="">
                             </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="col-sm my-1">
-                            <div class="input-group ">
-                                <label class="sr-only" for="high_fld"></label>
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text green-cell board-cell">0<span class="badge badge-light stats-badge" id="zero_fld_badge">0%</span></div>
+                            <div class="col-sm my-1">
+                                <div class="input-group">
+                                    <label class="sr-only" for="black_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text black-cell board-cell">
+                                          Black
+                                          <span class="badge badge-light stats-badge" id="black_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="black_fld" step="0.5" value="0" placeholder="">
                                 </div>
-                                <input type="number" class="form-control" id="zero_fld" step="0.5" value="0" placeholder="">
+                            </div>
+                            <div class="col-sm my-1">
+                                <div class="input-group">
+                                    <label class="sr-only" for="odd_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">Odd<span class="badge badge-light stats-badge" id="odd_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="odd_fld" step="0.5" value="0" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-sm my-1">
+                                <div class="input-group ">
+                                    <label class="sr-only" for="high_fld"></label>
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">19-36<span class="badge badge-light stats-badge" id="high_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="high_fld" step="0.5" value="0" placeholder="">
+                                </div>
                             </div>
                         </div>
-                        <div class="col-sm my-1">
-                            <div class="input-group ">
-                                <button type="button" class="btn btn-info mb-2" id="clear-flds-button"><span style="font-weight: bold;">CLEAR</span></button>
+                        <div class="form-row">
+                            <div class="col-sm my-1">
+                                <div class="input-group ">
+                                    <label class="sr-only" for="high_fld"></label>
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text green-cell board-cell">0<span class="badge badge-light stats-badge" id="zero_fld_badge">0%</span></div>
+                                    </div>
+                                    <input type="number" class="form-control" id="zero_fld" step="0.5" value="0" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-sm my-1">
+                                <div class="input-group ">
+                                    <button type="button" class="btn btn-info mb-2" id="clear-flds-button"><span style="font-weight: bold;">CLEAR</span></button>
+                                </div>
+                            </div>
+                            <div class="col-sm-8 my-1">
                             </div>
                         </div>
-                        <div class="col-sm-8 my-1">
-                        </div>
-                    </div>
-                 </form>
+                     </form>
+                </div>
             </div>
         </div>
     </div>
     <div class="alert alert-danger" role="alert" id="error-alert" style="display: none;">
     </div>
-    <div style="width: 60%">
-        <div class="input-group" style="width: 80%">
+        <div class="input-group summary-results-pane">
             <div class="left-summary">
                 <table id="history" class="table table-sm">
                     <thead>
@@ -257,7 +265,6 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 <script src="js/roulette.js"></script>
 </body>

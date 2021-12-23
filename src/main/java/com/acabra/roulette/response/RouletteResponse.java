@@ -1,12 +1,9 @@
 package com.acabra.roulette.response;
 
 import com.acabra.calculator.response.SimpleResponse;
-import com.acabra.roulette.stats.RouletteStats;
-import com.acabra.roulette.stats.RouletteStatsFull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 @JsonInclude

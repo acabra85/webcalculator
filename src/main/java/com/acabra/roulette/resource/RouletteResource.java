@@ -109,6 +109,39 @@ public class RouletteResource implements AppResource, AutoCloseable {
     /**
      *
      * @param asyncResponse
+     */
+    @GET
+    @Timed
+    @ManagedAsync
+    @Path("/session")
+    public void getConfig(@Suspended final AsyncResponse asyncResponse, @QueryParam("id") String id) {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                if(null == id || id.trim().length() == 0) {
+                    return getResponse(Response.Status.BAD_REQUEST, "session called without any id", null);
+                }
+                RouletteManager rouletteManager = rouletteManagerMap.getOrDefault(Long.parseLong(id), null);
+                if (null == rouletteManager) {
+                    rouletteManager = buildNewManager();
+                    if (null == rouletteManager) {
+                        return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later", null);
+                    }
+                    return getResponse(Response.Status.CREATED, "new roulette session assigned", rouletteManager.getConfig());
+                }
+                return getResponse(Response.Status.OK, "roulette config", null);
+            }  catch (NoSuchElementException e) {
+                logger.error(e);
+                return getResponse(Response.Status.NOT_FOUND, "roulette config: " + e.getMessage(), null);
+            } catch (Exception e) {
+                logger.error(e);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
+            }
+        }).thenApply(asyncResponse::resume);
+    }
+
+    /**
+     *
+     * @param asyncResponse
      * @param number
      */
     @POST
@@ -160,6 +193,35 @@ public class RouletteResource implements AppResource, AutoCloseable {
             }
         }).thenApply(asyncResponse::resume);
     }
+
+
+    /**
+     *
+     * @param asyncResponse
+     */
+    @DELETE
+    @Timed
+    @ManagedAsync
+    @Path("/spin")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void removeLastSpin(@Suspended final AsyncResponse asyncResponse, RouletteRequestDTO rouletteRequestDTO) {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                Long sessionToken = Long.parseLong(rouletteRequestDTO.getToken());
+                logger.info(sessionToken);
+                RouletteManager rouletteManager = Objects.requireNonNull(
+                        rouletteManagerMap.getOrDefault(sessionToken, null));
+                return getResponse(Response.Status.OK, "delete last number ", rouletteManager.ignoreLastSpin());
+            }  catch (NoSuchElementException e) {
+                logger.error(e);
+                return getResponse(Response.Status.NOT_FOUND, "delete last number roulette: " + e.getMessage(), null);
+            } catch (Exception e) {
+                logger.error(e);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "invalid session: " + e.getMessage(), null);
+            }
+        }).thenApply(asyncResponse::resume);
+    }
+
 
     @Override
     public void close() throws Exception {

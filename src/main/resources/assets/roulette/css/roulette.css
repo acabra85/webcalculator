@@ -159,3 +159,15 @@
 .board-field {
     width: 80px !important;
 }
+
+#betting-panel {
+    display: none;
+}
+
+.additional-options-panel {
+    width: 80%;
+}
+
+.summary-results-pane {
+    width: 80%;
+}

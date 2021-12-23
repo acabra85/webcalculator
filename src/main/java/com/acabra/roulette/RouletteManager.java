@@ -4,17 +4,19 @@ import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.roulette.response.RouletteConfigResponse;
 import com.acabra.roulette.response.RouletteResponse;
 import com.acabra.roulette.stats.RouletteStats;
-import com.acabra.roulette.stats.RouletteStatsFull;
-import com.acabra.roulette.stats.RouletteStatsWindow;
-import org.apache.log4j.Logger;
-
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
+import org.apache.log4j.Logger;
 
 public class RouletteManager {
     private static final Logger logger = Logger.getLogger(RouletteManager.class);
@@ -23,6 +25,7 @@ public class RouletteManager {
     private static final Comparator<? super Map.Entry<Integer, Integer>> COMP = (a, b) -> Integer.compare(b.getValue(), a.getValue());
     private static final int ROULETTE_SIZE = 37;
     private static final int TEMPERATURE_WINDOW_SIZE = 25;
+    private static final long REMOVE_SPIN_TIMEOUT = 30000;
     private final Long id;
     private final int MAX_HOT_NUMBERS = 4;
     private final int MAX_COLD_NUMBERS = 4;
@@ -31,16 +34,18 @@ public class RouletteManager {
 
     private ArrayDeque<Integer> history = new ArrayDeque<>(MAX_HISTORY_SIZE);
     private AtomicInteger counter = new AtomicInteger();
-    private final int[] frequency = new int[ROULETTE_SIZE];
+    private final int[] frequencyTemperature = new int[ROULETTE_SIZE];
 
-    private final RouletteStats rouletteStatsFull = new RouletteStatsFull();
-    private final RouletteStatsWindow rouletteStats25 = new RouletteStatsWindow(TEMPERATURE_WINDOW_SIZE);
+    private final RouletteStats rouletteStatsFull = new RouletteStats();
+    private final RouletteStats rouletteStats25 = new RouletteStats(TEMPERATURE_WINDOW_SIZE);
 
     private static final int[] NUMBER_COLORS = buildNumberIndexColors();
 
     private final AtomicReference<Long> lastAccessed;
     private final Executor ex;
     private final ArrayDeque<Integer> history25 = new ArrayDeque<>();
+    private int lastRemoved25 = -1;
+    private int lastRemoved = -1;
 
     public RouletteManager(long id, Executor ex) {
         this.id = id;
@@ -94,7 +99,7 @@ public class RouletteManager {
 
     private SimpleResponse buildResponse() {
         PriorityQueue<Map.Entry<Integer, Integer>> pq = new PriorityQueue<>(COMP);
-        IntStream.range(0, ROULETTE_SIZE).forEach(i-> pq.add(new AbstractMap.SimpleEntry<>(i, frequency[i])));
+        IntStream.range(0, ROULETTE_SIZE).forEach(i-> pq.add(new AbstractMap.SimpleEntry<>(i, frequencyTemperature[i])));
         ArrayList<Integer> hotNums = new ArrayList<Integer>() {{
             for (int i = 0; i < MAX_HOT_NUMBERS && i < history.size() && HAS_HOT_NUMBERS.test(pq) ; ++i) {
                 add(pq.remove().getKey());
@@ -111,20 +116,21 @@ public class RouletteManager {
     public SimpleResponse addResult(Integer result) {
         lastAccessed.set(System.currentTimeMillis());
         if (history25.size() >= TEMPERATURE_WINDOW_SIZE) {
-            int first = history25.removeFirst();
-            if (rouletteStats25.isFull()) {
-                rouletteStats25.decreaseCountersByOne(first, NUMBER_COLORS[first]);
-            }
-            --frequency[first];
+            lastRemoved25 = history25.removeFirst();
+            rouletteStats25.removeLastNumber(lastRemoved25, NUMBER_COLORS[lastRemoved25]);
+            --frequencyTemperature[lastRemoved25];
         }
+
         if (history.size() == MAX_HISTORY_SIZE) {
-            history.removeFirst();
+            lastRemoved = history.removeFirst();
         }
-        history.addLast(result);
+
         history25.addLast(result);
-        ++frequency[result];
-        rouletteStatsFull.accept(result, NUMBER_COLORS[result]);
+        ++frequencyTemperature[result];
         rouletteStats25.accept(result, NUMBER_COLORS[result]);
+
+        history.addLast(result);
+        rouletteStatsFull.accept(result, NUMBER_COLORS[result]);
         return buildResponse();
     }
 
@@ -151,5 +157,27 @@ public class RouletteManager {
 
     public long getId() {
         return this.id;
+    }
+
+    public SimpleResponse ignoreLastSpin() {
+        long now = System.currentTimeMillis();
+        if ((now - this.lastAccessed.get()) <= REMOVE_SPIN_TIMEOUT) {
+            int toRemove = history.removeLast();
+            history25.removeLast();
+            --frequencyTemperature[toRemove];
+            if (lastRemoved > -1) {
+                history.addFirst(lastRemoved);
+                rouletteStatsFull.accept(lastRemoved, NUMBER_COLORS[lastRemoved]);
+            }
+            if (lastRemoved25 > -1) {
+                history25.addFirst(lastRemoved25);
+                ++frequencyTemperature[lastRemoved25];
+                rouletteStats25.accept(lastRemoved25, NUMBER_COLORS[lastRemoved25]);
+            }
+            rouletteStats25.removeLastNumber(toRemove, NUMBER_COLORS[toRemove]);
+            rouletteStatsFull.removeLastNumber(toRemove, NUMBER_COLORS[toRemove]);
+            return buildResponse();
+        }
+        throw new IllegalStateException("Unable to remove last spin, TIMEOUT");
     }
 }

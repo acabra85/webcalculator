@@ -1,7 +1,7 @@
 "use strict";
 
-let token = null;
-let colorsMap = null;
+let token = !localStorage.getItem('sessid') ? null : localStorage.getItem('sessid');
+let colorsMap = !localStorage.getItem('colorsMap') ? null : localStorage.getItem('colorsMap');
 
 let Main = (function () {
     let Renderer = function () {
@@ -324,12 +324,16 @@ let Main = (function () {
 })();
 
 $(document).ready(function(){
-    function retrieveToken() {
-        let q = $.Deferred();
-        $.when($.get('/api/roulette/config')).then(function (data, textStatus, jqXHR) {
+    function retrieveNewConfig(q) {
+        token = null;
+        colorsMap = null;
+        $.get('/api/roulette/config').then(function (data, textStatus, jqXHR) {
             if (jqXHR.status === 200) {
                 token = data.body.token;
                 colorsMap = data.body.colorsMap;
+                console.log('sessionId:' + token);
+                window.localStorage.setItem('sessid', token);
+                window.localStorage.setItem('colorsMap', JSON.stringify(colorsMap));
             }
             q.resolve({success: token !== null});
         }, function (a, b, c) {
@@ -337,6 +341,24 @@ $(document).ready(function(){
         });
         return q.promise();
     }
+
+    function retrieveToken() {
+        let q = $.Deferred();
+        if(!token) { //no token present
+            return retrieveNewConfig(q);
+        }
+        $.get('/api/roulette/session?id=' + token).then(function (data, textStatus, jqXHR) {
+            if(jqXHR.status === 201) { // session not found, new created
+                token = data.body.token;
+                window.localStorage.setItem('sessid', token);
+            }
+            q.resolve({success: jqXHR.status === 201 || jqXHR.status === 200});
+        }, function (a, b, c) {
+            q.resolve({success: false})
+        });
+        return q.promise();
+    }
+
     retrieveToken().then(function(tokenResult) {
         if (tokenResult && tokenResult.success) {
             $('#roulette-form').submit(Main.sendNumber);
@@ -344,10 +366,16 @@ $(document).ready(function(){
             $('#toggle-controls').click(function() {
                 $('#other-controls').toggle();
             });
+            $('#betting-panel-btn').click(function() {
+                $('#betting-panel').toggle();
+            });
+
             $("#add-button").prop('disabled', false);
             $("#spin-button").prop('disabled', false);
             $("#toggle-controls").prop('disabled', false);
             $('#clear-flds-button').click(Main.clearBets);
+        } else {
+            window.alert('SORRY: we\'re unable to connect to the server please refresh the page...')
         }
     });
 });
