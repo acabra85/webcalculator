@@ -2,6 +2,7 @@ package com.acabra.calculator.response;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 import java.io.Serializable;
 
@@ -9,6 +10,7 @@ import java.io.Serializable;
  * @author acabra
  * @created 2016-09-27
  */
+@Getter
 public abstract class SimpleResponse implements Serializable {
 
     protected final long id;
@@ -20,11 +22,4 @@ public abstract class SimpleResponse implements Serializable {
         this.failure = failure;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public boolean isFailure() {
-        return failure;
-    }
 }

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>MMind</title>
+        <link rel="stylesheet" href="css/mmind.css">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+    </head>
+    <body>
+        <script src="../js/provider/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <div id="error-alert" style="display: none;"></div>
+        <div id="guess_section">
+            <form action="#" id="mmind_form">
+                <label for="guess_value">Guess:</label>
+                <input id="guess_value" name="guess_value" min="0" max="9999" type="number" />
+                <button type="submit" id="btn_guess" disabled="disabled">Guess</button>
+            </form>
+        </div>
+        <div id="history_section">
+            <div id="opponent_moves">
+                <table id="opponent_table">
+                    <thead>
+                    <tr id="opponent_number_guess">
+                    </tr>
+                    <tr>
+                        <th>P1</th>
+                        <th>P2</th>
+                        <th>P3</th>
+                        <th>P4</th>
+                        <th>Result</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div id="user_moves">
+                <table id="user_table">
+                    <thead>
+                        <tr id="user_number_guess">
+                            <th>?</th>
+                            <th>?</th>
+                            <th>?</th>
+                            <th>?</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        <tr>
+                            <th>P1</th>
+                            <th>P2</th>
+                            <th>P3</th>
+                            <th>P4</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script src="js/mmind.js"></script>
+    </body>
+</html>

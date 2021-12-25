@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.acabra</groupId>
-    <version>R1.0-SNAPSHOT</version>
+    <version>MMIND1.0-SNAPSHOT</version>
     <artifactId>webcalculator</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,6 +13,7 @@
         <pittest.version>1.1.5</pittest.version>
         <quartz.version>2.2.1</quartz.version>
         <jdkversion>1.8</jdkversion>
+        <lombokversion>1.18.22</lombokversion>
         <roulette.assets>${project.basedir}/src/main/resources/assets/roulette</roulette.assets>
         <roulette.assets.ovr>${project.basedir}/src/main/resources/assets/localhost%3a8080/roulette</roulette.assets.ovr>
     </properties>
@@ -115,6 +116,12 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant-nodeps</artifactId>
             <version>1.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombokversion}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>

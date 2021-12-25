@@ -7,6 +7,7 @@ import com.acabra.calculator.resources.WebCalculatorResource;
 import com.acabra.calculator.view.RenderType;
 import com.acabra.calculator.view.WebCalculatorRenderFactory;
 import com.acabra.health.TemplateHealthCheck;
+import com.acabra.mmind.MMindResource;
 import com.acabra.roulette.resource.RouletteResource;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -53,7 +54,6 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
      * @param bootstrap
      */
     private void provideResolutionForStaticAssets(Bootstrap<WebCalculatorConfiguration> bootstrap) {
-        bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "css"));
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html", "html"));
     }
 
@@ -84,6 +84,7 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
 
         environment.jersey().register(new WebCalculatorResource(webCalculatorManager));
         environment.jersey().register(new RouletteResource());
+        environment.jersey().register(new MMindResource());
 
         registerHealthChecks(configuration, environment);
 

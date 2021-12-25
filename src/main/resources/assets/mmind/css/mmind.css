@@ -1,0 +1,16 @@
+#game_room {
+    height: 20%;
+}
+
+#login_room {
+    height: 80%;
+}
+
+#opponent_moves {
+    float: left;
+    width: 50%;
+}
+#user_moves {
+    float: right;
+    width: 50%;
+}
