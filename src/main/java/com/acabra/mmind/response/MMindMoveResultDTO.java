@@ -9,15 +9,20 @@ import lombok.NonNull;
 @Builder(setterPrefix = "with")
 @Getter
 public class MMindMoveResultDTO {
+    private final String playerName;
+    private final int index;
+    private final char[] guess;
     private final int fixes;
     private final int spikes;
-    private final char[] guess;
 
     @JsonCreator
-    public MMindMoveResultDTO(@JsonProperty("fixes") int fixes, @JsonProperty("spikes") int spikes,
-                              @JsonProperty("guess") char[] guess) {
+    public MMindMoveResultDTO(@JsonProperty("playerName") String playerName, @JsonProperty("index") int index,
+                              @JsonProperty("guess") char[] guess,
+                              @JsonProperty("fixes") int fixes, @JsonProperty("spikes") int spikes) {
+        this.index = index;
         this.fixes = fixes;
         this.spikes = spikes;
         this.guess = guess;
+        this.playerName = playerName;
     }
 }

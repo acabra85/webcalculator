@@ -1,5 +1,6 @@
 package com.acabra.mmind;
 
+import com.acabra.calculator.integral.IntegralSubRangeSupplier;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.core.MMindHistoryItem;
 import com.acabra.mmind.core.MMindPlayer;
@@ -7,7 +8,6 @@ import com.acabra.mmind.core.MMmindMoveResult;
 import com.acabra.mmind.core.Moves;
 import com.acabra.mmind.request.MMindRequestDTO;
 import com.acabra.mmind.response.MMindMoveResponse;
-import lombok.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ public class MMindManager {
     private final Map<String, MMindPlayer> secretHolders;
     private final MMindPlayer host;
     private volatile int currentMove = Moves.NONE;
-    private Stack<MMindHistoryItem> moves;
+    private final Stack<MMindHistoryItem> moves;
 
     private MMindManager(MMindPlayer host) {
         this.host = host;
@@ -33,10 +33,12 @@ public class MMindManager {
         return new MMindManager(host);
     }
 
-    public SimpleResponse executeMove(MMindRequestDTO requestDTO) {
+    public SimpleResponse executeMove(long id, MMindRequestDTO requestDTO) {
         char[] guess = requestDTO.getGuess().toCharArray();
         MMindPlayer secretHolder = secretHolders.get(requestDTO.getToken());
-        MMmindMoveResult moveResult = secretHolder.respond(guess);
+        MMindPlayer guesser = players.get(requestDTO.getToken());
+        MMmindMoveResult moveResult = secretHolder.respond(guesser.move(), guess);
+        moveResult.setPlayerName(guesser.getName());
         if(host.getToken().equals(requestDTO.getToken())) {
             currentMove = Moves.GUEST;
         } else {
@@ -46,7 +48,8 @@ public class MMindManager {
                 .withMoveResult(moveResult)
                 .withPlayerToken(requestDTO.getToken())
                 .build());
-        return new MMindMoveResponse(0L, false, MMindResultMapper.toResultDTO(moveResult));
+
+        return new MMindMoveResponse(id, false, MMindResultMapper.toResultDTO(moveResult));
     }
 
     public boolean awaitingPlayer() {

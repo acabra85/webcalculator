@@ -13,21 +13,27 @@
         <div id="guess_section">
             <form action="#" id="mmind_form">
                 <label for="guess_value">Guess:</label>
-                <input id="guess_value" name="guess_value" min="0" max="9999" type="number" />
+                <input id="guess_value" name="guess_value" minlength="4" maxlength="4" type="text" />
                 <button type="submit" id="btn_guess" disabled="disabled">Guess</button>
             </form>
         </div>
         <div id="history_section">
             <div id="opponent_moves">
-                <table id="opponent_table">
+                <table id="opponent_table" class="table">
                     <thead>
+                    <tr>
+                        <th colspan="6" style="text-align: center">
+                            <span id="opponent_username" style="color: blue">[Opponent]</span>
+                        </th>
+                    </tr>
                     <tr id="opponent_number_guess">
                     </tr>
                     <tr>
-                        <th>P1</th>
-                        <th>P2</th>
-                        <th>P3</th>
-                        <th>P4</th>
+                        <th>#</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
+                        <th>-</th>
                         <th>Result</th>
                     </tr>
                     </thead>
@@ -36,20 +42,27 @@
                 </table>
             </div>
             <div id="user_moves">
-                <table id="user_table">
+                <table id="user_table" class="table">
                     <thead>
+                        <tr>
+                            <th colspan="6" style="text-align: center">
+                                <span>Your Moves</span>
+                            </th>
+                        </tr>
                         <tr id="user_number_guess">
+                            <th>&nbsp</th>
                             <th>?</th>
                             <th>?</th>
                             <th>?</th>
                             <th>?</th>
-                            <th>&nbsp;</th>
+                            <th>&nbsp</th>
                         </tr>
                         <tr>
-                            <th>P1</th>
-                            <th>P2</th>
-                            <th>P3</th>
-                            <th>P4</th>
+                            <th>#</th>
+                            <th>-</th>
+                            <th>-</th>
+                            <th>-</th>
+                            <th>-</th>
                             <th>Result</th>
                         </tr>
                     </thead>

@@ -46,7 +46,7 @@ public class MMindResource implements AppResource, AutoCloseable {
             try {
                 MMindManager mMindManager = roomManager.findRoom(mMindRequestDTO).getManager();
                 return getResponse(Response.Status.OK, "guess submitted",
-                        mMindManager.executeMove(mMindRequestDTO));
+                        mMindManager.executeMove(this.idGen.incrementAndGet(), mMindRequestDTO));
             } catch (Exception e) {
                 logger.error(e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(), null);

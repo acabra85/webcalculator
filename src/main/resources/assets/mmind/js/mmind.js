@@ -21,8 +21,10 @@ let Main = (function () {
                 }).done(function (res) {
                     if (!res.failure) {
                         renderer.updateUserHistory(res.moveResult);
+                        q.resolve(res.moveResult.fixes);
+                    } else {
+                        q.resolve();
                     }
-                    q.resolve(res);
                 }).fail(function (res) {
                     console.log(res);
                     q.resolve();
@@ -33,9 +35,16 @@ let Main = (function () {
     }
 
     function Renderer() {
+        function addColorGuess(fixes, spikes) {
+            return fixes === 4 ? 'status_guess_winner' : spikes === 4 || fixes === 3 ? 'status_guess_close' : '';
+        }
+
         function appendHistory(tableBodySelector, moveResult) {
             let node = $(document.createElement('tr'));
             let guess = moveResult.guess;
+            let index_column = $('<th>');
+            index_column.html(moveResult.index);
+            node.append(index_column)
             for (let i = 0; i < guess.length; ++i) {
                 let column = $(document.createElement('th'));
                 column.html(guess.charAt(i));
@@ -50,6 +59,7 @@ let Main = (function () {
             spikesNode.html('P: ' + moveResult.spikes);
             resultColumn.append(spikesNode);
 
+            node.addClass(addColorGuess(moveResult.fixes, moveResult.spikes));
             node.append(resultColumn);
             $(tableBodySelector).append(node);
         }
@@ -93,8 +103,12 @@ let Main = (function () {
         $.get(encodeURI('/api/mmind/status?token=' + token + '&room='+ roomNumberStr))
             .done(function (statusResponse) {
                 if(statusResponse.makeMove) {
-                    if(statusResponse.lastMove)
-                    renderer.updateOpponentsMove(statusResponse.lastMove);
+                    if(statusResponse.lastMove) {
+                        if(statusResponse.lastMove.playerName) {
+                            $('#opponent_username').html(statusResponse.lastMove.playerName + '\'s Moves');
+                        }
+                        renderer.updateOpponentsMove(statusResponse.lastMove);
+                    }
                     $('#btn_guess').prop('disabled', false);
                     stopFunction();
                 }
@@ -113,7 +127,7 @@ let Main = (function () {
 
     let cycleRefresh = function () {
         retrieveStatus();
-        timeoutVar = setTimeout(cycleRefresh, 5000);
+        timeoutVar = setTimeout(cycleRefresh, 1000);
     };
     let sendNumber = function (evt) {
         evt.preventDefault();
@@ -124,9 +138,11 @@ let Main = (function () {
             if (guessVal.val() && guessVal.val().trim().length > 0) {
                 let num = parseInt(guessVal.val());
                 if (num >= 0 && num <= 9999) {
-                    mmind.SendNumber(num).then(function () {
+                    mmind.SendNumber(guessVal.val()).then(function (fixes) {
                         guessVal.val('');
-                        cycleRefresh();
+                        if(4 !== fixes) {
+                            cycleRefresh();
+                        }
                     });
                 } else {
                     alerts.showError("Invalid: Numbers go from 0000 to 9999", 1500);
@@ -156,6 +172,8 @@ $(document).ready(function () {
     function addRowOwnNumber() {
         let item = localStorage.getItem('ownsecret');
         let targetRow = $('#opponent_number_guess');
+        let index_col = $('<th>');
+        targetRow.append(index_col);
         for (let i = 0; i < item.length; ++i) {
             let child = $('<th>');
             child.html(item.charAt(i));

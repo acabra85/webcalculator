@@ -5,22 +5,25 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 public class MMindPlayer {
     final String name;
     final char[] secret;
     final String token;
+    private final AtomicInteger movesCounter;
 
     public MMindPlayer(String name, String secret, String token) {
         this.name = name;
         this.secret = secret.toCharArray();
         this.token = token;
+        this.movesCounter = new AtomicInteger(1);
     }
 
-    public MMmindMoveResult respond(char[] guess) {
+    public MMmindMoveResult respond(int index, char[] guess) {
         ArrayList<Character> sGuess = new ArrayList<>();
-        Set<Character> sSecret = new HashSet<>();
+        ArrayList<Character> sSecret = new ArrayList<>();
         int fixes = 0;
         for (int i = 0; i < guess.length; i++) {
             if(guess[i] != secret[i]) {
@@ -38,9 +41,14 @@ public class MMindPlayer {
             }
         }
         return MMmindMoveResult.builder()
+                .withIndex(index)
                 .withFixes(fixes)
                 .withSpikes(spikes)
                 .withGuess(guess)
                 .build();
+    }
+
+    public int move() {
+        return movesCounter.getAndIncrement();
     }
 }
