@@ -1,0 +1,22 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="WebCalculatorApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <envs>
+      <env name="admpass" value="1234" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="com.acabra.WebCalculatorApplication" />
+    <module name="webcalculator" />
+    <option name="PROGRAM_PARAMETERS" value="server config\webcalculator.yml" />
+    <option name="VM_PARAMETERS" value="-Ddw.server.connector.port=8080" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.acabra.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

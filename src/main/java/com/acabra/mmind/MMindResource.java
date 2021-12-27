@@ -6,34 +6,39 @@ import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import com.acabra.mmind.request.MMindRequestDTO;
 import com.acabra.mmind.response.MMindAuthResponse;
 import com.acabra.mmind.response.MMindJoinRoomResponse;
+import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.server.ManagedAsync;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/mmind")
 @Produces(MediaType.APPLICATION_JSON)
-public class MMindResource implements AppResource, AutoCloseable {
+public class MMindResource implements AppResource {
 
     private static final Logger logger = Logger.getLogger(MMindResource.class);
     private final MMindRoomsAdministrator roomsAdmin = MMindRoomsAdministrator.of();
     private final AtomicLong idGen = new AtomicLong();
 
-    @Override
-    public Response getResponse(Response.Status status, String message, SimpleResponse body) {
-        return Response.status(status).entity(body).build();
+    public MMindResource(CommonExecutorService executorService) {
+        executorService.scheduleAtFixedRate(() -> {
+            logger.info("automatic room cleanup");
+            roomsAdmin.clean();
+        }, 15, 3, TimeUnit.MINUTES);
     }
 
     @Override
-    public void close() throws Exception {
-
+    public Response getResponse(Response.Status status, String message, SimpleResponse body) {
+        return Response.status(status).entity(body).build();
     }
 
     @POST

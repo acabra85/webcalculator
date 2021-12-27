@@ -49,16 +49,14 @@ public class MMindGameManager {
     }
 
     private boolean isGameOver() {
-        MMindHistoryItem lastMove = moves.get(moves.size()-1);
-        String lastToken = lastMove.getPlayerToken();
-        MMindHistoryItem prevMove = moves.get(moves.size()-2);
-//        if(lastMove) {
-//
-//        }
-        return false;
+        if(moves.size() < 2) return false;
+        MMmindMoveResult p1MoveResult = moves.get(moves.size()-1).getMoveResult();
+        MMmindMoveResult p2MoveResult = moves.get(moves.size()-2).getMoveResult();
+        return (p2MoveResult.getIndex() == p1MoveResult.getIndex()
+            && (p1MoveResult.getFixes() == 4 || p2MoveResult.getFixes() == 4));
     }
 
-    public boolean awaitingPlayer() {
+    public boolean awaitingGuest() {
         return players.size() < 2;
     }
 
@@ -84,6 +82,6 @@ public class MMindGameManager {
     }
 
     public MMmindMoveResult getLastMove() {
-        return moves.isEmpty() ? null : moves.peek().getMoveResult();
+        return moves.isEmpty() ? null : moves.get(moves.size() - 1).getMoveResult();
     }
 }

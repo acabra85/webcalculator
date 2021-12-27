@@ -16,6 +16,8 @@
         <lombokversion>1.18.22</lombokversion>
         <roulette.assets>${project.basedir}/src/main/resources/assets/roulette</roulette.assets>
         <roulette.assets.ovr>${project.basedir}/src/main/resources/assets/localhost%3a8080/roulette</roulette.assets.ovr>
+        <mmind.assets>${project.basedir}/src/main/resources/assets/mmind</mmind.assets>
+        <mmind.assets.ovr>${project.basedir}/src/main/resources/assets/localhost%3a8080/mmind</mmind.assets.ovr>
     </properties>
     <dependencies>
         <dependency>
@@ -255,6 +257,42 @@
                                     <then>
                                         <copy file="${roulette.assets}/css/roulette.css" tofile="${roulette.assets}/css/roulette.css.orig" />
                                         <copy file="${roulette.assets.ovr}/css/roulette.css" tofile="${roulette.assets}/css/roulette.css" />
+                                    </then>
+                                </if>
+                                <!--mmind resources-->
+                                <if>
+                                    <available file="${mmind.assets.ovr}/index.html" />
+                                    <then>
+                                        <copy file="${mmind.assets}/index.html" tofile="${mmind.assets}/index.html.orig" />
+                                        <copy file="${mmind.assets.ovr}/index.html" tofile="${mmind.assets}/index.html" />
+                                    </then>
+                                </if>
+                                <if>
+                                    <available file="${mmind.assets.ovr}/room/index.html" />
+                                    <then>
+                                        <copy file="${mmind.assets}/room/index.html" tofile="${mmind.assets}/room/index.html.orig" />
+                                        <copy file="${mmind.assets.ovr}/room/index.html" tofile="${mmind.assets}/room/index.html" />
+                                    </then>
+                                </if>
+                                <if>
+                                    <available file="${mmind.assets.ovr}/js/mmind.js" />
+                                    <then>
+                                        <copy file="${mmind.assets}/js/mmind.js" tofile="${mmind.assets}/js/mmind.js.orig" />
+                                        <copy file="${mmind.assets.ovr}/js/mmind.js" tofile="${mmind.assets}/js/mmind.js" />
+                                    </then>
+                                </if>
+                                <if>
+                                    <available file="${mmind.assets.ovr}/js/room.js" />
+                                    <then>
+                                        <copy file="${mmind.assets}/js/room.js" tofile="${mmind.assets}/js/room.js.orig" />
+                                        <copy file="${mmind.assets.ovr}/js/room.js" tofile="${mmind.assets}/js/room.js" />
+                                    </then>
+                                </if>
+                                <if>
+                                    <available file="${mmind.assets.ovr}/css/mmind.css" />
+                                    <then>
+                                        <copy file="${mmind.assets}/css/mmind.css" tofile="${mmind.assets}/css/mmind.css.orig" />
+                                        <copy file="${mmind.assets.ovr}/css/mmind.css" tofile="${mmind.assets}/css/mmind.css" />
                                     </then>
                                 </if>
                             </target>

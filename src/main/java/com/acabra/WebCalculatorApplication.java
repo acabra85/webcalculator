@@ -9,6 +9,7 @@ import com.acabra.calculator.view.WebCalculatorRenderFactory;
 import com.acabra.health.TemplateHealthCheck;
 import com.acabra.mmind.MMindResource;
 import com.acabra.roulette.resource.RouletteResource;
+import com.acabra.shared.CommonExecutorService;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.java8.Java8Bundle;
@@ -82,9 +83,10 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
 
         WebCalculatorManager webCalculatorManager = new WebCalculatorManager(WebCalculatorRenderFactory.createRenderer(RenderType.HTML));
 
+        CommonExecutorService commonExecutorService = new CommonExecutorService();
         environment.jersey().register(new WebCalculatorResource(webCalculatorManager));
-        environment.jersey().register(new RouletteResource());
-        environment.jersey().register(new MMindResource());
+        environment.jersey().register(new RouletteResource(commonExecutorService));
+        environment.jersey().register(new MMindResource(commonExecutorService));
 
         registerHealthChecks(configuration, environment);
 

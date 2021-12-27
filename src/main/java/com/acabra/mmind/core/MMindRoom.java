@@ -10,4 +10,5 @@ public class MMindRoom {
     private final Long roomNumber;
     private final MMindGameManager manager;
     private final String password = MMindPasswords.generateRandomPassword(5);
+    private final long expiresAfter;
 }

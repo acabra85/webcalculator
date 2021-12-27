@@ -5,10 +5,12 @@ import com.acabra.calculator.response.MessageResponse;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.roulette.RouletteManager;
 import com.acabra.roulette.request.RouletteRequestDTO;
+import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.server.ManagedAsync;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -21,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/roulette")
 @Produces(MediaType.APPLICATION_JSON)
-public class RouletteResource implements AppResource, AutoCloseable {
+public class RouletteResource implements AppResource {
 
     private static final Logger logger = Logger.getLogger(RouletteResource.class);
 
@@ -31,18 +33,16 @@ public class RouletteResource implements AppResource, AutoCloseable {
     private static final String UTF8_ENC = "UTF-8";
     private static final int MAX_CONCURRENT_SESSIONS = 50;
     private static final long EXPIRE_TIMEOUT = 1800000L; // 30 minutes
-    private AtomicLong counter = new AtomicLong();
-    private SecureRandom secureRandom = new SecureRandom();
-    private Map<Long, RouletteManager> rouletteManagerMap = new ConcurrentHashMap<>();
-    private ScheduledExecutorService ex;
+    private final AtomicLong counter = new AtomicLong();
+    private final SecureRandom secureRandom = new SecureRandom();
+    private final Map<Long, RouletteManager> rouletteManagerMap = new ConcurrentHashMap<>();
     private final Executor spinDispatcher = Executors.newSingleThreadScheduledExecutor();
 
-    public RouletteResource() {
-        this.ex = Executors.newSingleThreadScheduledExecutor();
+    public RouletteResource(CommonExecutorService ex) {
         ex.scheduleAtFixedRate(() -> {
             logger.info("automatic cleanup of entries");
             cleanUpExpiredSessions(System.currentTimeMillis(), this.rouletteManagerMap);
-        }, 30, 30, TimeUnit.SECONDS);
+        }, 30, 180, TimeUnit.SECONDS);
     }
 
     synchronized private RouletteManager buildNewManager() {
@@ -220,13 +220,5 @@ public class RouletteResource implements AppResource, AutoCloseable {
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "invalid session: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
-    }
-
-
-    @Override
-    public void close() throws Exception {
-        if (!ex.awaitTermination(1, TimeUnit.SECONDS)) {
-            ex.shutdownNow();
-        }
     }
 }
