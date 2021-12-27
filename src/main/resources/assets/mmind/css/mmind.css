@@ -22,3 +22,16 @@
 .status_guess_close {
     color: #fd7e14;
 }
+
+.error_alert {
+    color:red;
+}
+
+.your_move_alert {
+    color:white;
+    background-color: darkgreen;
+}
+
+.info_alert {
+    color: #007bff;
+}

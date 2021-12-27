@@ -1,6 +1,5 @@
 package com.acabra.mmind;
 
-import com.acabra.calculator.integral.IntegralSubRangeSupplier;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.core.MMindHistoryItem;
 import com.acabra.mmind.core.MMindPlayer;
@@ -9,31 +8,29 @@ import com.acabra.mmind.core.Moves;
 import com.acabra.mmind.request.MMindRequestDTO;
 import com.acabra.mmind.response.MMindMoveResponse;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
-public class MMindManager {
+public class MMindGameManager {
 
     private final Map<String, MMindPlayer> players;
     private final Map<String, MMindPlayer> secretHolders;
     private final MMindPlayer host;
     private volatile int currentMove = Moves.NONE;
-    private final Stack<MMindHistoryItem> moves;
+    private final ArrayList<MMindHistoryItem> moves;
 
-    private MMindManager(MMindPlayer host) {
+    private MMindGameManager(MMindPlayer host) {
         this.host = host;
         players = new HashMap<>();
         secretHolders = new HashMap<>();
         players.put(host.getToken(), host);
-        moves = new Stack<>();
+        moves = new ArrayList<>();
     }
 
-    public static MMindManager newGame(MMindPlayer host) {
-        return new MMindManager(host);
+    public static MMindGameManager newGame(MMindPlayer host) {
+        return new MMindGameManager(host);
     }
 
-    public SimpleResponse executeMove(long id, MMindRequestDTO requestDTO) {
+    public SimpleResponse attemptMove(long id, MMindRequestDTO requestDTO) {
         char[] guess = requestDTO.getGuess().toCharArray();
         MMindPlayer secretHolder = secretHolders.get(requestDTO.getToken());
         MMindPlayer guesser = players.get(requestDTO.getToken());
@@ -44,12 +41,21 @@ public class MMindManager {
         } else {
             currentMove = Moves.HOST;
         }
-        moves.push(MMindHistoryItem.builder()
+        moves.add(MMindHistoryItem.builder()
                 .withMoveResult(moveResult)
                 .withPlayerToken(requestDTO.getToken())
                 .build());
+        return MMindMoveResponse.ok(id, isGameOver(), MMindResultMapper.toResultDTO(moveResult));
+    }
 
-        return new MMindMoveResponse(id, false, MMindResultMapper.toResultDTO(moveResult));
+    private boolean isGameOver() {
+        MMindHistoryItem lastMove = moves.get(moves.size()-1);
+        String lastToken = lastMove.getPlayerToken();
+        MMindHistoryItem prevMove = moves.get(moves.size()-2);
+//        if(lastMove) {
+//
+//        }
+        return false;
     }
 
     public boolean awaitingPlayer() {
@@ -71,7 +77,7 @@ public class MMindManager {
         if(currentMove == 0) {
             return false;
         }
-        if(host.getToken().equals(token) && currentMove == 1) {
+        if(currentMove == 1 && host.getToken().equals(token)) {
             return true;
         }
         return currentMove == 2 && token.equals(secretHolders.get(host.getToken()).getToken());

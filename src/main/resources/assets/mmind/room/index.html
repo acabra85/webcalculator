@@ -20,19 +20,19 @@
             <form action="#" id="room_form">
                 <div class="form-group">
                     <label for="room_number">Room:</label>
-                    <input id="room_number" class="form-control" name="room_number" type="text" />
+                    <input id="room_number" class="form-control" name="room_number" type="text" required/>
                 </div>
                 <div class="form-group">
                     <label for="player_name">Name:</label>
-                    <input id="player_name" class="form-control" name="player_name" type="text" />
+                    <input id="player_name" class="form-control" name="player_name" type="text" required/>
                 </div>
                 <div class="form-group">
                     <label for="secret_code">Secret:</label>
-                    <input id="secret_code" class="form-control" name="secret_code" minlength="4" maxlength="4" type="text" />
+                    <input id="secret_code" class="form-control" name="secret_code" minlength="4" maxlength="4" type="text" required/>
                 </div>
                 <div class="form-group">
                     <label for="pwd">Password:</label>
-                    <input id="pwd" class="form-control" name="pwd" type="password" />
+                    <input id="pwd" class="form-control" name="pwd" type="password" required/>
                 </div>
                 <button type="submit" id="btn_join" class="">Join Room</button>
             </form>

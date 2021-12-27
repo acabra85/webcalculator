@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class MMindResource implements AppResource, AutoCloseable {
 
     private static final Logger logger = Logger.getLogger(MMindResource.class);
-    private final MMindRoomManager roomManager = MMindRoomManager.of();
+    private final MMindRoomsAdministrator roomsAdmin = MMindRoomsAdministrator.of();
     private final AtomicLong idGen = new AtomicLong();
 
     @Override
@@ -41,12 +41,15 @@ public class MMindResource implements AppResource, AutoCloseable {
     @ManagedAsync
     @Path("/submit")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void guessNumber(@Suspended final AsyncResponse asyncResponse, MMindRequestDTO mMindRequestDTO) {
+    public void guessNumber(@Suspended final AsyncResponse asyncResponse, MMindRequestDTO request) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                MMindManager mMindManager = roomManager.findRoom(mMindRequestDTO).getManager();
-                return getResponse(Response.Status.OK, "guess submitted",
-                        mMindManager.executeMove(this.idGen.incrementAndGet(), mMindRequestDTO));
+                MMindGameManager manager = roomsAdmin.findRoomManager(request);
+                if(manager.hasMove(request.getToken())) {
+                    return getResponse(Response.Status.OK, "guess submitted",
+                            manager.attemptMove(this.idGen.incrementAndGet(), request));
+                }
+                throw new UnsupportedOperationException("Not your turn");
             } catch (Exception e) {
                 logger.error(e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(), null);
@@ -62,7 +65,7 @@ public class MMindResource implements AppResource, AutoCloseable {
     public void authenticate(@Suspended final AsyncResponse asyncResponse, MMindJoinRoomRequestDTO request) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                MMindAuthResponse authResponse = roomManager.authenticate(request);
+                MMindAuthResponse authResponse = roomsAdmin.authenticate(request);
                 return getResponse(Response.Status.OK, "guess submitted",
                         MMindJoinRoomResponse.builder()
                                 .withId(idGen.incrementAndGet())
@@ -89,7 +92,7 @@ public class MMindResource implements AppResource, AutoCloseable {
                           @QueryParam("token") String token, @QueryParam("room") long roomNumber) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return getResponse(Response.Status.OK, "room status", roomManager.getStatus(idGen.incrementAndGet(),
+                return getResponse(Response.Status.OK, "room status", roomsAdmin.getStatus(idGen.incrementAndGet(),
                         token, roomNumber));
             } catch (Exception e) {
                 logger.error(e);

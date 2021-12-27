@@ -12,20 +12,20 @@ import com.acabra.mmind.response.MMindStatusResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class MMindRoomManager {
+public class MMindRoomsAdministrator {
     private static final String ADM_PWD = System.getenv("admpwd");
     public static final Base64.Decoder B64_DEC = Base64.getDecoder();
     private final Map<Long, MMindRoom> rooms;
     private final Map<String, Long> auth;
 
 
-    private MMindRoomManager() {
+    private MMindRoomsAdministrator() {
         this.rooms = new HashMap<>();
         this.auth = new HashMap<>();
     }
 
-    public static MMindRoomManager of() {
-        return new MMindRoomManager();
+    public static MMindRoomsAdministrator of() {
+        return new MMindRoomsAdministrator();
     }
 
     public synchronized MMindAuthResponse authenticate(MMindJoinRoomRequestDTO joinRoomRequest) {
@@ -39,7 +39,7 @@ public class MMindRoomManager {
                 MMindPlayer player = new MMindPlayer(joinRoomRequest.getPlayerName(), joinRoomRequest.getSecret(), token);
                 MMindRoom room = MMindRoom.builder()
                         .withRoomNumber(roomNumber)
-                        .withManager(MMindManager.newGame(player))
+                        .withManager(MMindGameManager.newGame(player))
                         .build();
                 rooms.put(room.getRoomNumber(), room);
                 return MMindAuthResponse.builder()
@@ -51,7 +51,7 @@ public class MMindRoomManager {
             }
             throw new NoSuchElementException("Unable to locate given room: " + roomNumber);
         }
-        MMindManager manager = mMindRoom.getManager();
+        MMindGameManager manager = mMindRoom.getManager();
         String password = decode(joinRoomRequest.getPassword());
         if(admin) {
             return MMindAuthResponse.builder()
@@ -84,12 +84,12 @@ public class MMindRoomManager {
         return ADM_PWD.equals(decode(joinRoomRequest.getPassword()));
     }
 
-    public MMindRoom findRoom(MMindRequestDTO req) {
+    public MMindGameManager findRoomManager(MMindRequestDTO req) {
         Long rNumber = auth.get(req.getToken());
         if(rNumber != req.getRoomNumber()) {
             throw new UnsupportedOperationException("Unable to attend call for given room: " + req.getRoomNumber());
         }
-        return rooms.get(rNumber);
+        return rooms.get(rNumber).getManager();
     }
 
     public MMindStatusResponse getStatus(long id, String token, long roomNumber) {
@@ -97,7 +97,7 @@ public class MMindRoomManager {
         if(rNumber == null || rNumber != roomNumber) {
             throw new UnsupportedOperationException("Unable to attend call for given room: " + roomNumber);
         }
-        MMindManager manager = rooms.get(roomNumber).getManager();
+        MMindGameManager manager = rooms.get(roomNumber).getManager();
         boolean makeMove = manager.hasMove(token);
         MMindMoveResultDTO lastMove = makeMove ? MMindResultMapper.toResultDTO(manager.getLastMove()) : null;
         return MMindStatusResponse.builder()
