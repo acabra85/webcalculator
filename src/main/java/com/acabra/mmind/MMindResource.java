@@ -8,9 +8,11 @@ import com.acabra.mmind.response.MMindAuthResponse;
 import com.acabra.mmind.response.MMindJoinRoomResponse;
 import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
+import lombok.NonNull;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.server.ManagedAsync;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
@@ -33,7 +35,7 @@ public class MMindResource implements AppResource {
         executorService.scheduleAtFixedRate(() -> {
             logger.info("automatic room cleanup");
             roomsAdmin.clean();
-        }, 15, 3, TimeUnit.MINUTES);
+        }, 15, 30, TimeUnit.MINUTES);
     }
 
     @Override
@@ -70,17 +72,8 @@ public class MMindResource implements AppResource {
     public void authenticate(@Suspended final AsyncResponse asyncResponse, MMindJoinRoomRequestDTO request) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                MMindAuthResponse authResponse = roomsAdmin.authenticate(request);
                 return getResponse(Response.Status.OK, "guess submitted",
-                        MMindJoinRoomResponse.builder()
-                                .withId(idGen.incrementAndGet())
-                                .withFailure(false)
-                                .withToken(authResponse.getToken())
-                                .withAction(authResponse.getAction().toString())
-                                .withRoomPassword(authResponse.getRoomPassword())
-                                .withRoomNumber(authResponse.getRoomNumber())
-                                .withUserName(request.getPlayerName())
-                                .build());
+                        roomsAdmin.getAuthenticateResponse(idGen.incrementAndGet(), request));
             } catch (Exception e) {
                 logger.error(e);
                 e.printStackTrace();
@@ -99,6 +92,22 @@ public class MMindResource implements AppResource {
             try {
                 return getResponse(Response.Status.OK, "room status", roomsAdmin.getStatus(idGen.incrementAndGet(),
                         token, roomNumber));
+            } catch (Exception e) {
+                logger.error(e);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
+            }
+        }).thenApply(asyncResponse::resume);
+    }
+
+    @GET
+    @Timed
+    @ManagedAsync
+    @Path("/admin")
+    public void viewSystemStats(@Suspended final AsyncResponse asyncResponse, @NonNull @QueryParam("token") String token) {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return getResponse(Response.Status.OK, "room status",
+                        roomsAdmin.reviewSystemStatus(idGen.incrementAndGet(), token));
             } catch (Exception e) {
                 logger.error(e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);

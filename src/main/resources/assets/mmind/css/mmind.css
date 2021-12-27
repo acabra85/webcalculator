@@ -2,17 +2,20 @@
     width: 100%;
 }
 
+#room_info {
+}
+
 #login_room {
-    height: 80%;
+    height: 100%;
 }
 
 #opponent_moves {
     float: right;
-    width: 50%;
+    width: 40%;
 }
 #user_moves {
     float: left;
-    width: 50%;
+    width: 60%;
 }
 
 .status_guess_winner {
@@ -32,6 +35,31 @@
     background-color: darkgreen;
 }
 
+.winner_cell {
+    color: white;
+    background-color: #2b542c;
+}
+
 .info_alert {
     color: #007bff;
+}
+
+.index_column {
+    background-color: #d0cece;
+    color: #4e8ccc;
+    text-align: center;
+}
+
+#admin_stats_table th td {
+    font-size: 8px;
+}
+
+#user_table th td {
+    font-size: 11px;
+}
+
+#game_result {
+    background-color: #56008b;
+    color: #20e1bd;
+    text-align: center;
 }

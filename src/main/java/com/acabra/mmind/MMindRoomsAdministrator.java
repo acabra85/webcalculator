@@ -6,17 +6,18 @@ import com.acabra.mmind.core.MMindPlayer;
 import com.acabra.mmind.core.MMindRoom;
 import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import com.acabra.mmind.request.MMindRequestDTO;
-import com.acabra.mmind.response.MMindAuthResponse;
-import com.acabra.mmind.response.MMindMoveResultDTO;
-import com.acabra.mmind.response.MMindStatusResponse;
+import com.acabra.mmind.response.*;
+import com.acabra.mmind.utils.B64Helper;
+import com.acabra.mmind.utils.TimeDateHelper;
+import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class MMindRoomsAdministrator {
     private static final String ADM_PWD = System.getenv("admpwd");
-    public static final Base64.Decoder B64_DEC = Base64.getDecoder();
     private final Map<Long, MMindRoom> rooms;
     private final Map<String, MMindTokenInfo> auth;
 
@@ -26,39 +27,11 @@ public class MMindRoomsAdministrator {
         this.auth = new HashMap<>();
     }
 
-    public static MMindRoomsAdministrator of() {
-        return new MMindRoomsAdministrator();
-    }
-
-    public synchronized MMindAuthResponse authenticate(MMindJoinRoomRequestDTO request) {
-        long roomNumber = request.getRoomNumber();
-        MMindRoom room = rooms.get(roomNumber);
-        boolean admin = isAdmin(request);
-        if(null == room) {
-            if(admin) {
-                return createRoomAsAdmin(request, roomNumber);
-            }
-            throw new NoSuchElementException("Unable to locate given room: " + roomNumber);
-        }
-        String password = decode(request.getPassword());
-        if(admin) {
-            return MMindAuthResponse.builder()
-                    .withToken(room.getManager().retrieveHostToken())
-                    .withRoomPassword(password)
-                    .withRoomNumber(room.getRoomNumber())
-                    .withAction(AuthAction.NONE)
-                    .build();
-        }
-        if(room.getManager().awaitingGuest() && password.equals(room.getPassword())) {
-            return joinRoomAsGuest(request, room, password);
-        }
-        throw new UnsupportedOperationException("Room is full");
-    }
-
     private MMindAuthResponse joinRoomAsGuest(MMindJoinRoomRequestDTO request, MMindRoom room, String password) {
         String token = UUID.randomUUID().toString();
         MMindPlayer player = new MMindPlayer(request.getPlayerName(), request.getSecret(), token);
         auth.put(token, MMindTokenInfo.builder()
+                        .withAdminToken(false)
                         .withRoomNumber(room.getRoomNumber())
                         .withToken(token)
                         .withExpiresAfter(newTokenExpiration())
@@ -73,13 +46,15 @@ public class MMindRoomsAdministrator {
     }
 
     private long newTokenExpiration() {
-        return System.currentTimeMillis() + TimeUnit.MINUTES.convert(30, TimeUnit.MILLISECONDS);
+        return System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30);
     }
 
     private MMindAuthResponse createRoomAsAdmin(MMindJoinRoomRequestDTO joinRoomRequest, long roomNumber) {
         String token = UUID.randomUUID().toString();
         long expiresAfter = newTokenExpiration();
+        logger.info("--->>> Created room {} expires after:{}" , roomNumber, TimeDateHelper.fromEpoch(expiresAfter));
         auth.put(token, MMindTokenInfo.builder()
+                .withAdminToken(true)
                 .withRoomNumber(roomNumber)
                 .withToken(token)
                 .withExpiresAfter(expiresAfter)
@@ -99,15 +74,55 @@ public class MMindRoomsAdministrator {
                 .build();
     }
 
-    private String decode(String encodedString) {
-        return new String(B64_DEC.decode(encodedString), StandardCharsets.UTF_8);
+    private boolean isAdminPassword(String password) {
+        return ADM_PWD.equals(B64Helper.decode(password));
     }
 
-    private boolean isAdmin(MMindJoinRoomRequestDTO joinRoomRequest) {
-        return ADM_PWD.equals(decode(joinRoomRequest.getPassword()));
+    private boolean isAdminToken(String token) {
+        MMindTokenInfo tokenInfo = auth.get(token);
+        return tokenInfo != null && tokenInfo.isAdminToken();
     }
 
-    public MMindGameManager findRoomManager(MMindRequestDTO req) {
+    public static MMindRoomsAdministrator of() {
+        return new MMindRoomsAdministrator();
+    }
+
+    private MMindAuthResponse authenticate(MMindJoinRoomRequestDTO request) {
+        long roomNumber = request.getRoomNumber();
+        MMindRoom room = rooms.get(roomNumber);
+        boolean admin = isAdminPassword(request.getPassword());
+        if(null == room) {
+            if(admin) {
+                return createRoomAsAdmin(request, roomNumber);
+            }
+            throw new NoSuchElementException("Unable to locate given room: " + roomNumber);
+        }
+        String password = B64Helper.decode(request.getPassword());
+        if(admin) {
+            return MMindAuthResponse.builder()
+                    .withToken(room.getManager().retrieveHostToken())
+                    .withRoomPassword(password)
+                    .withRoomNumber(room.getRoomNumber())
+                    .withAction(AuthAction.NONE)
+                    .build();
+        }
+        if(password.equals(room.getPassword())) {
+            if((room.getManager().awaitingGuest())) {
+                return joinRoomAsGuest(request, room, password);
+            } else if(room.getManager().isCurrentGuest(request)) {
+                return MMindAuthResponse.builder()
+                        .withToken(request.getToken())
+                        .withRoomPassword(password)
+                        .withRoomNumber(room.getRoomNumber())
+                        .withAction(AuthAction.NONE)
+                        .build();
+            }
+            throw new UnsupportedOperationException("Room is full");
+        }
+        throw new UnsupportedOperationException("Invalid Room Password!");
+    }
+
+    public synchronized MMindGameManager findRoomManager(MMindRequestDTO req) {
         MMindTokenInfo tokenInfo = auth.get(req.getToken());
         if(tokenInfo == null || tokenInfo.getRoomNumber() != req.getRoomNumber()) {
             throw new UnsupportedOperationException("Unable to attend call for given room: " + req.getRoomNumber());
@@ -115,24 +130,61 @@ public class MMindRoomsAdministrator {
         return rooms.get(req.getRoomNumber()).getManager();
     }
 
-    public MMindStatusResponse getStatus(long id, String token, long roomNumber) {
+    public synchronized MMindStatusResponse getStatus(long id, String token, long roomNumber) {
         MMindTokenInfo tokenInfo = auth.get(token);
         if(tokenInfo == null || tokenInfo.getRoomNumber() != roomNumber) {
             throw new UnsupportedOperationException("Unable to attend call for given room: " + roomNumber);
         }
         MMindGameManager manager = rooms.get(roomNumber).getManager();
-        boolean makeMove = manager.hasMove(token);
-        MMindMoveResultDTO lastMove = makeMove ? MMindResultMapper.toResultDTO(manager.getLastMove()) : null;
-        return MMindStatusResponse.builder()
+        boolean isGameOver = manager.isGameOver();
+        boolean makeMove = !isGameOver && manager.hasMove(token);
+        MMindMoveResultDTO lastMove = isGameOver || makeMove ?
+                MMindResultMapper.toResultDTO(manager.getLastMove()) : null;
+        final MMindStatusResponse.MMindStatusResponseBuilder responseBuilder = MMindStatusResponse.builder()
                 .withFailure(false)
                 .withId(id)
                 .withMakeMove(makeMove)
-                .withLastMove(lastMove)
+                .withGameOver(isGameOver)
+                .withLastMove(lastMove);
+        if(isGameOver) {
+            responseBuilder.withResult(manager.provideEndResult());
+        }
+        return responseBuilder
                 .build();
     }
 
-    public void clean() {
+    public synchronized void clean() {
         long now = System.currentTimeMillis();
-        long expiredEntries = now - TimeUnit.MINUTES.convert(30, TimeUnit.MILLISECONDS);
+        List<String> expiredTokens = auth.values().stream()
+                .filter(tokenInfo -> tokenInfo.getExpiresAfter() >= now)
+                .map(MMindTokenInfo::getToken)
+                .collect(Collectors.toList());
+        expiredTokens.forEach(auth::remove);
+        List<Long> expiredRooms = rooms.values().stream()
+                .filter(room -> room.getExpiresAfter() >= now)
+                .map(MMindRoom::getRoomNumber)
+                .collect(Collectors.toList());
+        expiredRooms.forEach(rooms::remove);
+        logger.info("Cleanup Report Rooms:{} Tokens:{}", expiredRooms.size(), expiredTokens.size());
+    }
+
+    public synchronized MMindSystemStatusResponse reviewSystemStatus(long id, String token) {
+        if(isAdminToken(token)) {
+            return MMindResultMapper.toSystemStatusResponse(id, new ArrayList<>(rooms.values()), auth);
+        }
+        throw new UnsupportedOperationException("Unauthorized: Unable to perform request");
+    }
+
+    public synchronized MMindJoinRoomResponse getAuthenticateResponse(long id, MMindJoinRoomRequestDTO request) {
+        final MMindAuthResponse authResponse = authenticate(request);
+        return MMindJoinRoomResponse.builder()
+                .withId(id)
+                .withFailure(false)
+                .withToken(authResponse.getToken())
+                .withAction(authResponse.getAction().toString())
+                .withRoomPassword(B64Helper.encode(authResponse.getRoomPassword()))
+                .withRoomNumber(authResponse.getRoomNumber())
+                .withUserName(request.getPlayerName())
+                .build();
     }
 }

@@ -4,7 +4,7 @@ let Room = (function () {
 
     let joinRoom = function (result, secret) {
         $('#room_number_label').html(result.roomNumber);
-        $('#room_pwd_label').html(result.roomPassword);
+        $('#room_pwd_label').html(atob(result.roomPassword));
         $('#user_name_label').html(result.userName);
         $('#login_room').hide();
         $('#room_info').show();
@@ -12,9 +12,9 @@ let Room = (function () {
         $('#game_room').show();
         window.localStorage.setItem('ownsecret', secret);
         if("JOIN_ADMIN" === result.action) {
-            console.log('admin joined');
+            window.localStorage.setItem('is_admin', 'true');
         } else if("JOIN_GUEST" === result.action) {
-            console.log('guest joined');
+            console.log("Joined as guest!");
         }
     };
 
@@ -33,7 +33,8 @@ let Room = (function () {
                 playerName: name,
                 password: strPwd,
                 secret: secret,
-                roomNumber: roomNumber
+                roomNumber: roomNumber,
+                token: window.localStorage.getItem('sessid') ? window.localStorage.getItem('sessid') : null
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -59,6 +60,15 @@ let Room = (function () {
 })();
 
 $(document).ready(function () {
+    function cleanLocalStorage() {
+        let cacheKeys = ['sessid', 'room_number', 'ownsecret', 'is_admin'];
+        cacheKeys.forEach(function(key) {
+            window.localStorage.setItem(key, null);
+        });
+    }
     console.log('ready');
+
+
+    cleanLocalStorage();
     $('#room_form').submit(Room.join);
 })

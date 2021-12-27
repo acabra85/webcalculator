@@ -1,6 +1,7 @@
 package com.acabra.mmind.core;
 
 import com.acabra.mmind.MMindGameManager;
+import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -10,37 +10,40 @@
         <script src="../js/provider/jquery.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
         <div id="general_information" style="display: none;"></div>
-        <div id="guess_section">
-            <form action="#" id="mmind_form">
-                <label for="guess_value">Guess:</label>
-                <input id="guess_value" name="guess_value" minlength="4" maxlength="4" type="text" />
-                <button type="submit" id="btn_guess" disabled="disabled">Guess</button>
-            </form>
-        </div>
-        <div id="history_section">
-            <div id="opponent_moves">
-                <table id="opponent_table" class="table">
+        <div id="admin_section" style="display: none">
+            <button id="get_stats_button" type="button" class="btn btn-info btn-sm">Get Stats</button>
+            <div id="admin_stats" style="display: none">
+                <table id="admin_stats_table" class="table">
                     <thead>
-                    <tr>
-                        <th colspan="6" style="text-align: center">
-                            <span id="opponent_username" style="color: blue">[Opponent]</span>
-                        </th>
-                    </tr>
-                    <tr id="opponent_number_guess">
-                    </tr>
-                    <tr>
-                        <th>#</th>
-                        <th>-</th>
-                        <th>-</th>
-                        <th>-</th>
-                        <th>-</th>
-                        <th>Result</th>
-                    </tr>
+                        <tr>
+                            <th>Room #</th>
+                            <th>Expiration</th>
+                            <th>Host Token</th>
+                            <th>Guest Token</th>
+                        </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
+        </div>
+        <div id="guess_section">
+            <form action="#" id="mmind_form" class="form-inline">
+                <label class="sr-only" for="guess_value">Guess</label>
+                <div class="input-group mb-2 mr-sm-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">Guess</div>
+                    </div>
+                    <input id="guess_value" type="text" class="form-control"
+                           name="guess_value" minlength="4" maxlength="4"
+                           placeholder="XXXX" required/>
+                    <button id="btn_guess" type="submit" class="btn btn-primary">Guess</button>
+                </div>
+            </form>
+        </div>
+        <div id="game_result" style="display: none;">
+            <h1><span id="game_result_winner"></span></h1>
+        </div>
+        <div id="history_section">
             <div id="user_moves">
                 <table id="user_table" class="table">
                     <thead>
@@ -58,7 +61,28 @@
                             <th>&nbsp</th>
                         </tr>
                         <tr>
-                            <th>#</th>
+                            <th class="index_column">#</th>
+                            <th>-</th>
+                            <th>-</th>
+                            <th>-</th>
+                            <th>-</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div id="opponent_moves">
+                <table id="opponent_table" class="table">
+                    <thead>
+                        <tr>
+                            <th colspan="5" style="text-align: center">
+                                <span id="opponent_username" style="color: blue">[Opponent]</span>
+                            </th>
+                        </tr>
+                        <tr id="opponent_number_guess"></tr>
+                        <tr>
                             <th>-</th>
                             <th>-</th>
                             <th>-</th>

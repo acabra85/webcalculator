@@ -39,24 +39,30 @@ let Main = (function () {
             return fixes === 4 ? 'status_guess_winner' : spikes === 4 || fixes === 3 ? 'status_guess_close' : '';
         }
 
-        function appendHistory(tableBodySelector, moveResult) {
-            let node = $(document.createElement('tr'));
+        function appendHistory(tableBodySelector, moveResult, includeIndex) {
+            let node = $('<tr>');
             let guess = moveResult.guess;
-            let index_column = $('<th>');
-            index_column.html(moveResult.index);
-            node.append(index_column)
+            if(includeIndex) {
+                let index_column = $('<th>');
+                index_column.html(moveResult.index);
+                index_column.addClass('index_column');
+                node.append(index_column)
+            }
+            let isWinner = moveResult.fixes === 4;
             for (let i = 0; i < guess.length; ++i) {
-                let column = $(document.createElement('th'));
+                let column = $('<td>');
+                if(isWinner) {
+                    column.addClass('winner_cell');
+                }
                 column.html(guess.charAt(i));
                 node.append(column);
             }
-            let resultColumn = $(document.createElement('th'));
-            let fixesNode = $(document.createElement('span'));
-            fixesNode.html('F:' + moveResult.fixes);
+            let resultColumn = $('<td>');
+            let fixesNode = $('<span>');
+            fixesNode.html('<b>F:</b>' + moveResult.fixes + '&nbsp;');
             resultColumn.append(fixesNode);
-
-            let spikesNode = $(document.createElement('span'));
-            spikesNode.html('P: ' + moveResult.spikes);
+            let spikesNode = $('<span>');
+            spikesNode.html('<b>P:</b>' + moveResult.spikes);
             resultColumn.append(spikesNode);
 
             node.addClass(addColorGuess(moveResult.fixes, moveResult.spikes));
@@ -66,17 +72,52 @@ let Main = (function () {
 
         let updateUserHistory = function (move) {
             console.log('updating view');
-            appendHistory('#user_table tbody', move);
+            appendHistory('#user_table tbody', move, true);
         };
 
         let updateOpponentsMove = function (move) {
             console.log('update opponent\'s move');
-            appendHistory('#opponent_table tbody', move);
+            appendHistory('#opponent_table tbody', move, false);
         };
 
+        let drawTokenInformation = function (tokenInfo) {
+            let tokenInfoColumn = $('<td>');
+            let tokenInfoElm = $('<ul>');
+            tokenInfoElm.append($('<li>').html(tokenInfo.token));
+            tokenInfoElm.append($('<li>').html(tokenInfo.expiresAfter));
+            tokenInfoColumn.append(tokenInfoElm);
+            return tokenInfoColumn;
+        }
+
+        let drawSystemInfoTable = function (rooms) {
+            if(rooms && rooms.length > 0) {
+                let adminStats = $('#admin_stats');
+
+                let tableBody = $('#admin_stats_table tbody');
+                tableBody.html('');
+                rooms.forEach(function (room) {
+                    let row = $('<tr>');
+
+                    let columnNumber = $('<td>');
+                    columnNumber.html(room.number);
+                    row.append(columnNumber);
+
+                    let roomExpiresAfterColumn = $('<td>');
+                    roomExpiresAfterColumn.html(room.expiresAfter);
+                    row.append(roomExpiresAfterColumn)
+
+                    row.append(drawTokenInformation(room.hostToken));
+                    row.append(drawTokenInformation(room.guestToken));
+
+                    tableBody.append(row);
+                });
+                adminStats.show();
+            }
+        };
         return {
             updateUserHistory: updateUserHistory,
-            updateOpponentsMove: updateOpponentsMove
+            updateOpponentsMove: updateOpponentsMove,
+            drawSystemInfoTable: drawSystemInfoTable
         };
     }
 
@@ -104,6 +145,12 @@ let Main = (function () {
                 div.removeClass();
             });
         };
+        function buildTextResult(result) {
+            if(result === 'Tie') {
+                return 'Kudos for Both Players!! this is a TIE'
+            }
+            return 'Congratulations to the winner [' + result + '] !!!'
+        }
         return {
             showError: function (msg, durationMillis) {
                 showInfo(msg, durationMillis, ERROR);
@@ -111,6 +158,10 @@ let Main = (function () {
             yourMove: function () {
                 beep();
                 showInfo('Your Turn!!!', 3000, YOUR_MOVE);
+            },
+            gameOver: function (result) {
+                $('#game_result_winner').html(buildTextResult(result))
+                $('#game_result').show();
             }
         };
     };
@@ -122,23 +173,38 @@ let Main = (function () {
     let timeoutVar = null;
 
     function retrieveStatus() {
+        function drawLastMove(statusResponse) {
+            if (statusResponse.lastMove) {
+                if (statusResponse.lastMove.playerName) {
+                    $('#opponent_username').html(statusResponse.lastMove.playerName + '\'s Moves');
+                }
+                renderer.updateOpponentsMove(statusResponse.lastMove);
+            }
+        }
+
         $.get(encodeURI('/api/mmind/status?token=' + token + '&room='+ roomNumberStr))
             .done(function (statusResponse) {
-                if(statusResponse.makeMove) {
-                    if(statusResponse.lastMove) {
-                        if(statusResponse.lastMove.playerName) {
-                            $('#opponent_username').html(statusResponse.lastMove.playerName + '\'s Moves');
-                        }
-                        renderer.updateOpponentsMove(statusResponse.lastMove);
-                    }
-                    $('#btn_guess').prop('disabled', false);
-                    alerts.yourMove();
+                if(statusResponse.gameOver) {
                     stopFunction();
+                    drawLastMove(statusResponse);
+                    alerts.gameOver(statusResponse.result);
+                    let guessBtn = $('#btn_guess');
+                    guessBtn.removeClass();
+                    guessBtn.prop('disabled', true);
+                    return;
+                }
+                if(statusResponse.makeMove) {
+                    stopFunction();
+                    drawLastMove(statusResponse);
+                    let guessBtn = $('#btn_guess');
+                    guessBtn.addClass("btn btn-primary");
+                    guessBtn.prop('disabled', false);
+                    alerts.yourMove();
                 }
             })
             .fail(function (failedResponse) {
                 alerts.showError('failed to retrieve status: ' + failedResponse);
-                window.location.replace('room/index.html');
+                window.location.href('room/index.html');
             })
             .always(function () {
                 console.log('retrieved status');
@@ -159,6 +225,7 @@ let Main = (function () {
             let guessBtn = $("#btn_guess");
             let guessVal = $('#guess_value');
             guessBtn.prop('disabled', true);
+            guessBtn.removeClass();
             if (guessVal.val() && guessVal.val().trim().length > 0) {
                 let num = parseInt(guessVal.val());
                 if (num >= 0 && num <= 9999) {
@@ -181,29 +248,54 @@ let Main = (function () {
 
     return {
         sendNumber: sendNumber,
-        cycleRefresh: cycleRefresh
+        cycleRefresh: cycleRefresh,
+        updateSystemStats: function (resp) {
+            if(!resp.failure) {
+                renderer.drawSystemInfoTable(resp.rooms);
+            }
+        }
     };
 })();
 
 $(document).ready(function () {
-    if (!token) {
-        window.alert('SORRY: we\'re unable to connect to the server please refresh the page...')
-        window.location.replace("room/index.html");
-        return;
-    }
-    $('#mmind_form').submit(Main.sendNumber);
-
     function addRowOwnNumber() {
         let item = localStorage.getItem('ownsecret');
         let targetRow = $('#opponent_number_guess');
-        let index_col = $('<th>');
-        targetRow.append(index_col);
         for (let i = 0; i < item.length; ++i) {
             let child = $('<th>');
             child.html(item.charAt(i));
             targetRow.append(child);
         }
     }
+
+    function isAdmin() {
+        return window.localStorage.getItem('is_admin') === 'true';
+    }
+
+    if (!token) {
+        window.alert('SORRY: we\'re unable to connect to the server please refresh the page...')
+        window.location.href("room/index.html");
+        return;
+    }
+
+
+    if(isAdmin()) {
+        $('#admin_section').show();
+        $('#get_stats_button').click(function() {
+
+            let adminStatsElm = $('#admin_stats');
+            if(adminStatsElm.is(':hidden')) {
+                $.get(encodeURI('/api/mmind/admin?token=' + token))
+                    .done(function (resp) {
+                        Main.updateSystemStats(resp)
+                    });
+            } else {
+                adminStatsElm.hide();
+            }
+        });
+    }
+
+    $('#mmind_form').submit(Main.sendNumber);
     addRowOwnNumber();
     console.log('JOINEDDDDD!!!!');
     Main.cycleRefresh();
