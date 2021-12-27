@@ -47,7 +47,7 @@ public class MMindResultMapper {
 
     private static MMindSystemStatusRoomDTO toMMindSystemRoomDTO(Map<String, MMindTokenInfo> tokens, MMindRoom room) {
         final String hostToken = room.getManager().retrieveHostToken();
-        final String guestToken = room.getManager().retrieveHostToken();
+        final String guestToken = room.getManager().retrieveGuestToken();
         return MMindSystemStatusRoomDTO.builder()
                 .withHostToken(
                     MMindTokenInfoDTO.builder()

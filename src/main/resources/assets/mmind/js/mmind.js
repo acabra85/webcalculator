@@ -203,8 +203,7 @@ let Main = (function () {
                 }
             })
             .fail(function (failedResponse) {
-                alerts.showError('failed to retrieve status: ' + failedResponse);
-                window.location.href('room/index.html');
+                alerts.showError('failed to retrieve status: ' + failedResponse.statusText + ' please refresh (press F5) the page!');
             })
             .always(function () {
                 console.log('retrieved status');
@@ -273,8 +272,7 @@ $(document).ready(function () {
     }
 
     if (!token) {
-        window.alert('SORRY: we\'re unable to connect to the server please refresh the page...')
-        window.location.href("room/index.html");
+        window.alert('SORRY: we\'re unable to connect to the server please refresh the page...');
         return;
     }
 

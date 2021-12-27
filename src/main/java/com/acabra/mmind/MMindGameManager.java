@@ -118,4 +118,8 @@ public class MMindGameManager {
         }
         return null;
     }
+
+    public String retrieveGuestToken() {
+        return secretHolders.get(host.getToken()).getToken();
+    }
 }
