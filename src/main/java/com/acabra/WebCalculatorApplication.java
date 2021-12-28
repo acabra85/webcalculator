@@ -12,7 +12,6 @@ import com.acabra.roulette.resource.RouletteResource;
 import com.acabra.shared.CommonExecutorService;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
-import io.dropwizard.java8.Java8Bundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -69,8 +68,6 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
 
     @Override
     public void initialize(Bootstrap<WebCalculatorConfiguration> bootstrap) {
-        bootstrap.addBundle(new Java8Bundle());
-
         provideResolutionForStaticAssets(bootstrap);
     }
 

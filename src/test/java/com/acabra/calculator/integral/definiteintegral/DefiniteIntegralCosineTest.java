@@ -2,7 +2,7 @@ package com.acabra.calculator.integral.definiteintegral;
 
 import java.util.Optional;
 import org.junit.Assert;
-import org.junit.Test;
+
 
 /**
  * Describe your class

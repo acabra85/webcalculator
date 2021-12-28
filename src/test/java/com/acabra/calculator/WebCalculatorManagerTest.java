@@ -34,9 +34,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckReturnValue;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+
+
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -88,7 +88,7 @@ public class WebCalculatorManagerTest {
     private Calculator calculatorMock;
     private WebCalculatorRenderer rendererMock;
 
-    @Before
+    @BeforeEach
     public void prepare() throws Exception {
         this.calculatorMock = PowerMockito.mock(Calculator.class);
         this.rendererMock = PowerMockito.mock(WebCalculatorRendererHTML.class);

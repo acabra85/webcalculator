@@ -1,28 +1,22 @@
 package com.acabra.calculator.domain;
 
 import com.acabra.calculator.response.CalculationResponse;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Agustin on 10/8/2016.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({CalculationResponse.class, CalculationHistoryRecord.class})
-@PowerMockIgnore(value = {"javax.management.*"})
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class CalculationHistoryRecordTest {
 
-    private static long WAIT_LENGTH = 100L;
+    private static final long WAIT_LENGTH = 100L;
 
     private CalculationResponse calculationResponseMock;
 
@@ -34,16 +28,16 @@ public class CalculationHistoryRecordTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void prepare() {
-        this.calculationResponseMock = PowerMockito.mock(CalculationResponse.class);
+        this.calculationResponseMock = Mockito.mock(CalculationResponse.class);
     }
 
     @Test
     public void validateObjectCreationProvidesLastUsedDatesAfterTest() {
         CalculationHistoryRecord calculationHistoryRecord = new CalculationHistoryRecord(calculationResponseMock);
         waitExecution();
-        assertTrue(LocalDateTime.now().isAfter(calculationHistoryRecord.getLastUsed()));
+        Assertions.assertThat(LocalDateTime.now().isAfter(calculationHistoryRecord.getLastUsed())).isTrue();
     }
 
     @Test
@@ -52,16 +46,16 @@ public class CalculationHistoryRecordTest {
         LocalDateTime creationTime = calculationHistoryRecord.getLastUsed();
 
         waitExecution();
-        assertEquals(1, calculationHistoryRecord.getCalculationHistory().size());
+        Assertions.assertThat(calculationHistoryRecord.getCalculationHistory().size()).isEqualTo(1);
         waitExecution();
 
         LocalDateTime latestUsed = calculationHistoryRecord.getLastUsed();
-        assertTrue(creationTime.isBefore(latestUsed));
-        assertTrue(LocalDateTime.now().isAfter(latestUsed));
+         Assertions.assertThat(creationTime.isBefore(latestUsed)).isTrue();
+         Assertions.assertThat(LocalDateTime.now().isAfter(latestUsed)).isTrue();
     }
 
     @Test
-    public void validateListAppendUpdatesLastUsedTest() throws InterruptedException {
+    public void validateListAppendUpdatesLastUsedTest() {
 
         CalculationHistoryRecord calculationHistoryRecord = new CalculationHistoryRecord(calculationResponseMock);
         LocalDateTime creationTime = calculationHistoryRecord.getLastUsed();
@@ -71,8 +65,8 @@ public class CalculationHistoryRecordTest {
         waitExecution();
 
         LocalDateTime latestUsed = calculationHistoryRecord.getLastUsed();
-        assertTrue(creationTime.isBefore(latestUsed));
-        assertTrue(LocalDateTime.now().isAfter(latestUsed));
+        Assertions.assertThat(creationTime.isBefore(latestUsed)).isTrue();
+        Assertions.assertThat(LocalDateTime.now().isAfter(latestUsed)).isTrue();
     }
 
 }

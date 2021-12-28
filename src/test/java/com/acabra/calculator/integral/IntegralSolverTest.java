@@ -7,8 +7,8 @@ import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralInverse;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.util.WebCalculatorConstants;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;

@@ -6,7 +6,7 @@ import com.acabra.calculator.util.WebCalculatorConstants;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;

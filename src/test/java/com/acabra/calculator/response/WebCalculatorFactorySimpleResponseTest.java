@@ -1,6 +1,6 @@
 package com.acabra.calculator.response;
 
-import org.junit.Test;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

@@ -8,15 +8,19 @@ import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.JsonHelper;
 import com.acabra.calculator.util.RequestMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.assertj.core.api.Assertions;
 import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.After;
+
+import org.junit.Rule;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
@@ -31,18 +35,15 @@ import java.util.concurrent.CompletableFuture;
 import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+
 /**
  * Created by Agustin on 10/10/2016.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({RequestMapper.class, WebCalculatorManager.class, WebCalculatorResource.class,
-        IntegralSubRangeSupplier.class})
-@PowerMockIgnore(value = {"javax.management.*"})
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class WebCalculatorResourceTest {
 
-    private static final WebCalculatorManager calcManagerMock = PowerMockito.mock(WebCalculatorManager.class);
+    private static final WebCalculatorManager calcManagerMock = Mockito.mock(WebCalculatorManager.class);
 
     private List EMPTY_LIST = Collections.emptyList();
     private static final String TOKEN = "TOKEN";
@@ -61,7 +62,7 @@ public class WebCalculatorResourceTest {
             .addResource(new WebCalculatorResource(calcManagerMock))
             .build();
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         Mockito.reset(calcManagerMock);
     }
@@ -110,8 +111,10 @@ public class WebCalculatorResourceTest {
     public void resolveIntegralTest() {
         integralRequestDTOStub = JsonHelper.fromJsonString(fixture("stubs/integralRequestDTO.json"), IntegralRequestDTO.class).orElse(null);
 
-        PowerMockito.mockStatic(RequestMapper.class);
-        PowerMockito.when(RequestMapper.fromInternalRequest(anyObject())).thenReturn(integralRequestStub);
+        try(MockedStatic<RequestMapper> mocked = mockStatic(RequestMapper.class)) {
+            mocked.when(() -> RequestMapper.fromInternalRequest(Mockito.any())).thenReturn(integralRequestStub);
+
+        }
 
         when(calcManagerMock.processIntegralCalculation(anyObject(), anyString())).thenReturn(integralFutureStub);
 

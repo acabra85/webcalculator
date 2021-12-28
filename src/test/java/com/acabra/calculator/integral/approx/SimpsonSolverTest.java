@@ -3,7 +3,7 @@ package com.acabra.calculator.integral.approx;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.util.WebCalculatorConstants;
-import org.junit.Test;
+
 
 import java.util.Collections;
 import java.util.List;

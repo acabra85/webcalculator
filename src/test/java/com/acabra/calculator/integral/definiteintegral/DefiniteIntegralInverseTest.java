@@ -3,7 +3,7 @@ package com.acabra.calculator.integral.definiteintegral;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
 /**

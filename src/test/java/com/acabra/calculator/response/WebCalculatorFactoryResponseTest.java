@@ -2,8 +2,8 @@ package com.acabra.calculator.response;
 
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.util.WebCalculatorConstants;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;

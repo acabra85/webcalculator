@@ -3,8 +3,8 @@ package com.acabra.calculator.view;
 import com.acabra.calculator.response.CalculationResponse;
 import com.acabra.calculator.response.IntegralCalculationResponse;
 import com.acabra.calculator.util.ResultFormatter;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;

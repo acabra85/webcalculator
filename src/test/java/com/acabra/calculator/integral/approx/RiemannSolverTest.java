@@ -5,7 +5,7 @@ import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralPolynomia
 import com.acabra.calculator.integral.definiteintegral.IntegrableFunctionType;
 import com.acabra.calculator.util.WebCalculatorConstants;
 import org.junit.Ignore;
-import org.junit.Test;
+
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -4,7 +4,7 @@ import com.acabra.calculator.function.CosineFunction;
 import com.acabra.calculator.function.PolynomialFunction;
 import com.acabra.calculator.function.RealFunction;
 import com.acabra.calculator.util.WebCalculatorConstants;
-import org.junit.Test;
+
 
 import java.util.Arrays;
 import java.util.List;

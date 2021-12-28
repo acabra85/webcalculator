@@ -1,7 +1,7 @@
 package com.acabra.calculator.integral;
 
 import com.acabra.calculator.util.WebCalculatorConstants;
-import org.junit.Test;
+
 
 import java.util.NoSuchElementException;
 

@@ -3,7 +3,7 @@ package com.acabra.calculator.integral.definiteintegral;
 import com.acabra.calculator.integral.Interval;
 import com.acabra.calculator.integral.definiteintegral.FunctionDomain;
 import com.acabra.calculator.integral.definiteintegral.FunctionDomainFactory;
-import org.junit.Test;
+
 
 import java.util.Arrays;
 import java.util.InputMismatchException;

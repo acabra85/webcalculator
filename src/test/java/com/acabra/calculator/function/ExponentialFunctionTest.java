@@ -1,7 +1,7 @@
 package com.acabra.calculator.function;
 
 import com.acabra.calculator.util.WebCalculatorConstants;
-import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
 /**
