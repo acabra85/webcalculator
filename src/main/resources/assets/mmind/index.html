@@ -10,36 +10,33 @@
     <body>
         <script src="../js/provider/jquery.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
-        <div id="general_information" style="display: none;"></div>
-        <div id="admin_section" style="display: none">
-            <button id="get_stats_button" type="button" class="btn btn-info btn-sm">Get Stats</button>
-            <div id="admin_stats" style="display: none">
-                <table id="admin_stats_table" class="table">
-                    <thead>
-                        <tr>
-                            <th>Room #</th>
-                            <th>Expiration</th>
-                            <th>Host Token</th>
-                            <th>Guest Token</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+        <div id="general_information" style="display: none; text-align: center">
+            <h3><span id="general_information_msg"></span></h3>
         </div>
-        <div id="guess_section">
-            <form action="#" id="mmind_form" class="form-inline">
-                <label class="sr-only" for="guess_value">Guess</label>
-                <div class="input-group mb-2 mr-sm-2">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">Guess</div>
+        <div id="admin_stats" style="display: none" class="round_edges">
+            <table id="admin_stats_table" class="table">
+                <thead><tr><th>Room #</th><th>Expiration</th><th>Host Token</th><th>Guest Token</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="guess_section" class="round_edges">
+            <div style="float: left; width: 65%">
+                <form action="#" id="mmind_form" class="form-inline">
+                    <label class="sr-only" for="guess_value">Guess</label>
+                    <div class="input-group mb-2 mr-sm-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">Guess</div>
+                        </div>
+                        <input id="guess_value" type="text" class="form-control"
+                               name="guess_value" minlength="4" maxlength="4"
+                               placeholder="XXXX" required/>
+                        <input id="btn_guess" value="Guess" type="submit" class="" disabled="disabled"/>
                     </div>
-                    <input id="guess_value" type="text" class="form-control"
-                           name="guess_value" minlength="4" maxlength="4"
-                           placeholder="XXXX" required/>
-                    <input id="btn_guess" value="Guess" type="submit" class="" disabled="disabled"/>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div id="admin_section" style="display: none">
+                <button id="get_stats_button" type="button" class="btn btn-info btn-sm">Get Stats</button>
+            </div>
         </div>
         <div id="restart_section" style="display: none">
             <form action="#" id="mmind_restart_form" class="form-inline">
@@ -56,15 +53,15 @@
             </form>
         </div>
         <div id="game_result" style="display: none;">
-            <h1><span id="game_result_winner"></span></h1>
+            <h1><span id="game_result_label"></span></h1>
         </div>
-        <div id="history_section">
+        <div id="history_section" class="round_edges">
             <div id="user_moves">
                 <table id="user_table" class="table">
                     <thead>
                         <tr>
                             <th colspan="6" style="text-align: center">
-                                <span>Your Moves</span>
+                                <span>Your moves</span>
                             </th>
                         </tr>
                         <tr id="user_number_guess">

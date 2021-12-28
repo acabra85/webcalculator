@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.acabra.mmind.auth.MMindTokenInfo.TOKEN_LEN;
+
 public class MMindResultMapper {
     public static MMindMoveResultDTO toResultDTO(MMmindMoveResult moveResult) {
         if(null == moveResult) {
@@ -47,20 +49,20 @@ public class MMindResultMapper {
         final String hostToken = room.getManager().retrieveHostToken();
         final String guestToken = room.getManager().retrieveGuestToken();
         return MMindSystemStatusRoomDTO.builder()
-                .withHostToken(
-                    MMindTokenInfoDTO.builder()
-                        .withToken(hostToken)
-                        .withExpiresAfter(TimeDateHelper.asStringFromEpoch(tokens.get(hostToken).getExpiresAfter()))
-                        .build()
-                )
-                .withGuestToken(
-                    MMindTokenInfoDTO.builder()
-                        .withToken(guestToken)
-                        .withExpiresAfter(TimeDateHelper.asStringFromEpoch(tokens.get(guestToken).getExpiresAfter()))
-                        .build()
-                )
+                .withHostToken(toTokenDTO(tokens, hostToken))
+                .withGuestToken(toTokenDTO(tokens, guestToken))
                 .withExpiresAfter(TimeDateHelper.asStringFromEpoch(room.getExpiresAfter()))
                 .withNumber(room.getRoomNumber())
+                .build();
+    }
+
+    private static MMindTokenInfoDTO toTokenDTO(Map<String, MMindTokenInfo> tokens, String token) {
+        if(token == null || token.length() != TOKEN_LEN) {
+            return null;
+        }
+        return MMindTokenInfoDTO.builder()
+                .withToken(token)
+                .withExpiresAfter(TimeDateHelper.asStringFromEpoch(tokens.get(token).getExpiresAfter()))
                 .build();
     }
 }

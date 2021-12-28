@@ -1,14 +1,12 @@
 package com.acabra.mmind.core;
 
-import com.google.common.io.CharStreams;
-
 import java.util.Locale;
 import java.util.Random;
 
 public class MMindPasswords {
 
-    private static final String ALPHA_BET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final char[] SET = (ALPHA_BET + ALPHA_BET.toLowerCase(Locale.ENGLISH) + "$#@!").toCharArray();
+    private static final String ALPHA_BET = "ABCDEFGHJKMNPQRSTUVWXYZ";
+    private static final char[] SET = (ALPHA_BET + ALPHA_BET.toLowerCase(Locale.ENGLISH) + "oiL012345678$#@=").toCharArray();
     private static final int setLen = SET.length;
 
     public static String generateRandomPassword(int passwordLen) {

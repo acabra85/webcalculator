@@ -1,8 +1,12 @@
 #game_room {
-    width: 100%;
+    height: 100%;
 }
 
 #room_info {
+    border-radius: 25px;
+    background-color: #d0cece;
+    color: #4e8ccc;
+    text-align: center;
 }
 
 #login_room {
@@ -19,11 +23,13 @@
 }
 
 .status_guess_winner {
-    color: #1c7430;
+    color: white;
+    background-color: #1a9d1d;
 }
 
 .status_guess_close {
-    color: #fd7e14;
+    background-color: #fd7e14;
+    color: white;
 }
 
 .error_alert {
@@ -33,11 +39,6 @@
 .your_move_alert {
     color:white;
     background-color: darkgreen;
-}
-
-.winner_cell {
-    color: white;
-    background-color: #2b542c;
 }
 
 .info_alert {
@@ -54,6 +55,13 @@
     font-size: 8px;
 }
 
+#admin_section {
+    display: none;
+    float: right;
+    width: 35%;
+    padding: 3px;
+}
+
 #user_table th td {
     font-size: 11px;
 }
@@ -62,4 +70,38 @@
     background-color: #56008b;
     color: #20e1bd;
     text-align: center;
+}
+
+.round_edges {
+    border-radius: 25px;
+    padding: 3px;
+}
+
+.float_center {
+    width: 98%;
+    padding: 5px;
+}
+
+.game_room_content_cls {
+    border-radius: 25px;
+    flex: 1;
+    height: 100%;
+    width: 100%;
+}
+
+#full_window_content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+html, body{
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.expand_down {
+    flex: 1;
+
 }

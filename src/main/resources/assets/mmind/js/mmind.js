@@ -50,16 +50,15 @@ let Main = (function () {
                 index_column.addClass('index_column');
                 node.append(index_column)
             }
-            let isWinner = moveResult.fixes === 4;
+            let colorGuess = addColorGuess(moveResult.fixes, moveResult.spikes);
             for (let i = 0; i < guess.length; ++i) {
                 let column = $('<td>');
-                if(isWinner) {
-                    column.addClass('winner_cell');
-                }
+                column.addClass(colorGuess);
                 column.html(guess.charAt(i));
                 node.append(column);
             }
             let resultColumn = $('<td>');
+            resultColumn.addClass(colorGuess);
             let fixesNode = $('<span>');
             fixesNode.html('<b>F:</b>' + moveResult.fixes + '&nbsp;');
             resultColumn.append(fixesNode);
@@ -67,7 +66,6 @@ let Main = (function () {
             spikesNode.html('<b>P:</b>' + moveResult.spikes);
             resultColumn.append(spikesNode);
 
-            node.addClass(addColorGuess(moveResult.fixes, moveResult.spikes));
             node.append(resultColumn);
             $(tableBodySelector).append(node);
         }
@@ -83,6 +81,7 @@ let Main = (function () {
         };
 
         let drawTokenInformation = function (tokenInfo) {
+            if (!tokenInfo) return '';
             let tokenInfoColumn = $('<td>');
             let tokenInfoElm = $('<ul>');
             tokenInfoElm.append($('<li>').html(tokenInfo.token));
@@ -120,7 +119,7 @@ let Main = (function () {
             if(!opponentName) return;
             let opponentLabelElm = $('#opponent_username');
             if('[Opponent]' === opponentLabelElm.html()) {
-                opponentLabelElm.html(opponentName + '\'s Moves');
+                opponentLabelElm.html(opponentName + '\'s moves');
             }
         };
         return {
@@ -130,7 +129,7 @@ let Main = (function () {
             renderOpponentName: renderOpponentName,
             cleanWinnerBanner: function () {
                 $('#game_result').fadeOut(1500);
-                $('#game_result_winner').html('');
+                $('#game_result_label').html('');
             },
             cleanMoves: function () {
                 $('#user_table tbody').html('');
@@ -155,7 +154,7 @@ let Main = (function () {
 
         let showInfo = function (msg, durMillis, type) {
             let div = $("#general_information");
-            div.html(msg);
+            $('#general_information_msg').html(msg);
             div.addClass(CLS_MSG_TYPES[type]);
             div.show();
             div.fadeTo(durMillis, opacity).slideUp(animationLength, function () {
@@ -165,7 +164,7 @@ let Main = (function () {
         };
         function buildTextResult(result) {
             if(result === 'Tie') {
-                return 'Kudos for Both Players!! this is a TIE'
+                return 'Kudos Players, this was a TIE!!!'
             }
             return 'Congratulations to the winner [' + result + '] !!!'
         }
@@ -178,7 +177,7 @@ let Main = (function () {
                 showInfo('Your Turn!!!', 3000, YOUR_MOVE);
             },
             gameOver: function (result) {
-                $('#game_result_winner').html(buildTextResult(result))
+                $('#game_result_label').html(buildTextResult(result))
                 $('#game_result').show();
             }
         };
@@ -190,45 +189,50 @@ let Main = (function () {
 
     let timeoutVar = null;
 
-    function retrieveStatus() {
-        function drawLastMove(statusResponse) {
-            const lastConsumedEventIdKey = 'lastConsumedEventId';
-            let lastConsumedEventId = parseInt(!window.localStorage.getItem(lastConsumedEventIdKey)
-                ? '-1' : window.localStorage.getItem(lastConsumedEventIdKey), 10);
-            let lastMove = statusResponse.lastMove;
-            if (lastMove && lastMove.id > lastConsumedEventId) {
-                window.localStorage.setItem(lastConsumedEventIdKey, lastMove.id);
-                if(lastMove.isOwnMove) {
-                    renderer.updateUserHistory(lastMove);
-                } else {
-                    renderer.updateOpponentsMove(lastMove);
-                }
+    function drawLastMove(statusResponse) {
+        const lastConsumedEventIdKey = 'lastConsumedEventId';
+        let lastConsumedEventId = parseInt(!window.localStorage.getItem(lastConsumedEventIdKey)
+            ? '-1' : window.localStorage.getItem(lastConsumedEventIdKey), 10);
+        let lastMove = statusResponse.lastMove;
+        if (lastMove && lastMove.id > lastConsumedEventId) {
+            window.localStorage.setItem(lastConsumedEventIdKey, lastMove.id);
+            if(lastMove.isOwnMove) {
+                renderer.updateUserHistory(lastMove);
+            } else {
+                renderer.updateOpponentsMove(lastMove);
             }
         }
+    }
 
+    function executeGameOverEvent(statusResponse) {
+        stopFunction();
+        drawLastMove(statusResponse);
+        alerts.gameOver(statusResponse.result);
+        let guessBtn = $('#btn_guess');
+        guessBtn.removeClass();
+        guessBtn.prop('disabled', true);
+        let guessSectionElm = $('#guess_section');
+        guessSectionElm.hide();
+        $('#restart_section').show();
+    }
+
+    function executeMakeMoveEvent(statusResponse) {
+        stopFunction();
+        drawLastMove(statusResponse);
+        renderer.renderOpponentName(statusResponse.opponentName);
+        let guessBtn = $('#btn_guess');
+        guessBtn.addClass("btn btn-primary");
+        guessBtn.prop('disabled', false);
+        alerts.yourMove();
+    }
+
+    function retrieveStatus() {
         $.get(encodeURI('/api/mmind/status?token=' + token + '&room='+ roomNumberStr))
             .done(function (statusResponse) {
-                if(statusResponse.gameOver) {
-                    stopFunction();
-                    drawLastMove(statusResponse);
-                    alerts.gameOver(statusResponse.result);
-                    let guessBtn = $('#btn_guess');
-                    guessBtn.removeClass();
-                    guessBtn.prop('disabled', true);
-                    let guessSectionElm = $('#guess_section');
-                    guessSectionElm.hide();
-                    let restartSectionElm = $('#restart_section');
-                    restartSectionElm.show();
-                    return;
-                }
-                if(statusResponse.makeMove) {
-                    stopFunction();
-                    drawLastMove(statusResponse);
-                    renderer.renderOpponentName(statusResponse.opponentName);
-                    let guessBtn = $('#btn_guess');
-                    guessBtn.addClass("btn btn-primary");
-                    guessBtn.prop('disabled', false);
-                    alerts.yourMove();
+                if('GAME_OVER_EVT' === statusResponse.eventType) {
+                    executeGameOverEvent(statusResponse);
+                } else if('MAKE_MOVE_EVT' === statusResponse.eventType) {
+                    executeMakeMoveEvent(statusResponse);
                 }
             })
             .fail(function (failedResponse) {
@@ -239,14 +243,15 @@ let Main = (function () {
             });
     }
 
-    function stopFunction(){
-        clearTimeout(timeoutVar);
-    }
-
     let cycleRefresh = function () {
         retrieveStatus();
         timeoutVar = setTimeout(cycleRefresh, 1300);
     };
+
+    function stopFunction(){
+        clearTimeout(timeoutVar);
+    }
+
     let sendNumber = function (evt) {
         evt.preventDefault();
         if (token != null) {
@@ -302,6 +307,7 @@ let Main = (function () {
             }
         }).done(function(res){
             console.log('cos_tam');
+            cycleRefresh();
         }).fail(function (failedResponse){
             alerts.showError('unable to restart: ' + failedResponse.statusText);
         })
@@ -356,7 +362,7 @@ $(document).ready(function () {
     }
 
     $('#mmind_form').submit(Main.sendNumber);
-    $('#btn_restart').click(Main.restart);
+    $('#mmind_restart_form').submit(Main.restart);
     addRowOwnNumber();
     console.log('JOINED!!');
     Main.cycleRefresh();

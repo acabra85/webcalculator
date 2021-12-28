@@ -1,9 +1,6 @@
 package com.acabra.mmind;
 
-import com.acabra.mmind.core.MMindHistoryItem;
-import com.acabra.mmind.core.MMindPlayer;
-import com.acabra.mmind.core.MMmindMoveResult;
-import com.acabra.mmind.core.Moves;
+import com.acabra.mmind.core.*;
 import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import com.acabra.mmind.request.MMindRequestDTO;
 import com.acabra.mmind.response.MMindMoveResponse;
@@ -108,27 +105,33 @@ public class MMindGameManager {
     }
 
     public String provideEndResult() {
-        if(moves.size() < 2) {
-            throw new IllegalStateException("Unable to provide a result for a game in progress");
-        }
-        MMmindMoveResult p1MoveResult = moves.get(moves.size()-1).getMoveResult();
-        MMmindMoveResult p2MoveResult = moves.get(moves.size()-2).getMoveResult();
-        if(isGameOver(p1MoveResult, p2MoveResult)) {
-            int res = Integer.compare(p1MoveResult.getFixes(), p2MoveResult.getFixes());
-            if(res == 0) {
-                return "Tie";
+        if(isGameOver()) {
+            MMmindMoveResult p1MoveResult = moves.get(moves.size()-1).getMoveResult();
+            MMmindMoveResult p2MoveResult = moves.get(moves.size()-2).getMoveResult();
+            if(isGameOver(p1MoveResult, p2MoveResult)) {
+                int res = Integer.compare(p1MoveResult.getFixes(), p2MoveResult.getFixes());
+                if(res == 0) {
+                    return "Tie";
+                }
+                return res < 0 ? p2MoveResult.getPlayerName() : p1MoveResult.getPlayerName();
             }
-            return res < 0 ? p2MoveResult.getPlayerName() : p1MoveResult.getPlayerName();
         }
         return null;
     }
 
     public String retrieveGuestToken() {
+        if(players.size() < 2) return null;
         return secretHolders.get(host.getToken()).getToken();
     }
 
     public String getOpponentsName(String token) {
         MMindPlayer player = secretHolders.get(token);
         return player != null ? player.getName() : null;
+    }
+
+    public MMindStatusEventType calculateEventType(String token) {
+        if(isGameOver()) return MMindStatusEventType.GAME_OVER_EVT;
+        if(hasMove(token)) return MMindStatusEventType.MAKE_MOVE_EVT;
+        return MMindStatusEventType.AWAIT_RESTART_EVT;
     }
 }

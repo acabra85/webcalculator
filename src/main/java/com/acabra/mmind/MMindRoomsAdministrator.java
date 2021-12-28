@@ -2,10 +2,7 @@ package com.acabra.mmind;
 
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.auth.MMindTokenInfo;
-import com.acabra.mmind.core.AuthAction;
-import com.acabra.mmind.core.MMindHistoryItem;
-import com.acabra.mmind.core.MMindPlayer;
-import com.acabra.mmind.core.MMindRoom;
+import com.acabra.mmind.core.*;
 import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import com.acabra.mmind.request.MMindRequestDTO;
 import com.acabra.mmind.request.MMindRestartRequest;
@@ -139,23 +136,18 @@ public class MMindRoomsAdministrator {
             throw new UnsupportedOperationException("Unable to attend call for given room: " + roomNumber);
         }
         MMindGameManager manager = rooms.get(roomNumber).getManager();
-        boolean isGameOver = manager.isGameOver();
-        boolean makeMove = !isGameOver && manager.hasMove(token);
         MMindHistoryItem lastHistoryItem = manager.getLastHistoryItem();
-        MMindMoveResultDTO lastMove = lastHistoryItem!= null ?
+        MMindStatusEventType eventType = manager.calculateEventType(token);
+        MMindMoveResultDTO lastMove = lastHistoryItem != null ?
                 MMindResultMapper.toResultDTO(lastHistoryItem.getMoveResult()) : null;
-        final MMindStatusResponse.MMindStatusResponseBuilder responseBuilder = MMindStatusResponse.builder()
-                .withFailure(false)
+        return MMindStatusResponse.builder()
                 .withId(id)
-                .withMakeMove(makeMove)
-                .withGameOver(isGameOver)
+                .withFailure(false)
+                .withEventType(eventType.toString())
                 .withLastMove(lastMove)
                 .withOpponentName(manager.getOpponentsName(token))
-                .withIsOwnMove(lastHistoryItem != null ? token.equals(lastHistoryItem.getPlayerToken()) : null);
-        if(isGameOver) {
-            responseBuilder.withResult(manager.provideEndResult());
-        }
-        return responseBuilder
+                .withIsOwnMove(lastHistoryItem != null ? token.equals(lastHistoryItem.getPlayerToken()) : null)
+                .withResult(MMindStatusEventType.GAME_OVER_EVT == eventType ? manager.provideEndResult() : null)
                 .build();
     }
 
@@ -195,7 +187,6 @@ public class MMindRoomsAdministrator {
     }
 
     public synchronized SimpleResponse processRestartRequest(long id, MMindRestartRequest req) {
-
         return null;
     }
 }
