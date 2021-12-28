@@ -2,6 +2,7 @@
 
 let token = !localStorage.getItem('sessid') ? null : localStorage.getItem('sessid');
 let roomNumberStr = localStorage.getItem('room_number');
+const SECRET_LENGTH = 4;
 
 let Main = (function () {
     function MMind() {
@@ -21,6 +22,7 @@ let Main = (function () {
                 }).done(function (res) {
                     if (!res.failure) {
                         renderer.updateUserHistory(res.moveResult);
+                        window.localStorage.setItem('lastConsumedEventId', res.moveResult.id);
                         q.resolve(res);
                     } else {
                         q.resolve();
@@ -114,10 +116,26 @@ let Main = (function () {
                 adminStats.show();
             }
         };
+        let renderOpponentName = function (opponentName) {
+            if(!opponentName) return;
+            let opponentLabelElm = $('#opponent_username');
+            if('[Opponent]' === opponentLabelElm.html()) {
+                opponentLabelElm.html(opponentName + '\'s Moves');
+            }
+        };
         return {
             updateUserHistory: updateUserHistory,
             updateOpponentsMove: updateOpponentsMove,
-            drawSystemInfoTable: drawSystemInfoTable
+            drawSystemInfoTable: drawSystemInfoTable,
+            renderOpponentName: renderOpponentName,
+            cleanWinnerBanner: function () {
+                $('#game_result').fadeOut(1500);
+                $('#game_result_winner').html('');
+            },
+            cleanMoves: function () {
+                $('#user_table tbody').html('');
+                $('#opponent_table tbody').html('');
+            }
         };
     }
 
@@ -174,11 +192,17 @@ let Main = (function () {
 
     function retrieveStatus() {
         function drawLastMove(statusResponse) {
-            if (statusResponse.lastMove) {
-                if (statusResponse.lastMove.playerName) {
-                    $('#opponent_username').html(statusResponse.lastMove.playerName + '\'s Moves');
+            const lastConsumedEventIdKey = 'lastConsumedEventId';
+            let lastConsumedEventId = parseInt(!window.localStorage.getItem(lastConsumedEventIdKey)
+                ? '-1' : window.localStorage.getItem(lastConsumedEventIdKey), 10);
+            let lastMove = statusResponse.lastMove;
+            if (lastMove && lastMove.id > lastConsumedEventId) {
+                window.localStorage.setItem(lastConsumedEventIdKey, lastMove.id);
+                if(lastMove.isOwnMove) {
+                    renderer.updateUserHistory(lastMove);
+                } else {
+                    renderer.updateOpponentsMove(lastMove);
                 }
-                renderer.updateOpponentsMove(statusResponse.lastMove);
             }
         }
 
@@ -191,11 +215,16 @@ let Main = (function () {
                     let guessBtn = $('#btn_guess');
                     guessBtn.removeClass();
                     guessBtn.prop('disabled', true);
+                    let guessSectionElm = $('#guess_section');
+                    guessSectionElm.hide();
+                    let restartSectionElm = $('#restart_section');
+                    restartSectionElm.show();
                     return;
                 }
                 if(statusResponse.makeMove) {
                     stopFunction();
                     drawLastMove(statusResponse);
+                    renderer.renderOpponentName(statusResponse.opponentName);
                     let guessBtn = $('#btn_guess');
                     guessBtn.addClass("btn btn-primary");
                     guessBtn.prop('disabled', false);
@@ -216,7 +245,7 @@ let Main = (function () {
 
     let cycleRefresh = function () {
         retrieveStatus();
-        timeoutVar = setTimeout(cycleRefresh, 1000);
+        timeoutVar = setTimeout(cycleRefresh, 1300);
     };
     let sendNumber = function (evt) {
         evt.preventDefault();
@@ -245,6 +274,39 @@ let Main = (function () {
         }
     };
 
+    let restart = function (evt) {
+        evt.preventDefault();
+        const SECRET_KEY = 'ownsecret';
+        const LAST_CONSUMED_EVT_ID = 'lastConsumedEventId';
+
+        renderer.cleanWinnerBanner();
+        renderer.cleanMoves();
+        let newSecretValue = $('#new_secret_value').val();
+        if(newSecretValue.length !== SECRET_LENGTH || parseInt(newSecretValue,10) > 9999) {
+            alerts.showError('Invalid New Secret')
+            return;
+        }
+        window.localStorage.setItem(SECRET_KEY, newSecretValue);
+        window.localStorage.removeItem(LAST_CONSUMED_EVT_ID);
+
+        $.ajax({
+            url : '/api/mmind/restart',
+            type: 'POST',
+            dataType : "json",
+            data:  JSON.stringify({
+                token: token,
+                secret: newSecretValue
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).done(function(res){
+            console.log('cos_tam');
+        }).fail(function (failedResponse){
+            alerts.showError('unable to restart: ' + failedResponse.statusText);
+        })
+
+    };
     return {
         sendNumber: sendNumber,
         cycleRefresh: cycleRefresh,
@@ -252,7 +314,8 @@ let Main = (function () {
             if(!resp.failure) {
                 renderer.drawSystemInfoTable(resp.rooms);
             }
-        }
+        },
+        restart: restart
     };
 })();
 
@@ -280,7 +343,6 @@ $(document).ready(function () {
     if(isAdmin()) {
         $('#admin_section').show();
         $('#get_stats_button').click(function() {
-
             let adminStatsElm = $('#admin_stats');
             if(adminStatsElm.is(':hidden')) {
                 $.get(encodeURI('/api/mmind/admin?token=' + token))
@@ -294,7 +356,8 @@ $(document).ready(function () {
     }
 
     $('#mmind_form').submit(Main.sendNumber);
+    $('#btn_restart').click(Main.restart);
     addRowOwnNumber();
-    console.log('JOINEDDDDD!!!!');
+    console.log('JOINED!!');
     Main.cycleRefresh();
 });

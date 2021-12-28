@@ -1,11 +1,14 @@
 package com.acabra.mmind;
 
+import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.auth.MMindTokenInfo;
 import com.acabra.mmind.core.AuthAction;
+import com.acabra.mmind.core.MMindHistoryItem;
 import com.acabra.mmind.core.MMindPlayer;
 import com.acabra.mmind.core.MMindRoom;
 import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import com.acabra.mmind.request.MMindRequestDTO;
+import com.acabra.mmind.request.MMindRestartRequest;
 import com.acabra.mmind.response.*;
 import com.acabra.mmind.utils.B64Helper;
 import com.acabra.mmind.utils.TimeDateHelper;
@@ -138,14 +141,17 @@ public class MMindRoomsAdministrator {
         MMindGameManager manager = rooms.get(roomNumber).getManager();
         boolean isGameOver = manager.isGameOver();
         boolean makeMove = !isGameOver && manager.hasMove(token);
-        MMindMoveResultDTO lastMove = isGameOver || makeMove ?
-                MMindResultMapper.toResultDTO(manager.getLastMove()) : null;
+        MMindHistoryItem lastHistoryItem = manager.getLastHistoryItem();
+        MMindMoveResultDTO lastMove = lastHistoryItem!= null ?
+                MMindResultMapper.toResultDTO(lastHistoryItem.getMoveResult()) : null;
         final MMindStatusResponse.MMindStatusResponseBuilder responseBuilder = MMindStatusResponse.builder()
                 .withFailure(false)
                 .withId(id)
                 .withMakeMove(makeMove)
                 .withGameOver(isGameOver)
-                .withLastMove(lastMove);
+                .withLastMove(lastMove)
+                .withOpponentName(manager.getOpponentsName(token))
+                .withIsOwnMove(lastHistoryItem != null ? token.equals(lastHistoryItem.getPlayerToken()) : null);
         if(isGameOver) {
             responseBuilder.withResult(manager.provideEndResult());
         }
@@ -186,5 +192,10 @@ public class MMindRoomsAdministrator {
                 .withRoomNumber(authResponse.getRoomNumber())
                 .withUserName(request.getPlayerName())
                 .build();
+    }
+
+    public synchronized SimpleResponse processRestartRequest(long id, MMindRestartRequest req) {
+
+        return null;
     }
 }

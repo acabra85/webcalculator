@@ -12,16 +12,13 @@ public class MMmindMoveResult {
     Integer fixes;
     @NonNull
     Integer spikes;
-    @NonNull
-    char[] guess;
 
+    char[] guess;
     int index;
     String playerName;
+    private long id;
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
-    }
-    public void setIndex(int index) {
-        this.index = index;
     }
 }

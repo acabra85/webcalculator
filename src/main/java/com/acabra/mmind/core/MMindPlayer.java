@@ -3,8 +3,6 @@ package com.acabra.mmind.core;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
@@ -21,7 +19,7 @@ public class MMindPlayer {
         this.movesCounter = new AtomicInteger(1);
     }
 
-    public MMmindMoveResult respond(int index, char[] guess) {
+    public MMmindMoveResult respond(long moveId, int index, char[] guess) {
         ArrayList<Character> sGuess = new ArrayList<>();
         ArrayList<Character> sSecret = new ArrayList<>();
         int fixes = 0;
@@ -41,6 +39,7 @@ public class MMindPlayer {
             }
         }
         return MMmindMoveResult.builder()
+                .withId(moveId)
                 .withIndex(index)
                 .withFixes(fixes)
                 .withSpikes(spikes)

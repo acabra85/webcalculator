@@ -9,9 +9,6 @@ import com.acabra.mmind.response.MMindSystemStatusRoomDTO;
 import com.acabra.mmind.response.MMindTokenInfoDTO;
 import com.acabra.mmind.utils.TimeDateHelper;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,6 +19,7 @@ public class MMindResultMapper {
             return null;
         }
         return MMindMoveResultDTO.builder()
+                .withId(moveResult.getId())
                 .withIndex(moveResult.getIndex())
                 .withFixes(moveResult.getFixes())
                 .withSpikes(moveResult.getSpikes())

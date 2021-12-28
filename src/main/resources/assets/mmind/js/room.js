@@ -61,9 +61,9 @@ let Room = (function () {
 
 $(document).ready(function () {
     function cleanLocalStorage() {
-        let cacheKeys = ['sessid', 'room_number', 'ownsecret', 'is_admin'];
+        let cacheKeys = ['sessid', 'room_number', 'ownsecret', 'is_admin', 'lastConsumedEventId'];
         cacheKeys.forEach(function(key) {
-            window.localStorage.setItem(key, null);
+            window.localStorage.removeItem(key);
         });
     }
     console.log('ready');

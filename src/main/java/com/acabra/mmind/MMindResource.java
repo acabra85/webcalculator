@@ -2,18 +2,16 @@ package com.acabra.mmind;
 
 import com.acabra.calculator.resources.AppResource;
 import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.mmind.auth.MMindRequestValidator;
 import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import com.acabra.mmind.request.MMindRequestDTO;
-import com.acabra.mmind.response.MMindAuthResponse;
-import com.acabra.mmind.response.MMindJoinRoomResponse;
+import com.acabra.mmind.request.MMindRestartRequest;
 import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
 import lombok.NonNull;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.server.ManagedAsync;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -51,6 +49,7 @@ public class MMindResource implements AppResource {
     public void guessNumber(@Suspended final AsyncResponse asyncResponse, MMindRequestDTO request) {
         CompletableFuture.supplyAsync(() -> {
             try {
+                MMindRequestValidator.validateSecret(request.getGuess());
                 MMindGameManager manager = roomsAdmin.findRoomManager(request);
                 if(manager.hasMove(request.getToken())) {
                     return getResponse(Response.Status.OK, "guess submitted",
@@ -72,6 +71,7 @@ public class MMindResource implements AppResource {
     public void authenticate(@Suspended final AsyncResponse asyncResponse, MMindJoinRoomRequestDTO request) {
         CompletableFuture.supplyAsync(() -> {
             try {
+                MMindRequestValidator.validateSecret(request.getSecret());
                 return getResponse(Response.Status.OK, "guess submitted",
                         roomsAdmin.getAuthenticateResponse(idGen.incrementAndGet(), request));
             } catch (Exception e) {
@@ -108,6 +108,23 @@ public class MMindResource implements AppResource {
             try {
                 return getResponse(Response.Status.OK, "room status",
                         roomsAdmin.reviewSystemStatus(idGen.incrementAndGet(), token));
+            } catch (Exception e) {
+                logger.error(e);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
+            }
+        }).thenApply(asyncResponse::resume);
+    }
+
+    @POST
+    @Timed
+    @ManagedAsync
+    @Path("/restart")
+    public void viewSystemStats(@Suspended final AsyncResponse asyncResponse, MMindRestartRequest req) {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                MMindRequestValidator.validateSecret(req.getSecret());
+                return getResponse(Response.Status.OK, "room status",
+                        roomsAdmin.processRestartRequest(idGen.incrementAndGet(), req));
             } catch (Exception e) {
                 logger.error(e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);

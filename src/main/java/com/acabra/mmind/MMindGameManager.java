@@ -1,6 +1,5 @@
 package com.acabra.mmind;
 
-import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.core.MMindHistoryItem;
 import com.acabra.mmind.core.MMindPlayer;
 import com.acabra.mmind.core.MMmindMoveResult;
@@ -8,9 +7,12 @@ import com.acabra.mmind.core.Moves;
 import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import com.acabra.mmind.request.MMindRequestDTO;
 import com.acabra.mmind.response.MMindMoveResponse;
-import com.acabra.mmind.response.MMindTokenInfoDTO;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MMindGameManager {
 
@@ -19,6 +21,7 @@ public class MMindGameManager {
     private final MMindPlayer host;
     private volatile int currentMove = Moves.NONE;
     private final ArrayList<MMindHistoryItem> moves;
+    private final AtomicInteger movesRegistry;
 
     private MMindGameManager(MMindPlayer host) {
         this.host = host;
@@ -26,17 +29,18 @@ public class MMindGameManager {
         secretHolders = new HashMap<>();
         players.put(host.getToken(), host);
         moves = new ArrayList<>();
+        movesRegistry = new AtomicInteger(0);
     }
 
     public static MMindGameManager newGame(MMindPlayer host) {
         return new MMindGameManager(host);
     }
 
-    public SimpleResponse attemptMove(long id, MMindRequestDTO requestDTO) {
+    public MMindMoveResponse attemptMove(long responseId, MMindRequestDTO requestDTO) {
         char[] guess = requestDTO.getGuess().toCharArray();
         MMindPlayer secretHolder = secretHolders.get(requestDTO.getToken());
         MMindPlayer guesser = players.get(requestDTO.getToken());
-        MMmindMoveResult moveResult = secretHolder.respond(guesser.move(), guess);
+        MMmindMoveResult moveResult = secretHolder.respond(movesRegistry.getAndIncrement(), guesser.move(), guess);
         moveResult.setPlayerName(guesser.getName());
         if(host.getToken().equals(requestDTO.getToken())) {
             currentMove = Moves.GUEST;
@@ -47,7 +51,7 @@ public class MMindGameManager {
                 .withMoveResult(moveResult)
                 .withPlayerToken(requestDTO.getToken())
                 .build());
-        return MMindMoveResponse.ok(id, isGameOver(), MMindResultMapper.toResultDTO(moveResult));
+        return MMindMoveResponse.ok(responseId, isGameOver(), MMindResultMapper.toResultDTO(moveResult));
     }
 
     private boolean isGameOver(MMmindMoveResult p1MoveResult, MMmindMoveResult p2MoveResult) {
@@ -87,8 +91,8 @@ public class MMindGameManager {
         return currentMove == 2 && token.equals(getGuest().getToken());
     }
 
-    public MMmindMoveResult getLastMove() {
-        return moves.isEmpty() ? null : moves.get(moves.size() - 1).getMoveResult();
+    public MMindHistoryItem getLastHistoryItem() {
+        return moves.isEmpty() ? null : moves.get(moves.size() - 1);
     }
 
     public boolean isCurrentGuest(MMindJoinRoomRequestDTO requestDTO) {
@@ -121,5 +125,10 @@ public class MMindGameManager {
 
     public String retrieveGuestToken() {
         return secretHolders.get(host.getToken()).getToken();
+    }
+
+    public String getOpponentsName(String token) {
+        MMindPlayer player = secretHolders.get(token);
+        return player != null ? player.getName() : null;
     }
 }

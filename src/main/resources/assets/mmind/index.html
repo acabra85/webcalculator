@@ -37,7 +37,21 @@
                     <input id="guess_value" type="text" class="form-control"
                            name="guess_value" minlength="4" maxlength="4"
                            placeholder="XXXX" required/>
-                    <button id="btn_guess" type="submit" class="" disabled="disabled">Guess</button>
+                    <input id="btn_guess" value="Guess" type="submit" class="" disabled="disabled"/>
+                </div>
+            </form>
+        </div>
+        <div id="restart_section" style="display: none">
+            <form action="#" id="mmind_restart_form" class="form-inline">
+                <label class="sr-only" for="new_secret_value">New Secret</label>
+                <div class="input-group mb-2 mr-sm-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">New Secret</div>
+                    </div>
+                    <input id="new_secret_value" type="text" class="form-control"
+                           name="new_secret_value" minlength="4" maxlength="4"
+                           placeholder="XXXX" required/>
+                    <input id="btn_restart" value="Restart" type="submit" class="btn btn-primary"/>
                 </div>
             </form>
         </div>
