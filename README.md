@@ -28,7 +28,7 @@ square root. Supports expression grouping by () [] {}.
 
 ###Requirements
 
-1. Requires Java ```1.8.0_45``` or higher
+1. Requires Java ```11``` or higher
 2. Browser (IE11, Chrome, IOS Safari, Firefox)
 
 ###Steps
