@@ -14,6 +14,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
@@ -133,7 +134,7 @@ public class WebCalculatorResource implements AppResource{
         CompletableFuture.supplyAsync(() -> {
             try {
                 logger.debug("encoded expression '" + expression + "'");
-                String decodedExpression = URLDecoder.decode(expression, UTF8_ENC);
+                String decodedExpression = URLDecoder.decode(expression, StandardCharsets.UTF_8);
                 logger.debug("decoded expression '" + decodedExpression + "'");
                 return getResponse(Response.Status.OK, "calculation performed", webCalculatorManager.processArithmeticCalculation(decodedExpression, token));
             } catch (Exception e) {

@@ -153,12 +153,12 @@ public class MMindRoomsAdministrator {
     public synchronized void clean() {
         long now = System.currentTimeMillis();
         List<String> expiredTokens = auth.values().stream()
-                .filter(tokenInfo -> tokenInfo.getExpiresAfter() >= now)
+                .filter(tokenInfo -> now > tokenInfo.getExpiresAfter())
                 .map(MMindTokenInfo::getToken)
                 .collect(Collectors.toList());
         expiredTokens.forEach(auth::remove);
         List<Long> expiredRooms = rooms.values().stream()
-                .filter(room -> room.getExpiresAfter() >= now)
+                .filter(room -> now > room.getExpiresAfter())
                 .map(MMindRoom::getRoomNumber)
                 .collect(Collectors.toList());
         expiredRooms.forEach(rooms::remove);

@@ -31,10 +31,11 @@ public class MMindResource implements AppResource {
     private final AtomicLong idGen = new AtomicLong();
 
     public MMindResource(CommonExecutorService executorService) {
+        final int thirtyMinutesAsSeconds = 30 * 60;
         executorService.scheduleAtFixedRate(() -> {
             logger.info("automatic room cleanup");
             roomsAdmin.clean();
-        }, 15, 30, TimeUnit.MINUTES);
+        }, 15, thirtyMinutesAsSeconds, TimeUnit.SECONDS);
     }
 
     @Override
