@@ -14,6 +14,8 @@ import com.acabra.calculator.response.WebCalculatorFactorySimpleResponse;
 import com.acabra.calculator.util.ResultFormatter;
 import com.acabra.calculator.util.WebCalculatorValidation;
 import com.acabra.calculator.view.WebCalculatorRenderer;
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -26,16 +28,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.log4j.Logger;
+
 
 /**
  * Created by Agustin on 9/27/2016.
  * Controller of the system receives requests from the Endpoint Resource class and delegates execution and then
  * renders the results.
  */
+@Slf4j
 public class WebCalculatorManager {
 
-    private static final Logger logger = Logger.getLogger(WebCalculatorManager.class);
     private final Calculator calculator;
     private final ConcurrentHashMap<String, CalculationHistoryRecord> history;
     private final WebCalculatorRenderer renderer;
@@ -77,7 +79,7 @@ public class WebCalculatorManager {
                 CompletableFuture<CalculationResponse>> provideBiFunctionHandler(final IntegralRequest integralRequest, String token, Stopwatch stopwatch) {
         return (solvedIntegral, exception) -> {
             if (exception != null) {
-                logger.error(exception);
+                logger.error("error", exception);
                 String expression = ResultFormatter.formatIntegralRequest(solvedIntegral.toString(),
                         integralRequest.getRepeatedCalculations(), integralRequest.getNumThreads());
                 CalculationResponse failed = WebCalculatorFactoryResponse.createFailedCalculationResponse(counter.getAndIncrement(),

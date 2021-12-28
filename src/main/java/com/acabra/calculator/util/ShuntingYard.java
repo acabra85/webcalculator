@@ -2,8 +2,9 @@ package com.acabra.calculator.util;
 
 import com.acabra.calculator.Calculator;
 import com.acabra.calculator.Operator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -13,9 +14,8 @@ import java.util.List;
 /**
  * @see <a href="http://eddmann.com/posts/shunting-yard-implementation-in-java/">Shunting Yard, Edd Mann</a>
  */
+@Slf4j
 public class ShuntingYard {
-
-    private static final Logger logger = Logger.getLogger(Calculator.class);
 
     private static boolean hasHigherPrecedence(String op, String sub) {
         return Operator.OPERATOR_MAP.containsKey(sub) &&  Operator.OPERATOR_MAP.containsKey(op)

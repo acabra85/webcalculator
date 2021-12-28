@@ -2,9 +2,9 @@ package com.acabra.calculator.job;
 
 
 
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+core.classloader.annotations.PowerMockIgnore;
+core.classloader.annotations.PrepareForTest;
+modules.junit4.PowerMockRunner;
 
 import java.time.temporal.ChronoUnit;
 

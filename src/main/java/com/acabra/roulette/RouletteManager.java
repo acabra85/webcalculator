@@ -4,6 +4,8 @@ import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.roulette.response.RouletteConfigResponse;
 import com.acabra.roulette.response.RouletteResponse;
 import com.acabra.roulette.stats.RouletteStats;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -16,10 +18,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
-import org.apache.log4j.Logger;
 
+@Slf4j
 public class RouletteManager {
-    private static final Logger logger = Logger.getLogger(RouletteManager.class);
 
     final static int MAX_HISTORY_SIZE = 300;
     private static final Comparator<? super Map.Entry<Integer, Integer>> COMP = (a, b) -> Integer.compare(b.getValue(), a.getValue());

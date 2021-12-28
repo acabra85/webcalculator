@@ -3,16 +3,16 @@ package com.acabra.calculator.util;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.domain.IntegralRequestBuilder;
 import com.acabra.calculator.request.IntegralRequestDTO;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+
 
 import java.util.InputMismatchException;
 
 /**
  * Created by Agustin on 9/29/2016.
  */
+@Slf4j
 public class RequestMapper {
-
-    private static final Logger logger = Logger.getLogger(RequestMapper.class);
 
     public static IntegralRequest fromInternalRequest(IntegralRequestDTO integralRequestDTO) {
         try {
@@ -29,7 +29,7 @@ public class RequestMapper {
                     .withCoefficients(integralRequestDTO.getCoefficients())
                     .build();
         } catch (NumberFormatException nfe) {
-            logger.error(nfe);
+            logger.error("nfe ", nfe);
             throw new InputMismatchException("unable to retrieve input");
         }
     }

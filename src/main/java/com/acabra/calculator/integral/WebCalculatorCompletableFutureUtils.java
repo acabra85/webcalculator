@@ -1,6 +1,7 @@
 package com.acabra.calculator.integral;
 
-import org.apache.log4j.Logger;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,9 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Created by Agustin on 10/6/2016.
  */
+@Slf4j
 public class WebCalculatorCompletableFutureUtils {
 
-    private static final Logger logger = Logger.getLogger(WebCalculatorCompletableFutureUtils.class);
     /**
      * Transforms a list of futures to a future containing a list of doubles
      * @param futures the list of futures to aggregate
@@ -25,7 +26,7 @@ public class WebCalculatorCompletableFutureUtils {
             //CompletableFuture<Void> allDoneFuture = CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
             return CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]))
             .exceptionally(e -> {
-                logger.error(e);
+                logger.error("error", e);
                 throw new UnsupportedOperationException("unable to process request");
             })
             .thenApply(v -> futures.stream()

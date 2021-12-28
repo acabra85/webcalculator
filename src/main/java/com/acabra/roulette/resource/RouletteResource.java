@@ -7,7 +7,8 @@ import com.acabra.roulette.RouletteManager;
 import com.acabra.roulette.request.RouletteRequestDTO;
 import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
-import org.apache.log4j.Logger;
+
+import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.server.ManagedAsync;
 
 import javax.inject.Inject;
@@ -23,9 +24,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/roulette")
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class RouletteResource implements AppResource {
-
-    private static final Logger logger = Logger.getLogger(RouletteResource.class);
 
     /**
      *
@@ -97,10 +97,10 @@ public class RouletteResource implements AppResource {
                 RouletteManager rouletteManager = Objects.requireNonNull(buildNewManager());
                 return getResponse(Response.Status.OK, "roulette config", rouletteManager.getConfig());
             }  catch (NoSuchElementException e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.NOT_FOUND, "roulette config: " + e.getMessage(), null);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -130,10 +130,10 @@ public class RouletteResource implements AppResource {
                 }
                 return getResponse(Response.Status.OK, "roulette config", null);
             }  catch (NoSuchElementException e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.NOT_FOUND, "roulette config: " + e.getMessage(), null);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -158,10 +158,10 @@ public class RouletteResource implements AppResource {
                         rouletteManagerMap.getOrDefault(token, null));
                 return getResponse(Response.Status.OK, "number submitted", rouletteManager.addResult(number));
             }  catch (NoSuchElementException e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.NOT_FOUND, "submitted number: " + e.getMessage(), null);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted number: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -180,15 +180,15 @@ public class RouletteResource implements AppResource {
         CompletableFuture.supplyAsync(() -> {
             try {
                 Long sessionToken = Long.parseLong(rouletteRequestDTO.getToken());
-                logger.info(sessionToken);
+                logger.info("info: {}", sessionToken);
                 RouletteManager rouletteManager = Objects.requireNonNull(
                         rouletteManagerMap.getOrDefault(sessionToken, null));
                 return getResponse(Response.Status.OK, "spin roulette", rouletteManager.spinRoulette());
             }  catch (NoSuchElementException e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.NOT_FOUND, "spin roulette: " + e.getMessage(), null);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "invalid session: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -208,15 +208,15 @@ public class RouletteResource implements AppResource {
         CompletableFuture.supplyAsync(() -> {
             try {
                 Long sessionToken = Long.parseLong(rouletteRequestDTO.getToken());
-                logger.info(sessionToken);
+                logger.info("sessionToken{}", sessionToken);
                 RouletteManager rouletteManager = Objects.requireNonNull(
                         rouletteManagerMap.getOrDefault(sessionToken, null));
                 return getResponse(Response.Status.OK, "delete last number ", rouletteManager.ignoreLastSpin());
             }  catch (NoSuchElementException e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.NOT_FOUND, "delete last number roulette: " + e.getMessage(), null);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "invalid session: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);

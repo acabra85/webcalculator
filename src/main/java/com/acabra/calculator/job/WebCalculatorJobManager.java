@@ -1,7 +1,7 @@
 package com.acabra.calculator.job;
 
 import com.acabra.calculator.WebCalculatorManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -12,9 +12,8 @@ import static org.quartz.TriggerBuilder.newTrigger;
 /**
  * Created by Agustin on 10/6/2016.
  */
+@Slf4j
 public class WebCalculatorJobManager {
-
-    private static final Logger logger = Logger.getLogger(WebCalculatorJobManager.class);
 
     private static final String JOB_GROUP_1 = "GROUP_1";
     private final SimpleScheduleBuilder EVERY_10_MINUTES = simpleSchedule().withIntervalInMinutes(10).repeatForever();
@@ -60,7 +59,7 @@ public class WebCalculatorJobManager {
             }
         } catch (SchedulerException se) {
             logger.info("failed_ " + se.getMessage());
-            logger.error(se);
+            logger.error("error", se);
         }
     }
 
@@ -89,7 +88,7 @@ public class WebCalculatorJobManager {
                 this.started = !scheduler.isShutdown();
             }
         } catch (SchedulerException se) {
-            logger.error(se);
+            logger.error("scheduler exception", se);
         }
     }
 

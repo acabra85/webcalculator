@@ -3,7 +3,7 @@ package com.acabra.calculator.util;
 import com.acabra.calculator.Operator;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunctionFactory;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -61,7 +61,7 @@ public class WebCalculatorValidation {
                 if (stackControl.isEmpty() || !stackControl.pop().equals(CLOSE_PARENTHESIS_CONTROL.get(token))) {
                     return false;
                 }
-            } else if (!Operator.OPERATOR_MAP.containsKey(token) && !NumberUtils.isNumber(token)) {
+            } else if (!Operator.OPERATOR_MAP.containsKey(token) && !StringUtils.isNumeric(token)) {
                 throw new InputMismatchException(String.format("invalid expression: unrecognized value[%s]", token));
             }
         }

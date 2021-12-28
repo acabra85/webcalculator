@@ -3,7 +3,8 @@ package com.acabra.calculator.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.jackson.Jackson;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+
 
 import java.io.IOException;
 import java.util.Optional;
@@ -11,9 +12,8 @@ import java.util.Optional;
 /**
  * Created by Agustin on 10/10/2016.
  */
+@Slf4j
 public class JsonHelper {
-
-    private static final Logger logger = Logger.getLogger(JsonHelper.class);
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
@@ -22,7 +22,7 @@ public class JsonHelper {
         try {
             return MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            logger.error(e);
+            logger.error("error", e);
             return "{}";
         }
     }
@@ -31,7 +31,7 @@ public class JsonHelper {
         try {
             return Optional.of(MAPPER.readValue(body, clazz));
         } catch (IOException e) {
-            logger.error(e);
+            logger.error("error", e);
             return Optional.empty();
         }
     }

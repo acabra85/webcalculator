@@ -5,10 +5,10 @@ import com.acabra.calculator.response.IntegralCalculationResponse;
 import com.acabra.calculator.util.ResultFormatter;
 
 
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+api.mockito.PowerMockito;
+core.classloader.annotations.PowerMockIgnore;
+core.classloader.annotations.PrepareForTest;
+modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.List;

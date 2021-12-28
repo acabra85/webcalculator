@@ -3,9 +3,8 @@ package com.acabra.calculator;
 import com.acabra.calculator.domain.IntegralRequest;
 import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralFunction;
 import com.acabra.calculator.integral.IntegralSolver;
-import com.acabra.calculator.util.ExplicitMultiplicationParser;
 import com.acabra.calculator.util.ShuntingYard;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -17,9 +16,9 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Created by Agustin on 9/27/2016.
  */
+@Slf4j
 public class Calculator {
 
-    private static final Logger logger = Logger.getLogger(Calculator.class);
     private static final BigDecimal BIGD_ZERO = new BigDecimal("0");
     private static final BigDecimal BIGD_ONE = new BigDecimal("1");
 
@@ -36,7 +35,7 @@ public class Calculator {
             logger.debug("parsing expression " + expression );
             return solvePostFixExpression(ShuntingYard.postfix(expression));
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("error", e);
             throw new InputMismatchException("invalid expression: " + e.getMessage());
         }
     }

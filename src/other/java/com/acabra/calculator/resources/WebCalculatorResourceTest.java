@@ -2,23 +2,18 @@ package com.acabra.calculator.resources;
 
 import com.acabra.calculator.WebCalculatorManager;
 import com.acabra.calculator.domain.IntegralRequest;
-import com.acabra.calculator.integral.IntegralSubRangeSupplier;
 import com.acabra.calculator.request.IntegralRequestDTO;
 import com.acabra.calculator.response.*;
 import com.acabra.calculator.util.JsonHelper;
 import com.acabra.calculator.util.RequestMapper;
-import io.dropwizard.testing.junit.ResourceTestRule;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
 import org.assertj.core.api.Assertions;
 import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
 import org.junit.After;
-
-import org.junit.Rule;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -44,23 +39,21 @@ import static org.mockito.Mockito.*;
 public class WebCalculatorResourceTest {
 
     private static final WebCalculatorManager calcManagerMock = Mockito.mock(WebCalculatorManager.class);
-
-    private List EMPTY_LIST = Collections.emptyList();
-    private static final String TOKEN = "TOKEN";
-    private static CalculationResponse failedArithmeticResponse = new CalculationResponse(-1L, true, "", Double.toString(Double.NaN), -1L, "");
-    private static IntegralCalculationResponse failedIntegralResponse = new IntegralCalculationResponse(-1L, true, "", Double.NaN, Double.NaN, -1L, "general failure");
-    private CalculationResponse arithmeticResponseStub = new CalculationResponse(1L, true, "expression", "0.0", 2L, "description");
-    private IntegralCalculationResponse integralCalculationStub = new IntegralCalculationResponse(1L, false, "integralexpr", 9.0, 5.0, 3L, "descriptionIntegral");
-    private CompletableFuture<CalculationResponse> integralFutureStub = CompletableFuture.completedFuture(integralCalculationStub);
-    private IntegralRequestDTO integralRequestDTOStub = null;
-    private IntegralRequest integralRequestStub = new IntegralRequest(0, 1, 1, 1, 0, 0, true, EMPTY_LIST);
-
-
-    @Rule
-    public ResourceTestRule RULE = ResourceTestRule.builder()
+    private static final ResourceExtension EXT = ResourceExtension.builder()
             .setTestContainerFactory(new GrizzlyTestContainerFactory())
             .addResource(new WebCalculatorResource(calcManagerMock))
             .build();
+
+    private final List EMPTY_LIST = Collections.emptyList();
+    private static final String TOKEN = "TOKEN";
+    private static final CalculationResponse failedArithmeticResponse = new CalculationResponse(-1L, true, "", Double.toString(Double.NaN), -1L, "");
+    private static final IntegralCalculationResponse failedIntegralResponse = new IntegralCalculationResponse(-1L, true, "", Double.NaN, Double.NaN, -1L, "general failure");
+    private final CalculationResponse arithmeticResponseStub = new CalculationResponse(1L, true, "expression", "0.0", 2L, "description");
+    private final IntegralCalculationResponse integralCalculationStub = new IntegralCalculationResponse(1L, false, "integralexpr", 9.0, 5.0, 3L, "descriptionIntegral");
+    private final CompletableFuture<CalculationResponse> integralFutureStub = CompletableFuture.completedFuture(integralCalculationStub);
+    private IntegralRequestDTO integralRequestDTOStub = null;
+    private final IntegralRequest integralRequestStub = new IntegralRequest(0, 1, 1, 1, 0, 0, true, EMPTY_LIST);
+
 
     @BeforeEach
     public void setup() throws IOException {
@@ -75,11 +68,12 @@ public class WebCalculatorResourceTest {
     @Test
     public void makeCalculationTest() {
         when(calcManagerMock.processArithmeticCalculation(eq("expression"), eq(TOKEN))).thenReturn(arithmeticResponseStub);
-        Response post = RULE.getJerseyTest()
-                .target("/calculator")
+        Response post = EXT.target("/calculator")
                 .queryParam("expression", "expression")
                 .queryParam("token", TOKEN)
-                .request(MediaType.APPLICATION_JSON).post(null);
+                .request(MediaType.APPLICATION_JSON)
+                .post(null);
+
 
         Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         CalculationResponse calculationResponse = post.readEntity(new GenericType<MessageResponse<CalculationResponse>>(){}).getBody();
@@ -96,8 +90,7 @@ public class WebCalculatorResourceTest {
     @Test
     public void makeCalculationFailOtherTest() {
         when(calcManagerMock.processArithmeticCalculation(anyString(), anyString())).thenThrow(NullPointerException.class);
-        Response post = RULE.getJerseyTest()
-                .target("/calculator")
+        Response post = EXT.target("/calculator")
                 .queryParam("expression", "expression")
                 .queryParam("token", TOKEN)
                 .request(MediaType.APPLICATION_JSON).post(null);
@@ -113,34 +106,31 @@ public class WebCalculatorResourceTest {
 
         try(MockedStatic<RequestMapper> mocked = mockStatic(RequestMapper.class)) {
             mocked.when(() -> RequestMapper.fromInternalRequest(Mockito.any())).thenReturn(integralRequestStub);
+            Mockito.when(calcManagerMock.processIntegralCalculation(Mockito.any(IntegralRequest.class), anyString()))
+                    .thenReturn(integralFutureStub);
 
+            Response post = EXT.target("/calculator/integral")
+                    .queryParam("token", TOKEN)
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.json(integralRequestDTOStub));
+
+            Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+            IntegralCalculationResponse integralCalculationResponse = post.readEntity(new GenericType<MessageResponse<IntegralCalculationResponse>>(){}).getBody();
+
+            Assertions.assertThat(integralCalculationResponse.getId()).isNotEqualTo(failedIntegralResponse.getId());
+            Assertions.assertThat(integralCalculationResponse.getIntegralResult()).isEqualTo(integralCalculationStub.getIntegralResult());
+            Assertions.assertThat(integralCalculationResponse.getAccuracy()).isEqualTo(integralCalculationStub.getAccuracy());
+            Assertions.assertThat(integralCalculationResponse.getId()).isEqualTo(integralCalculationStub.getId());
+            Assertions.assertThat(integralCalculationResponse.getResponseTime()).isEqualTo(integralCalculationStub.getResponseTime());
+            Assertions.assertThat(integralCalculationResponse.getResult()).isEqualTo(integralCalculationStub.getResult());
+            Assertions.assertThat(integralCalculationResponse.getDescription()).isEqualTo(integralCalculationStub.getDescription());
+            Assertions.assertThat(integralCalculationResponse.getExpression()).isEqualTo(integralCalculationStub.getExpression());
+
+            verify(calcManagerMock, times(1)).processIntegralCalculation(Mockito.any(IntegralRequest.class), anyString());
+
+            mocked.verify(() -> RequestMapper.fromInternalRequest(Mockito.any()));
         }
-
-        when(calcManagerMock.processIntegralCalculation(anyObject(), anyString())).thenReturn(integralFutureStub);
-
-        Response post = RULE.getJerseyTest()
-                .target("/calculator/integral")
-                .queryParam("token", TOKEN)
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.json(integralRequestDTOStub));
-
-        Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        IntegralCalculationResponse integralCalculationResponse = post.readEntity(new GenericType<MessageResponse<IntegralCalculationResponse>>(){}).getBody();
-
-        Assertions.assertThat(integralCalculationResponse.getId()).isNotEqualTo(failedIntegralResponse.getId());
-        Assertions.assertThat(integralCalculationResponse.getIntegralResult()).isEqualTo(integralCalculationStub.getIntegralResult());
-        Assertions.assertThat(integralCalculationResponse.getAccuracy()).isEqualTo(integralCalculationStub.getAccuracy());
-        Assertions.assertThat(integralCalculationResponse.getId()).isEqualTo(integralCalculationStub.getId());
-        Assertions.assertThat(integralCalculationResponse.getResponseTime()).isEqualTo(integralCalculationStub.getResponseTime());
-        Assertions.assertThat(integralCalculationResponse.getResult()).isEqualTo(integralCalculationStub.getResult());
-        Assertions.assertThat(integralCalculationResponse.getDescription()).isEqualTo(integralCalculationStub.getDescription());
-        Assertions.assertThat(integralCalculationResponse.getExpression()).isEqualTo(integralCalculationStub.getExpression());
-
-        verify(calcManagerMock, times(1)).processIntegralCalculation(anyObject(), anyString());
-
-        PowerMockito.verifyStatic(times(1));
-        RequestMapper.fromInternalRequest(anyObject());
     }
 
     @Test
@@ -148,52 +138,50 @@ public class WebCalculatorResourceTest {
         integralRequestDTOStub = JsonHelper.fromJsonString(fixture("stubs/integralRequestDTO.json"), IntegralRequestDTO.class).orElse(null);
         CompletableFuture failedIntegralFuture = CompletableFuture.completedFuture(failedIntegralResponse);
 
-        PowerMockito.mockStatic(RequestMapper.class);
-        PowerMockito.when(RequestMapper.fromInternalRequest(anyObject())).thenReturn(integralRequestStub);
+        try(MockedStatic<RequestMapper> mocked = mockStatic(RequestMapper.class)) {
+            mocked.when(()->RequestMapper.fromInternalRequest(Mockito.any())).thenReturn(integralRequestStub);
 
-        when(calcManagerMock.processIntegralCalculation(anyObject(), anyString())).thenReturn(failedIntegralFuture);
+            when(calcManagerMock.processIntegralCalculation(Mockito.any(), anyString())).thenReturn(failedIntegralFuture);
 
-        Response post = RULE.getJerseyTest()
-                .target("/calculator/integral")
-                .queryParam("token", TOKEN)
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.json(integralRequestDTOStub));
+            Response post = EXT.target("/calculator/integral")
+                    .queryParam("token", TOKEN)
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.json(integralRequestDTOStub));
 
-        Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+            Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
-        MessageResponse<IntegralCalculationResponse> integralCalculationResponse = post.readEntity(new GenericType<MessageResponse<IntegralCalculationResponse>>(){});
+            MessageResponse<IntegralCalculationResponse> integralCalculationResponse = post.readEntity(new GenericType<MessageResponse<IntegralCalculationResponse>>(){});
 
-        Assertions.assertThat(integralCalculationResponse.getBody()).isNull();
-        Assertions.assertThat(integralCalculationResponse.getId()).isEqualTo(0L);
-        Assertions.assertThat(integralCalculationResponse.getMessage()).isEqualTo(failedIntegralResponse.getDescription());
-        Assertions.assertThat(integralCalculationResponse.isFailure()).isTrue();
+            Assertions.assertThat(integralCalculationResponse.getBody()).isNull();
+            Assertions.assertThat(integralCalculationResponse.getId()).isEqualTo(0L);
+            Assertions.assertThat(integralCalculationResponse.getMessage()).isEqualTo(failedIntegralResponse.getDescription());
+            Assertions.assertThat(integralCalculationResponse.isFailure()).isTrue();
 
-        verify(calcManagerMock, times(1)).processIntegralCalculation(anyObject(), anyString());
-
-        PowerMockito.verifyStatic(times(1));
-        RequestMapper.fromInternalRequest(anyObject());
+            verify(calcManagerMock, times(1)).processIntegralCalculation(Mockito.any(), anyString());
+            mocked.verify(() -> RequestMapper.fromInternalRequest(Mockito.any()));
+        }
     }
 
     @Test
     public void resolveIntegralFailOtherTest() {
         integralRequestDTOStub = JsonHelper.fromJsonString(fixture("stubs/integralRequestDTO.json"), IntegralRequestDTO.class).orElse(null);
 
-        PowerMockito.mockStatic(RequestMapper.class);
-        PowerMockito.when(RequestMapper.fromInternalRequest(anyObject())).thenReturn(integralRequestStub);
+        try(MockedStatic<RequestMapper> mocked = mockStatic(RequestMapper.class)) {
+            mocked.when(() -> RequestMapper.fromInternalRequest(Mockito.any())).thenReturn(integralRequestStub);
+            when(calcManagerMock.processIntegralCalculation(Mockito.any(), anyString())).thenThrow(NullPointerException.class);
 
-        when(calcManagerMock.processIntegralCalculation(anyObject(), anyString())).thenThrow(NullPointerException.class);
+            Response post = EXT.target("/calculator/integral")
+                    .queryParam("token", TOKEN)
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.json(integralRequestDTOStub));
 
-        Response post = RULE.getJerseyTest()
-                .target("/calculator/integral")
-                .queryParam("token", TOKEN)
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.json(integralRequestDTOStub));
+            Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
 
-        Assertions.assertThat(post.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+            verify(calcManagerMock, times(1)).processIntegralCalculation(Mockito.any(), anyString());
 
-        verify(calcManagerMock, times(1)).processIntegralCalculation(anyObject(), anyString());
-        PowerMockito.verifyStatic(times(1));
-        RequestMapper.fromInternalRequest(anyObject());
+            mocked.verify(() -> RequestMapper.fromInternalRequest(Mockito.any()));
+        }
+
     }
 
     @Test
@@ -204,8 +192,7 @@ public class WebCalculatorResourceTest {
 
         when(calcManagerMock.provideSessionToken()).thenReturn(tokenResponseStub);
 
-        Response post = RULE.getJerseyTest()
-                .target("/calculator/token")
+        Response post = EXT.target("/calculator/token")
                 .request(MediaType.APPLICATION_JSON)
                 .post(null);
 
@@ -224,8 +211,7 @@ public class WebCalculatorResourceTest {
 
         when(calcManagerMock.provideSessionToken()).thenThrow(NullPointerException.class);
 
-        Response post = RULE.getJerseyTest()
-                .target("/calculator/token")
+        Response post = EXT.target("/calculator/token")
                 .queryParam("token", TOKEN)
                 .request(MediaType.APPLICATION_JSON)
                 .post(null);
@@ -244,8 +230,7 @@ public class WebCalculatorResourceTest {
         RenderedHistoryResponse historyResponseStub = new RenderedHistoryResponse(1L, renderedTable);
         when(calcManagerMock.provideRenderedHistoryResponse(eq(TOKEN))).thenReturn(historyResponseStub);
 
-        Response get = RULE.getJerseyTest()
-                .target("/calculator/renderedhistory")
+        Response get = EXT.target("/calculator/renderedhistory")
                 .queryParam("token", TOKEN)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -265,8 +250,7 @@ public class WebCalculatorResourceTest {
 
         when(calcManagerMock.provideRenderedHistoryResponse(anyString())).thenThrow(NoSuchElementException.class);
 
-        Response get = RULE.getJerseyTest()
-                .target("/calculator/renderedhistory")
+        Response get = EXT.target("/calculator/renderedhistory")
                 .queryParam("token", TOKEN)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -281,8 +265,7 @@ public class WebCalculatorResourceTest {
 
         when(calcManagerMock.provideRenderedHistoryResponse(anyString())).thenThrow(NullPointerException.class);
 
-        Response get = RULE.getJerseyTest()
-                .target("/calculator/renderedhistory")
+        Response get = EXT.target("/calculator/renderedhistory")
                 .queryParam("token", TOKEN)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -296,8 +279,7 @@ public class WebCalculatorResourceTest {
     public void provideCalculationHistoryNotFoundTest() {
         when(calcManagerMock.provideHistoryResponse(anyString())).thenThrow(new NoSuchElementException(""));
 
-        Response get = RULE.getJerseyTest()
-                .target("/calculator/history")
+        Response get = EXT.target("/calculator/history")
                 .queryParam("token", TOKEN)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -310,8 +292,7 @@ public class WebCalculatorResourceTest {
     public void provideCalculationHistoryNullTest() {
         when(calcManagerMock.provideHistoryResponse(anyString())).thenThrow(new NullPointerException(""));
 
-        Response get = RULE.getJerseyTest()
-                .target("/calculator/history")
+        Response get = EXT.target("/calculator/history")
                 .queryParam("token", TOKEN)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -324,8 +305,7 @@ public class WebCalculatorResourceTest {
         SimpleResponse responseStub = new HistoryResponse(0L, EMPTY_LIST);
         when(calcManagerMock.provideHistoryResponse(anyString())).thenReturn(responseStub);
 
-        Response get = RULE.getJerseyTest()
-                .target("/calculator/history")
+        Response get = EXT.target("/calculator/history")
                 .queryParam("token", TOKEN)
                 .request(MediaType.APPLICATION_JSON)
                 .get();

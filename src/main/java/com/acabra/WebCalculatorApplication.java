@@ -28,8 +28,6 @@ import java.util.EnumSet;
 public class WebCalculatorApplication extends Application<WebCalculatorConfiguration> {
 
 
-    private WebCalculatorJobManager webCalculatorJobManager;
-
     /**
      * Provides configuration for Cross Origin Requests
      *
@@ -98,14 +96,8 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
 
     private void startJobManager(WebCalculatorManager webCalculatorManager) {
         WebCalculatorHistoryCleanerPolicy policyCleaner = new WebCalculatorHistoryCleanerPolicy(ChronoUnit.MINUTES, 10);
-        webCalculatorJobManager = new WebCalculatorJobManager(webCalculatorManager, policyCleaner);
+        WebCalculatorJobManager webCalculatorJobManager = new WebCalculatorJobManager(webCalculatorManager, policyCleaner);
         webCalculatorJobManager.start();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        webCalculatorJobManager.shutDown();
     }
 
 }

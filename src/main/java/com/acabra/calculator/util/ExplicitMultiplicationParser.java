@@ -1,9 +1,8 @@
 package com.acabra.calculator.util;
 
 import com.acabra.calculator.Operator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +10,8 @@ import java.util.List;
 /**
  * @author Agustin Cabra on 2/16/2017.
  */
+@Slf4j
 public class ExplicitMultiplicationParser {
-
-    private static final Logger logger = Logger.getLogger(ExplicitMultiplicationParser.class);
 
     /**
      * Replaces implicit multiplication defined in the input string and places
@@ -43,8 +41,8 @@ public class ExplicitMultiplicationParser {
     }
 
     private static void applyChangesIfRequired(String current, String next, List<String> result, StringBuilder sb) {
-        if (NumberUtils.isNumber(current) && Operator.OPEN_GROUP_SYMBOLS_SET.contains(next)
-                || NumberUtils.isNumber(next) && Operator.CLOSE_GROUP_SYMBOLS_SET.contains(current)
+        if (StringUtils.isNumeric(current) && Operator.OPEN_GROUP_SYMBOLS_SET.contains(next)
+                || StringUtils.isNumeric(next) && Operator.CLOSE_GROUP_SYMBOLS_SET.contains(current)
                 ) {
             result.add(Operator.MULTIPLY.getLabel());
             sb.append(Operator.MULTIPLY.getLabel()).append(' ');

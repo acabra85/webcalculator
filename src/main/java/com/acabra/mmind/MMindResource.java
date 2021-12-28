@@ -9,7 +9,8 @@ import com.acabra.mmind.request.MMindRestartRequest;
 import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
 import lombok.NonNull;
-import org.apache.log4j.Logger;
+
+import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.server.ManagedAsync;
 
 import javax.ws.rs.*;
@@ -23,9 +24,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Path("/mmind")
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class MMindResource implements AppResource {
 
-    private static final Logger logger = Logger.getLogger(MMindResource.class);
     private final MMindRoomsAdministrator roomsAdmin = MMindRoomsAdministrator.of();
     private final AtomicLong idGen = new AtomicLong();
 
@@ -57,7 +58,7 @@ public class MMindResource implements AppResource {
                 }
                 throw new UnsupportedOperationException("Not your turn");
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -75,7 +76,7 @@ public class MMindResource implements AppResource {
                 return getResponse(Response.Status.OK, "guess submitted",
                         roomsAdmin.getAuthenticateResponse(idGen.incrementAndGet(), request));
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 e.printStackTrace();
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(), null);
             }
@@ -93,7 +94,7 @@ public class MMindResource implements AppResource {
                 return getResponse(Response.Status.OK, "room status", roomsAdmin.getStatus(idGen.incrementAndGet(),
                         token, roomNumber));
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -109,7 +110,7 @@ public class MMindResource implements AppResource {
                 return getResponse(Response.Status.OK, "room status",
                         roomsAdmin.reviewSystemStatus(idGen.incrementAndGet(), token));
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);
@@ -126,7 +127,7 @@ public class MMindResource implements AppResource {
                 return getResponse(Response.Status.OK, "room status",
                         roomsAdmin.processRestartRequest(idGen.incrementAndGet(), req));
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
             }
         }).thenApply(asyncResponse::resume);

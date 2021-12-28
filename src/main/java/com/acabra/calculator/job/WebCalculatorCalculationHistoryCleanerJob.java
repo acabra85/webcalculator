@@ -1,7 +1,7 @@
 package com.acabra.calculator.job;
 
 import com.acabra.calculator.WebCalculatorManager;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 
 import java.time.LocalDateTime;
@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 /**
  * Created by Agustin on 10/6/2016.
  */
+@Slf4j
 public class WebCalculatorCalculationHistoryCleanerJob implements Job {
-
-    private static final Logger logger = Logger.getLogger(WebCalculatorCalculationHistoryCleanerJob.class);
 
     private LocalDateTime lastRun = null;
     private WebCalculatorHistoryCleanerPolicy policy;
@@ -28,7 +27,7 @@ public class WebCalculatorCalculationHistoryCleanerJob implements Job {
             webCalculatorManager.cleanExpiredEntries(this.lastRun, this.policy.getExpirationInterval(), this.policy.getUnit())
                     .thenAccept(cleanedEntries -> lastRun = LocalDateTime.now());
         } catch (SchedulerException | NullPointerException e) {
-            logger.error(e);
+            logger.error("error", e);
         }
     }
 

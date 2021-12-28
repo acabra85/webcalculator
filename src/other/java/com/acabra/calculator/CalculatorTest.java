@@ -7,22 +7,14 @@ import com.acabra.calculator.integral.definiteintegral.DefiniteIntegralPolynomia
 import com.acabra.calculator.util.ShuntingYard;
 import com.acabra.calculator.util.WebCalculatorConstants;
 
-
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
-import static org.powermock.api.mockito.PowerMockito.*;
 
 /**
  * Created by Agustin on 9/30/2016.
