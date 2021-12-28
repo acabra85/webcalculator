@@ -5,6 +5,7 @@ import java.util.Random;
 
 public class MMindPasswords {
 
+    public static final int ROOM_PWD_LEN = 6;
     private static final String ALPHA_BET = "ABCDEFGHJKMNPQRSTUVWXYZ";
     private static final char[] SET = (ALPHA_BET + ALPHA_BET.toLowerCase(Locale.ENGLISH) + "oiL012345678$#@=").toCharArray();
     private static final int setLen = SET.length;

@@ -16,7 +16,7 @@ public class MMindPlayer {
         this.name = name;
         this.secret = secret.toCharArray();
         this.token = token;
-        this.movesCounter = new AtomicInteger(1);
+        this.movesCounter = new AtomicInteger(0);
     }
 
     public MMmindMoveResult respond(long moveId, int index, char[] guess) {
@@ -49,5 +49,9 @@ public class MMindPlayer {
 
     public int move() {
         return movesCounter.getAndIncrement();
+    }
+
+    public MMindPlayer newSecret(String newSecret) {
+        return new MMindPlayer(name, newSecret, token);
     }
 }

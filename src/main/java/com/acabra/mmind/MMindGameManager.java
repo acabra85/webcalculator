@@ -22,11 +22,11 @@ public class MMindGameManager {
 
     private MMindGameManager(MMindPlayer host) {
         this.host = host;
-        players = new HashMap<>();
-        secretHolders = new HashMap<>();
-        players.put(host.getToken(), host);
-        moves = new ArrayList<>();
-        movesRegistry = new AtomicInteger(0);
+        this.players = new HashMap<>();
+        this.secretHolders = new HashMap<>();
+        this.players.put(host.getToken(), host);
+        this.moves = new ArrayList<>();
+        this.movesRegistry = new AtomicInteger(0);
     }
 
     public static MMindGameManager newGame(MMindPlayer host) {
@@ -64,7 +64,7 @@ public class MMindGameManager {
     }
 
     public boolean awaitingGuest() {
-        return players.size() < 2;
+        return secretHolders.isEmpty();
     }
 
     public void addGuest(MMindPlayer guest) {
@@ -121,7 +121,8 @@ public class MMindGameManager {
 
     public String retrieveGuestToken() {
         if(players.size() < 2) return null;
-        return secretHolders.get(host.getToken()).getToken();
+        final MMindPlayer guest = getGuest();
+        return guest == null ? null : guest.getToken();
     }
 
     public String getOpponentsName(String token) {
@@ -133,5 +134,17 @@ public class MMindGameManager {
         if(isGameOver()) return MMindStatusEventType.GAME_OVER_EVT;
         if(hasMove(token)) return MMindStatusEventType.MAKE_MOVE_EVT;
         return MMindStatusEventType.AWAIT_RESTART_EVT;
+    }
+
+    public MMindGameManager newManager(String hostSecret) {
+        final MMindGameManager newManager = MMindGameManager.newGame(host.newSecret(hostSecret));
+        MMindPlayer oldGuest = getGuest();
+        newManager.players.put(oldGuest.getToken(), oldGuest);
+        return newManager;
+    }
+
+    public void addGuestWithNewSecret(String token, String secret) {
+        final MMindPlayer oldPlayer = players.get(token);
+        addGuest(oldPlayer.newSecret(secret));
     }
 }

@@ -33,7 +33,8 @@
 }
 
 .error_alert {
-    color:red;
+    background-color: red;
+    color: white;
 }
 
 .your_move_alert {
@@ -42,7 +43,8 @@
 }
 
 .info_alert {
-    color: #007bff;
+    color:white;
+    background-color: #007bff;
 }
 
 .index_column {

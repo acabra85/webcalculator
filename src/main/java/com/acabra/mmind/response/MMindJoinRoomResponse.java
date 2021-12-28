@@ -1,7 +1,6 @@
 package com.acabra.mmind.response;
 
 import com.acabra.calculator.response.SimpleResponse;
-import com.acabra.mmind.core.AuthAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

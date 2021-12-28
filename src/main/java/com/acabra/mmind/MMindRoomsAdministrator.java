@@ -1,6 +1,5 @@
 package com.acabra.mmind;
 
-import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.auth.MMindTokenInfo;
 import com.acabra.mmind.core.*;
 import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
@@ -41,7 +40,7 @@ public class MMindRoomsAdministrator {
                 .withToken(token)
                 .withRoomPassword(password)
                 .withRoomNumber(room.getRoomNumber())
-                .withAction(AuthAction.JOIN_GUEST)
+                .withAction(MMindAuthAction.JOIN_GUEST)
                 .build();
     }
 
@@ -52,7 +51,7 @@ public class MMindRoomsAdministrator {
     private MMindAuthResponse createRoomAsAdmin(MMindJoinRoomRequestDTO joinRoomRequest, long roomNumber) {
         String token = UUID.randomUUID().toString();
         long expiresAfter = newTokenExpiration();
-        logger.info("--->>> Created room {} expires after:{}" , roomNumber, TimeDateHelper.fromEpoch(expiresAfter));
+        logger.info("--------------->>> Created room {} expires after:{}" , roomNumber, TimeDateHelper.fromEpoch(expiresAfter));
         auth.put(token, MMindTokenInfo.builder()
                 .withAdminToken(true)
                 .withRoomNumber(roomNumber)
@@ -70,7 +69,7 @@ public class MMindRoomsAdministrator {
                 .withToken(token)
                 .withRoomPassword(room.getPassword())
                 .withRoomNumber(room.getRoomNumber())
-                .withAction(AuthAction.JOIN_ADMIN)
+                .withAction(MMindAuthAction.JOIN_ADMIN)
                 .build();
     }
 
@@ -103,7 +102,7 @@ public class MMindRoomsAdministrator {
                     .withToken(room.getManager().retrieveHostToken())
                     .withRoomPassword(password)
                     .withRoomNumber(room.getRoomNumber())
-                    .withAction(AuthAction.NONE)
+                    .withAction(MMindAuthAction.NONE)
                     .build();
         }
         if(password.equals(room.getPassword())) {
@@ -114,7 +113,7 @@ public class MMindRoomsAdministrator {
                         .withToken(request.getToken())
                         .withRoomPassword(password)
                         .withRoomNumber(room.getRoomNumber())
-                        .withAction(AuthAction.NONE)
+                        .withAction(MMindAuthAction.NONE)
                         .build();
             }
             throw new UnsupportedOperationException("Room is full");
@@ -186,7 +185,50 @@ public class MMindRoomsAdministrator {
                 .build();
     }
 
-    public synchronized SimpleResponse processRestartRequest(long id, MMindRestartRequest req) {
-        return null;
+    public synchronized MMindRestartResponse processRestartRequest(long id, MMindRestartRequest req) {
+        final MMindTokenInfo tokenInfo = auth.get(req.getToken());
+        if(tokenInfo != null) {
+            final MMindRoom room = rooms.get(tokenInfo.getRoomNumber());
+            if(room == null) {
+                return MMindRestartResponse.builder()
+                        .withId(id)
+                        .withFailure(true)
+                        .withAction(MMindRestartAction.CHANGE_ROOM.toString())
+                        .build();
+            }
+            final MMindGameManager manager = room.getManager();
+            if(tokenInfo.isAdminToken()) {
+                auth.put(req.getToken(), tokenInfo.renew());
+                rooms.put(room.getRoomNumber(), room.restartGame(manager.newManager(req.getSecret())));
+                return MMindRestartResponse.builder()
+                        .withId(id)
+                        .withFailure(false)
+                        .withAction(MMindRestartAction.AWAIT_GUEST.toString())
+                        .withSecret(req.getSecret())
+                        .build();
+            }
+            if(manager.isGameOver()) {
+                return MMindRestartResponse.builder()
+                        .withId(id)
+                        .withFailure(false)
+                        .withAction(MMindRestartAction.AWAIT_HOST.toString())
+                        .build();
+            }
+            if (manager.awaitingGuest()) {
+                auth.put(req.getToken(), tokenInfo.renew());
+                manager.addGuestWithNewSecret(req.getToken(), req.getSecret());
+                return MMindRestartResponse.builder()
+                        .withId(id)
+                        .withFailure(false)
+                        .withSecret(req.getSecret())
+                        .withAction(MMindRestartAction.AWAIT_MOVE.toString())
+                        .build();
+            }
+        }
+        return MMindRestartResponse.builder()
+                .withId(id)
+                .withFailure(true)
+                .withAction(MMindRestartAction.CHANGE_ROOM.toString())
+                .build();
     }
 }
