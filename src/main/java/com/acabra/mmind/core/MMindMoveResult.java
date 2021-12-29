@@ -7,7 +7,7 @@ import lombok.Value;
 
 @Builder(setterPrefix = "with")
 @Getter
-public class MMmindMoveResult {
+public class MMindMoveResult {
     @NonNull
     Integer fixes;
     @NonNull

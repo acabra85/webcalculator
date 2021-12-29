@@ -37,6 +37,16 @@
     color: white;
 }
 
+.loser_result_cls {
+    background-color: red;
+    color: white;
+}
+
+.winner_result_cls {
+    background-color: #56008b;
+    color: #20e1bd;
+}
+
 .your_move_alert {
     color:white;
     background-color: darkgreen;
@@ -69,8 +79,6 @@
 }
 
 #game_result {
-    background-color: #56008b;
-    color: #20e1bd;
     text-align: center;
 }
 

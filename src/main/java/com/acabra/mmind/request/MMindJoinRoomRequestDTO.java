@@ -20,7 +20,7 @@ public class MMindJoinRoomRequestDTO {
                                    @JsonProperty("secret") @NonNull String secret,
                                    @JsonProperty("roomNumber") @NonNull Long roomNumber,
                                    @JsonProperty("token") String token) {
-        this.playerName = playerName;
+        this.playerName = playerName.length() < 10 ? playerName : playerName.substring(0, 10).trim();
         this.password = password;
         this.secret = secret;
         this.roomNumber = roomNumber;

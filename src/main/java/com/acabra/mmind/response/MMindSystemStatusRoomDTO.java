@@ -12,15 +12,18 @@ public class MMindSystemStatusRoomDTO {
     private final MMindTokenInfoDTO hostToken;
     private final MMindTokenInfoDTO guestToken;
     private final String expiresAfter;
+    private final boolean expired;
 
     @JsonCreator
     public MMindSystemStatusRoomDTO(@JsonProperty("number") long number,
                                     @JsonProperty("hostToken") MMindTokenInfoDTO hostToken,
                                     @JsonProperty("guestToken") MMindTokenInfoDTO guestToken,
-                                    @JsonProperty("expiresAfter") String expiresAfter) {
+                                    @JsonProperty("expiresAfter") String expiresAfter,
+                                    @JsonProperty("expired") boolean expired) {
         this.number = number;
         this.hostToken = hostToken;
         this.guestToken = guestToken;
         this.expiresAfter = expiresAfter;
+        this.expired = expired;
     }
 }

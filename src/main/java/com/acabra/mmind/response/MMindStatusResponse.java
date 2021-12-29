@@ -10,7 +10,7 @@ import lombok.Getter;
 public class MMindStatusResponse extends SimpleResponse {
     private static final long serialVersionUID = -5809423247343074385L;
     private final MMindMoveResultDTO lastMove;
-    private final String result;
+    private final Long result;
     private final String opponentName;
     private final Boolean isOwnMove;
     private final String eventType;
@@ -20,7 +20,7 @@ public class MMindStatusResponse extends SimpleResponse {
     protected MMindStatusResponse(@JsonProperty("id") long id, @JsonProperty("failure") boolean failure,
                                   @JsonProperty("eventType") String eventType,
                                   @JsonProperty("lastMove") MMindMoveResultDTO lastMove,
-                                  @JsonProperty("result") String result,
+                                  @JsonProperty("result") Long result,
                                   @JsonProperty("opponentName") String opponentName,
                                   @JsonProperty("isOwnMove") Boolean isOwnMove) {
         super(id, failure);

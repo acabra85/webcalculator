@@ -12,12 +12,15 @@ import java.util.List;
 public class MMindSystemStatusResponse extends SimpleResponse {
 
     private final List<MMindSystemStatusRoomDTO> rooms;
+    private final List<MMindTokenInfoDTO> tokens;
 
     @Builder(setterPrefix = "with")
     @JsonCreator
     protected MMindSystemStatusResponse(@JsonProperty("id")  long id, @JsonProperty("failure") boolean failure,
-                                        @JsonProperty("rooms")  List<MMindSystemStatusRoomDTO> rooms) {
+                                        @JsonProperty("rooms")  List<MMindSystemStatusRoomDTO> rooms,
+                                        @JsonProperty("rooms")  List<MMindTokenInfoDTO> tokens) {
         super(id, failure);
         this.rooms = rooms;
+        this.tokens = tokens;
     }
 }

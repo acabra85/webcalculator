@@ -11,15 +11,17 @@ public class MMindPlayer {
     final char[] secret;
     final String token;
     private final AtomicInteger movesCounter;
+    private final long id;
 
-    public MMindPlayer(String name, String secret, String token) {
+    public MMindPlayer(long id, String name, String secret, String token) {
+        this.id = id;
         this.name = name;
         this.secret = secret.toCharArray();
         this.token = token;
         this.movesCounter = new AtomicInteger(0);
     }
 
-    public MMmindMoveResult respond(long moveId, int index, char[] guess) {
+    public MMindMoveResult respond(long moveId, int index, char[] guess) {
         ArrayList<Character> sGuess = new ArrayList<>();
         ArrayList<Character> sSecret = new ArrayList<>();
         int fixes = 0;
@@ -38,7 +40,7 @@ public class MMindPlayer {
                 ++spikes;
             }
         }
-        return MMmindMoveResult.builder()
+        return MMindMoveResult.builder()
                 .withId(moveId)
                 .withIndex(index)
                 .withFixes(fixes)
@@ -52,6 +54,7 @@ public class MMindPlayer {
     }
 
     public MMindPlayer newSecret(String newSecret) {
-        return new MMindPlayer(name, newSecret, token);
+        return new MMindPlayer(id, name, newSecret, token);
     }
+
 }

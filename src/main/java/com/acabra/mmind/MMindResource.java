@@ -3,9 +3,11 @@ package com.acabra.mmind;
 import com.acabra.calculator.resources.AppResource;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.auth.MMindRequestValidator;
+import com.acabra.mmind.request.MMindDeleteTokenRequest;
 import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 import com.acabra.mmind.request.MMindRequestDTO;
 import com.acabra.mmind.request.MMindRestartRequest;
+import com.acabra.mmind.response.ErrorResponse;
 import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
 import lombok.NonNull;
@@ -13,6 +15,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.server.ManagedAsync;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -30,12 +33,20 @@ public class MMindResource implements AppResource {
     private final MMindRoomsAdministrator roomsAdmin = MMindRoomsAdministrator.of();
     private final AtomicLong idGen = new AtomicLong();
 
+    @Inject
     public MMindResource(CommonExecutorService executorService) {
-        final int thirtyMinutesAsSeconds = 30 * 60;
+        final int thirtyMinutesAsSeconds = (int) TimeUnit.MINUTES.toSeconds(30);
         executorService.scheduleAtFixedRate(() -> {
             logger.info("automatic room cleanup");
             roomsAdmin.clean();
-        }, 15, thirtyMinutesAsSeconds, TimeUnit.SECONDS);
+        }, 13, thirtyMinutesAsSeconds, TimeUnit.SECONDS);
+    }
+
+    private static SimpleResponse error(long id, String msg, Exception exception) {
+        return ErrorResponse.builder()
+                .withId(id)
+                .withError(String.format("ExceptionType:[%s:%s] " + msg, exception.getClass().getName(), exception.getMessage()))
+                .build();
     }
 
     @Override
@@ -60,7 +71,8 @@ public class MMindResource implements AppResource {
                 throw new UnsupportedOperationException("Not your turn");
             } catch (Exception e) {
                 logger.error("error", e);
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(),
+                        error(idGen.incrementAndGet(), "unable to accept number", e));
             }
         }).thenApply(asyncResponse::resume);
     }
@@ -75,11 +87,12 @@ public class MMindResource implements AppResource {
             try {
                 MMindRequestValidator.validateSecret(request.getSecret());
                 return getResponse(Response.Status.OK, "guess submitted",
-                        roomsAdmin.getAuthenticateResponse(idGen.incrementAndGet(), request));
+                        roomsAdmin.attemptAuthenticate(idGen.incrementAndGet(), request));
             } catch (Exception e) {
                 logger.error("error", e);
                 e.printStackTrace();
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(),
+                        error(idGen.incrementAndGet(), "unable to authenticate", e));
             }
         }).thenApply(asyncResponse::resume);
     }
@@ -96,7 +109,9 @@ public class MMindResource implements AppResource {
                         token, roomNumber));
             } catch (Exception e) {
                 logger.error("error", e);
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                        "session limit reached please try again later: " + e.getMessage(),
+                        error(idGen.incrementAndGet(), "unable to retrieve status", e));
             }
         }).thenApply(asyncResponse::resume);
     }
@@ -112,7 +127,9 @@ public class MMindResource implements AppResource {
                         roomsAdmin.reviewSystemStatus(idGen.incrementAndGet(), token));
             } catch (Exception e) {
                 logger.error("error", e);
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                        "session limit reached please try again later: " + e.getMessage(),
+                        error(idGen.incrementAndGet(), "unable to retrieve statistics for admin", e));
             }
         }).thenApply(asyncResponse::resume);
     }
@@ -129,7 +146,29 @@ public class MMindResource implements AppResource {
                         roomsAdmin.processRestartRequest(idGen.incrementAndGet(), req));
             } catch (Exception e) {
                 logger.error("error", e);
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "session limit reached please try again later: " + e.getMessage(), null);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                        "Unable To restart: " + e.getMessage(),
+                        error(idGen.incrementAndGet(), "unable to process restart", e));
+            }
+        }).thenApply(asyncResponse::resume);
+    }
+
+    @DELETE
+    @Timed
+    @ManagedAsync
+    @Path("/token")
+    public void deleteToken(@Suspended final AsyncResponse asyncResponse, MMindDeleteTokenRequest req) {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                MMindRequestValidator.validateDeleteTokenRequest(req);
+                final SimpleResponse deleteResult = roomsAdmin.processDeleteTokenRequest(idGen.incrementAndGet(), req);
+                return getResponse(deleteResult.isFailure() ? Response.Status.BAD_REQUEST : Response.Status.OK,
+                        "delete status", deleteResult);
+            } catch (Exception e) {
+                logger.error("error", e);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                        "Unable To process delete request: " + e.getMessage(),
+                        error(idGen.incrementAndGet(), "unable to process delete", e));
             }
         }).thenApply(asyncResponse::resume);
     }

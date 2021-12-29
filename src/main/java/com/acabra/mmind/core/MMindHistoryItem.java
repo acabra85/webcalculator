@@ -8,5 +8,6 @@ import lombok.NonNull;
 @Getter
 public class MMindHistoryItem {
     @NonNull String playerToken;
-    @NonNull MMmindMoveResult moveResult;
+    @NonNull MMindMoveResult moveResult;
+    @NonNull Long playerId;
 }

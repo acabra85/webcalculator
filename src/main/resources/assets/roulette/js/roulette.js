@@ -200,6 +200,7 @@ let Main = (function () {
 
 
             $.ajax({
+                cache: false,
                 type: "POST",
                 url: '/api/roulette/spin',
                 data: JSON.stringify({token: token}),
@@ -233,6 +234,7 @@ let Main = (function () {
         let sendNumber = function (num) {
             let q = $.Deferred();
             $.ajax({
+                cache: false,
                 type: "POST",
                 url: encodeURI('/api/roulette/submit?number=' + num),
                 data: JSON.stringify({token: token}),

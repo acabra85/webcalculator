@@ -8,7 +8,9 @@ import lombok.Getter;
 @Getter
 public class MMindAuthResponse {
     Long roomNumber;
+    Long playerId;
     String roomPassword;
+    String opponentName;
     String token;
     MMindAuthAction action;
 }

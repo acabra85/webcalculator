@@ -14,7 +14,7 @@ public class MMindTokenInfo {
     final private String token;
     final private long expiresAfter;
     final private long roomNumber;
-    private boolean adminToken;
+    final private boolean adminToken;
 
     public MMindTokenInfo renew() {
         return builder()

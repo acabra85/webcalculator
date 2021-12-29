@@ -30,4 +30,12 @@ public class MMindRoom {
                 .withExpiresAfter(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30))
                 .build();
     }
+
+    public String getHostName() {
+        return manager.getHostName();
+    }
+
+    public String getGuestName() {
+        return manager.getGuestName();
+    }
 }

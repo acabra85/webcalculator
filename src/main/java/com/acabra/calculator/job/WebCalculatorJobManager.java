@@ -16,7 +16,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class WebCalculatorJobManager {
 
     private static final String JOB_GROUP_1 = "GROUP_1";
-    private final SimpleScheduleBuilder EVERY_10_MINUTES = simpleSchedule().withIntervalInMinutes(10).repeatForever();
+    private final SimpleScheduleBuilder EVERY_15_MINUTES = simpleSchedule().withIntervalInMinutes(15).repeatForever();
     static final String WEB_CALC_MANAGER_KEY = "webCalculatorManager";
     static final String WEB_CALC_POLICY_KEY = "webCalculatorPolicy";
 
@@ -71,7 +71,7 @@ public class WebCalculatorJobManager {
         Trigger syncTrigger = newTrigger()
                 .withIdentity("syncTrigger", JOB_GROUP_1)
                 .startNow()
-                .withSchedule(EVERY_10_MINUTES)
+                .withSchedule(EVERY_15_MINUTES)
                 .build();
 
         scheduler.scheduleJob(syncJobDetail, syncTrigger);

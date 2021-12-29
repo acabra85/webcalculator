@@ -448,6 +448,7 @@ function executeExponentialIntegralWithToken(receivedToken, expressionField) {
     var integralRequest = buildIntegralRequest();
     if (validIntegralRequestData(integralRequest)) {
         $.ajax({
+            cache: false,
             url : encodeURI('/api/calculator/integral?token=' + receivedToken),
             type: 'POST',
             dataType : "json",

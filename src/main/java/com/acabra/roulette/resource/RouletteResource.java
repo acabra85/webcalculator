@@ -7,11 +7,9 @@ import com.acabra.roulette.RouletteManager;
 import com.acabra.roulette.request.RouletteRequestDTO;
 import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
-
 import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.server.ManagedAsync;
 
-import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -42,7 +40,7 @@ public class RouletteResource implements AppResource {
         ex.scheduleAtFixedRate(() -> {
             logger.info("automatic cleanup of entries");
             cleanUpExpiredSessions(System.currentTimeMillis(), this.rouletteManagerMap);
-        }, 30, 180, TimeUnit.SECONDS);
+        }, 1, 15, TimeUnit.MINUTES);
     }
 
     synchronized private RouletteManager buildNewManager() {
@@ -62,6 +60,7 @@ public class RouletteResource implements AppResource {
 
     private static void cleanUpExpiredSessions(long currentTime, Map<Long, RouletteManager> rouletteManagerMap) {
         if(rouletteManagerMap.size() > 1) {
+            StringBuilder sb = new StringBuilder();
             List<Long> expiredSessions = new ArrayList<>();
             rouletteManagerMap.values().stream()
                     .filter(manager -> currentTime - manager.getLastAccessed() > EXPIRE_TIMEOUT)
@@ -71,8 +70,9 @@ public class RouletteResource implements AppResource {
             //remove all expired sessions except one
             expiredSessions.forEach(sessionId -> {
                 rouletteManagerMap.remove(sessionId);
-                logger.info("cleaned manager:" + sessionId);
+                sb.append(sessionId).append(",");
             });
+            logger.info("expired sessions cleaned: {}, List[{}]", expiredSessions.size(), sb);
         }
     }
 
