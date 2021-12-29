@@ -254,7 +254,12 @@ let Main = (function () {
                 resultCol.html('Res');
                 targetRow.append(resultCol);
             },
-            renderSelectRow: renderSelectRow
+            renderSelectRow: renderSelectRow,
+            resetGuessRow: function () {
+                for (let i = 0; i <SECRET_LENGTH; ++i) {
+                    $('#digit_index_'+i).val(AVAILABLE_DIGITS.charAt(0));
+                }
+            }
         };
     }
 
@@ -474,14 +479,14 @@ let Main = (function () {
                 $('#btn_guess').prop('disabled', true);
                 renderer.renderOwnSecret(res.secret);
                 $('#new_secret_value').val('');
-                //renderer.renderSelectRow();
+                renderer.resetGuessRow();
                 cycleRefresh();
             } else if('AWAIT_MOVE' === res.action) {
                 alerts.showInfo('Get Ready game has restarted ...', 5000);
                 $('#btn_guess').prop('disabled', true);
                 renderer.renderOwnSecret(res.secret);
                 $('#new_secret_value').val('');
-                //renderer.renderSelectRow();
+                renderer.resetGuessRow();
                 cycleRefresh();
             } else { // force room change
                 alerts.showError('Room Expired ... please refresh the page (press F5)', 10000);
