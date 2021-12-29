@@ -80,8 +80,6 @@ $(document).ready(function () {
         });
     }
     console.log('ready');
-
-
     cleanLocalStorage();
     $('#room_form').submit(Room.join);
 })

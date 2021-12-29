@@ -211,43 +211,20 @@ public class MMindRoomsAdministrator {
     }
 
     /**
-     * Removes the requested token and the associated rooms if they are expired
+     * Attempts to remove a token does not belong to any room
      */
     public synchronized SimpleResponse processDeleteTokenRequest(long id, MMindDeleteTokenRequest req) {
         final String tokenToDelete = req.getTokenToDelete();
         if(!req.getUserToken().equals(tokenToDelete)) {
             if(isAdminToken(req.getUserToken())) {
-                final long now = System.currentTimeMillis();
-                final MMindTokenInfo mMindTokenInfo = auth.get(tokenToDelete);
-                if(now > mMindTokenInfo.getExpiresAfter()) { //expired
-                    final List<MMindRoom> affectedRooms = rooms.values().stream()
-                            .filter(r -> now > r.getExpiresAfter())
-                            .filter(r -> r.getManager().retrieveGuestToken().equals(tokenToDelete)
-                                    || r.getManager().retrieveHostToken().equals(tokenToDelete))
-                            .collect(Collectors.toList());
-                    final List<String> tokensToDelete = affectedRooms.stream().map(r -> new HashSet<String>() {{
-                                add(r.getManager().retrieveGuestToken());
-                                add(r.getManager().retrieveHostToken());
-                            }})
-                            .flatMap(Set::stream)
-                            .filter(tokenStr -> now > auth.get(tokenStr).getExpiresAfter())
-                            .collect(Collectors.toList());
-                    StringBuilder sbRooms = new StringBuilder();
-                    StringBuilder sbTokens  = new StringBuilder();
-                    tokensToDelete.forEach(t -> {
-                        sbTokens.append(t).append(",");
-                        auth.remove(t);
-                    });
-                    affectedRooms.forEach(r -> {
-                        sbRooms.append(r.getRoomNumber()).append(",");
-                        rooms.remove(r.getRoomNumber());
-                    });
-                    logger.info("Deleted rooms:[{}] deleted tokens:[{}]", sbRooms, sbTokens);
+                final boolean unusedToken = rooms.values().stream()
+                        .noneMatch(r -> r.hasPlayerWithToken(req.getTokenToDelete()));
+                if(unusedToken) {
+                    auth.remove(req.getTokenToDelete());
                     return MMindDeleteTokenResponse.builder()
                             .withId(id)
                             .withFailure(false)
                             .build();
-
                 }
             }
         }

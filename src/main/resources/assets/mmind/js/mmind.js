@@ -121,15 +121,15 @@ let Main = (function () {
                         if(!res.failure) {
                             row.html('');
                         } else {
-                            alerts.showError('unable to remove token');
+                            alerts.showError('unable to remove token', 1000);
                         }
                     }).fail(function (jqhxr, text, type) {
-
+                        alerts.showError('unable to remove token, it is in active use', 2000);
                     });
                 })
-                row.append($('<td>').append(buttonElm));
+                row.append($('<td style="text-align: center">').append(buttonElm));
             } else {
-                row.append($('<td>').html('--'));
+                row.append($('<td style="text-align: center">').html('--'));
             }
             return row;
         }
@@ -343,9 +343,6 @@ let Main = (function () {
 
     function stopFunction(id){
         clearTimeout(id);
-    }
-
-    let restartRefresh = function(res) {
     }
 
     let sendNumber = function (evt) {

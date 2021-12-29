@@ -38,4 +38,10 @@ public class MMindRoom {
     public String getGuestName() {
         return manager.getGuestName();
     }
+
+    public boolean hasPlayerWithToken(String token) {
+        final String hostToken = manager.retrieveHostToken();
+        final String guestToken = manager.retrieveGuestToken();
+        return token.equals(hostToken) || token.equals(guestToken);
+    }
 }
