@@ -29,7 +29,7 @@
                 <tbody></tbody>
             </table>
         </div>
-        <div id="guess_section" class="round_edges">
+        <div id="guess_section" class="round_edges" style="display: none">
             <div style="float: left; width: 65%">
                 <form action="#" id="mmind_form" class="form-inline">
                     <label class="sr-only" for="guess_value">Guess</label>
@@ -40,7 +40,7 @@
                         <input id="guess_value" type="text" class="form-control"
                                name="guess_value" minlength="4" maxlength="4"
                                placeholder="XXXX" required/>
-                        <input id="btn_guess" value="Guess" type="submit" class="" disabled="disabled"/>
+                        <input id="btn_guess_surrogate" value="Guess" type="submit" class="" />
                     </div>
                 </form>
             </div>
@@ -66,6 +66,22 @@
             <h1><span id="game_result_label"></span></h1>
         </div>
         <div id="history_section" class="round_edges">
+            <div id="opponent_moves">
+                <table id="opponent_table" class="table">
+                    <thead>
+                        <tr>
+                            <th colspan="6" style="text-align: center">
+                                <p>Last <span id="opponent_username" style="color: blue">[Opponent]</span>'s move</p>
+                            </th>
+                        </tr>
+                        <tr id="opponent_number_guess">
+                            <th colspan="5"></th>
+                            <th>Res</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
             <div id="user_moves">
                 <table id="user_table" class="table">
                     <thead>
@@ -80,24 +96,7 @@
                             <th>?</th>
                             <th>?</th>
                             <th>?</th>
-                            <th>Result</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div id="opponent_moves">
-                <table id="opponent_table" class="table">
-                    <thead>
-                        <tr>
-                            <th colspan="5" style="text-align: center">
-                                <span id="opponent_username" style="color: blue">[Opponent]</span>
-                            </th>
-                        </tr>
-                        <tr id="opponent_number_guess">
-                            <th colspan="4"></th>
-                            <th>Result</th>
+                            <th>Res</th>
                         </tr>
                     </thead>
                     <tbody>

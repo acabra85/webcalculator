@@ -14,12 +14,10 @@
 }
 
 #opponent_moves {
-    float: right;
-    width: 40%;
+    width: 100%;
 }
 #user_moves {
-    float: left;
-    width: 60%;
+    width: 100%;
 }
 
 .status_guess_winner {
@@ -61,6 +59,7 @@
     background-color: #d0cece;
     color: #4e8ccc;
     text-align: center;
+    width: 60px;
 }
 
 #admin_stats_table th td {

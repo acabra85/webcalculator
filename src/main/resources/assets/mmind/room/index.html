@@ -13,11 +13,15 @@
     <body>
         <div id="full_window_content">
             <div id="room_info" style="display: none;">
-                <h3>Welcome <span id="user_name_label"></span> !!!!</h3>
-                <ul>
-                    <li><b>Room #: </b><span id="room_number_label"></span></li>
-                    <li><b>Room Pass: </b><span id="room_pwd_label"></span></li>
-                </ul>
+                <div style="float: left;width: 60%; text-align: left;padding: 10px;">
+                    <h3>Welcome <span id="user_name_label"></span> !!!!</h3>
+                </div>
+                <div style="float: right;width: 40%; text-align: left;padding: 10px;">
+                    <p>
+                        <b>Room#: </b><span id="room_number_label"></span>
+                        <b>Pass:</b><span id="room_pwd_label"></span>
+                    </p>
+                </div>
             </div>
             <div id="login_room" class="round_edges float_center" style="display: block">
                 <form action="#" id="room_form">
@@ -35,7 +39,7 @@
                     </div>
                     <div class="form-group">
                         <label for="secret_code">Secret:</label>
-                        <input id="secret_code" class="form-control" name="secret_code" minlength="4" maxlength="4" type="text" required/>
+                        <input id="secret_code" class="form-control" name="secret_code" min="0" max="9999" type="number" required/>
                     </div>
                     <input id="btn_join" value="Join Room" type="submit" class="btn btn-primary"/>
                 </form>

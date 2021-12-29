@@ -3,6 +3,7 @@
 let token = !localStorage.getItem('sessid') ? null : localStorage.getItem('sessid');
 let roomNumberStr = localStorage.getItem('room_number');
 let playerIdStr = window.localStorage.getItem('player_id');
+const AVAILABLE_DIGITS = '0123456789';
 const SECRET_LENGTH = 4;
 
 let Main = (function () {
@@ -43,7 +44,7 @@ let Main = (function () {
             return fixes === 4 ? 'status_guess_winner' : spikes === 4 || fixes === 3 ? 'status_guess_close' : '';
         }
 
-        function appendHistory(tableBodySelector, moveResult, includeIndex) {
+        function appendHistory(tableBodySelector, moveResult, includeIndex, clearContents) {
             let node = $('<tr>');
             let guess = moveResult.guess;
             if(includeIndex) {
@@ -69,17 +70,21 @@ let Main = (function () {
             resultColumn.append(spikesNode);
 
             node.append(resultColumn);
-            $(tableBodySelector).append(node);
+            let tableBodyElm = $(tableBodySelector);
+            if(clearContents) {
+                tableBodyElm.html('');
+            }
+            tableBodyElm.append(node);
         }
 
         let updateUserHistory = function (move) {
             console.log('updating view');
-            appendHistory('#user_table tbody', move, true);
+            appendHistory('#user_table tbody', move, true, false);
         };
 
         let updateOpponentsMove = function (move) {
             console.log('update opponent\'s move');
-            appendHistory('#opponent_table tbody', move, false);
+            appendHistory('#opponent_table tbody', move, true, true);
         };
 
         let drawRoomTokenInformation = function (tokenInfo) {
@@ -172,9 +177,54 @@ let Main = (function () {
             if(!opponentName) return;
             let opponentLabelElm = $('#opponent_username');
             if('[Opponent]' === opponentLabelElm.html() || opponentLabelElm.html() !== opponentName) {
-                opponentLabelElm.html(opponentName + '\'s moves');
+                opponentLabelElm.html(opponentName);
             }
         };
+
+        let guessSelectFunction = function () {
+            let str = '';
+            for (let i = 0; i < SECRET_LENGTH; ++i) {
+                str += $('#digit_index_' + i).val();
+            }
+            $('#guess_value').val(str);
+            $('#btn_guess_surrogate').click();
+        };
+
+        function drawGuessSelectButton(f) {
+            let btn = $('<button>');
+            btn.prop('disabled', true);
+            btn.prop('id', 'btn_guess');
+            btn.html('GO');
+            btn.click(f);
+            return btn;
+        }
+
+        function drawSelectElement(idx) {
+            let selectElm = $('<select>');
+            selectElm.prop('id', 'digit_index_' + idx);
+            selectElm.addClass('form-select');
+            for (let i = 0; i < AVAILABLE_DIGITS.length; ++i) {
+                let opt = $('<option>');
+                opt.prop('id', AVAILABLE_DIGITS.charAt(i))
+                opt.html(AVAILABLE_DIGITS.charAt(i));
+                selectElm.append(opt);
+            }
+            selectElm.val(AVAILABLE_DIGITS.charAt(0));
+            return selectElm;
+        }
+
+        let renderSelectRow = function () {
+            let rowElm = $('<tr>');
+            rowElm.prop('id', 'select_number_row');
+            rowElm.append($('<td>').addClass('index_column'));
+            for (let i = 0; i < SECRET_LENGTH; ++i) {
+                rowElm.append($('<td>').append(drawSelectElement(i)))
+            }
+            let btnElm = drawGuessSelectButton(guessSelectFunction);
+            rowElm.append($('<td>').append(btnElm));
+            $('#user_table tbody').prepend(rowElm);
+        };
+
         return {
             updateUserHistory: updateUserHistory,
             updateOpponentsMove: updateOpponentsMove,
@@ -194,15 +244,17 @@ let Main = (function () {
                 secret = secret ? secret : localStorage.getItem('ownsecret');
                 let targetRow = $('#opponent_number_guess');
                 targetRow.html('');
+                targetRow.append($('<th>').addClass('index_column').html('#'));
                 for (let i = 0; i < secret.length; ++i) {
                     let child = $('<th>');
                     child.html(secret.charAt(i));
                     targetRow.append(child);
                 }
                 let resultCol = $('<th>');
-                resultCol.html('Result');
+                resultCol.html('Res');
                 targetRow.append(resultCol);
-            }
+            },
+            renderSelectRow: renderSelectRow
         };
     }
 
@@ -452,7 +504,7 @@ let Main = (function () {
                 renderer.drawSystemInfoTable(resp);
             }
         },
-        restart: restart
+        restart: restart,
     };
 })();
 
@@ -462,6 +514,8 @@ $(document).ready(function () {
     if(storedOpponentName) {
         Main.getRenderer().renderOpponentName(storedOpponentName);
     }
+
+    Main.getRenderer().renderSelectRow();
 
     function isAdmin() {
         return window.localStorage.getItem('is_admin') === 'true';
