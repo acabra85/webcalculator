@@ -74,7 +74,7 @@ let Main = (function () {
             if(clearContents) {
                 tableBodyElm.html('');
             }
-            tableBodyElm.append(node);
+            tableBodyElm.prepend(node);
         }
 
         let updateUserHistory = function (move) {
@@ -222,7 +222,7 @@ let Main = (function () {
             }
             let btnElm = drawGuessSelectButton(guessSelectFunction);
             rowElm.append($('<td>').append(btnElm));
-            $('#user_table tbody').prepend(rowElm);
+            $('#user_table thead').append(rowElm);
         };
 
         return {
@@ -472,16 +472,16 @@ let Main = (function () {
             if ('AWAIT_GUEST' === res.action) {
                 alerts.showInfo('Game starting soon, awaiting for guest...');
                 $('#btn_guess').prop('disabled', true);
-                $('#guess_section').show();
                 renderer.renderOwnSecret(res.secret);
                 $('#new_secret_value').val('');
+                //renderer.renderSelectRow();
                 cycleRefresh();
             } else if('AWAIT_MOVE' === res.action) {
                 alerts.showInfo('Get Ready game has restarted ...', 5000);
                 $('#btn_guess').prop('disabled', true);
-                $('#guess_section').show();
                 renderer.renderOwnSecret(res.secret);
                 $('#new_secret_value').val('');
+                //renderer.renderSelectRow();
                 cycleRefresh();
             } else { // force room change
                 alerts.showError('Room Expired ... please refresh the page (press F5)', 10000);
