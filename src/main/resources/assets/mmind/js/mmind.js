@@ -66,7 +66,7 @@ let Main = (function () {
             fixesNode.html('<b>F:</b>' + moveResult.fixes + '&nbsp;');
             resultColumn.append(fixesNode);
             let spikesNode = $('<span>');
-            spikesNode.html('<b>P:</b>' + moveResult.spikes);
+            spikesNode.html('<b>S:</b>' + moveResult.spikes);
             resultColumn.append(spikesNode);
 
             node.append(resultColumn);
@@ -291,12 +291,12 @@ let Main = (function () {
 
         function buildTextResult(result, opponentName) {
             if(result === -1) {
-                return 'Kudos Players, this was a TIE!!!'
+                return ['TIE &#x1F44A;', 'Kudos to both players!'];
             }
             if (result === parseInt(playerIdStr, 10)) {
-                return 'YOU won Congratulations!!!';
+                return ['You WON&#x1F389;&#x1F38A;!!', 'Congratulations &#x1F44F;'];
             }
-            return 'You Lost, ' + opponentName + ' is the Winner. Better luck next time';
+            return ['You Lost!!&#x1F613;', '... better luck next time'];
         }
 
         function getResultDecoration(result) {
@@ -319,7 +319,9 @@ let Main = (function () {
             },
             gameOver: function (result, opponentName) {
                 let gameResultElm = $('#game_result');
-                $('#game_result_label').html(buildTextResult(result, opponentName))
+                let textResults = buildTextResult(result, opponentName);
+                $('#game_result_label').html(textResults[0]);
+                $('#game_result_message').html(textResults[1]);
                 gameResultElm.addClass(getResultDecoration(result));
                 gameResultElm.show();
             }
@@ -441,7 +443,6 @@ let Main = (function () {
         evt.preventDefault();
         let btnRestart = $('#btn_restart');
         btnRestart.prop('disabled', true);
-        btnRestart.removeClass();
 
         const SECRET_KEY = 'ownsecret';
         const LAST_CONSUMED_EVT_ID = 'lastConsumedEventId';
@@ -451,7 +452,8 @@ let Main = (function () {
         let newSecretValue = $('#new_secret_value').val();
         let number = parseInt(newSecretValue, 10);
         if(newSecretValue.length !== SECRET_LENGTH || number > 9999 || number < 0) {
-            alerts.showError('Invalid New Secret')
+            alerts.showError('Secret must have ' + SECRET_LENGTH + ' digits');
+            btnRestart.prop('disabled', false);
             return;
         }
         window.localStorage.setItem(SECRET_KEY, newSecretValue);
@@ -470,6 +472,7 @@ let Main = (function () {
                 'Content-Type': 'application/json'
             }
         }).done(function(res){
+            btnRestart.removeClass();
             console.log('restart completed');
             let restartSectionElm  = $('#restart_section');
             restartSectionElm.removeClass();
@@ -492,7 +495,8 @@ let Main = (function () {
                 alerts.showError('Room Expired ... please refresh the page (press F5)', 10000);
                 cleanLocalStorage();
             }
-        }).fail(function (jqhxr, errorText, type){
+        }).fail(function (jqhxr, errorText, type) {
+            btnRestart.prop('disabled', false);
             alerts.showError('unable to restart: ' + errorText + ' ' + jqhxr.responseJSON.error);
         })
 

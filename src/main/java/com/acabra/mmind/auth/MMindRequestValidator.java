@@ -1,6 +1,7 @@
 package com.acabra.mmind.auth;
 
 import com.acabra.mmind.request.MMindDeleteTokenRequest;
+import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
 
 public class MMindRequestValidator {
     public static final int SECRET_LENGTH = 4;
@@ -16,6 +17,17 @@ public class MMindRequestValidator {
                 || req.getUserToken().length() != MMindTokenInfo.TOKEN_LEN
         || req.getUserToken().equals(req.getTokenToDelete())) {
             throw new IllegalArgumentException("Invalid Delete Request: " + SECRET_LENGTH);
+        }
+    }
+
+    public static void validateJoinRequest(MMindJoinRoomRequestDTO joinRequest) {
+        validateSecret(joinRequest.getSecret());
+        validateName(joinRequest.getPlayerName());
+    }
+
+    private static void validateName(String playerName) {
+        if(playerName == null || playerName.isEmpty() || playerName.isBlank()) {
+            throw new IllegalArgumentException("Empty player name");
         }
     }
 }

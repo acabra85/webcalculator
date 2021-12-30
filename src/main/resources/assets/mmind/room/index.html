@@ -12,37 +12,62 @@
     </head>
     <body>
         <div id="full_window_content">
-            <div id="room_info" style="display: none;">
-                <div style="float: left;width: 60%; text-align: left;padding: 10px;">
-                    <h3>Welcome <span id="user_name_label"></span> !!!!</h3>
+            <div id="room_info" class="top_header_info" style="display: none;">
+                <div class="room_info_player_label">
+                    <h4><span id="user_name_label"></span></h4>
                 </div>
-                <div style="float: right;width: 40%; text-align: left;padding: 10px;">
+                <div class="room_info_details">
                     <p>
-                        <b>Room#: </b><span id="room_number_label"></span>
-                        <b>Pass:</b><span id="room_pwd_label"></span>
+                        <span id="room_number_label"></span>
+                        <span id="room_pwd_label"></span>
                     </p>
                 </div>
             </div>
             <div id="login_room" class="round_edges float_center" style="display: block">
-                <form action="#" id="room_form">
-                    <div class="form-group">
-                        <label for="room_number">Room:</label>
-                        <input id="room_number" class="form-control" name="room_number" type="number" required/>
-                    </div>
-                    <div class="form-group">
-                        <label for="pwd">Room Password:</label>
-                        <input id="pwd" class="form-control" name="pwd" type="password" minlength="4" maxlength="12" required/>
-                    </div>
-                    <div class="form-group">
-                        <label for="player_name">Your Name:</label>
-                        <input id="player_name" class="form-control" name="player_name" type="text" maxlength="10" required/>
-                    </div>
-                    <div class="form-group">
-                        <label for="secret_code">Secret:</label>
-                        <input id="secret_code" class="form-control" name="secret_code" min="0" max="9999" type="number" required/>
-                    </div>
-                    <input id="btn_join" value="Join Room" type="submit" class="btn btn-primary"/>
-                </form>
+                <div class="top_header_info">
+                    <span style="width: 100%; text-align: center"><h2>Fixes & Spikes</h2></span>
+                </div>
+                <div style="width: 100%; padding-top: 25px;" class="round_edges">
+                    <form action="#" id="room_form">
+                        <label class="sr-only" for="room_number">Room:</label>
+                        <div class="input-group mb-2 mr-sm-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">Room#:</div>
+                            </div>
+                            <input id="room_number" class="form-control" name="room_number" type="number" required/>
+                        </div>
+                        <label class="sr-only" for="pwd">Room Password:</label>
+                        <div class="input-group mb-2 mr-sm-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">Room Password:</div>
+                            </div>
+                            <input id="pwd" class="form-control" name="pwd" type="password" minlength="4" maxlength="12" required/>
+                        </div>
+                        <label class="sr-only" for="player_name">Your Name:</label>
+                        <div class="input-group mb-2 mr-sm-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">Your Name:</div>
+                            </div>
+                            <input id="player_name" class="form-control" name="player_name" type="text" maxlength="10" required/>
+                        </div>
+                        <label class="sr-only" for="secret_code">Secret:</label>
+                        <div class="input-group mb-2 mr-sm-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">Secret:</div>
+                            </div>
+                            <input id="secret_code" class="form-control" name="secret_code" min="0" max="9999" type="number" required/>
+                        </div>
+                        <input id="btn_join" value="Join Room" type="submit" class="btn btn-primary"/>
+                    </form>
+                </div>
+                <div id="login_error_section" class="error_alert round_edges">
+                    <span id="login_error_section_msg"></span>
+                </div>
+                <div class="round_edges">
+                    <p><b>Game's Objective: </b> Guess your Opponent's Number</p>
+                    <p><b>Fixes: </b>Represented by "<b>F</b>", are digits in your "guess" that are present in your opponent's secret in the exact position.</p>
+                    <p><b>Spikes: </b>Represented by "<b>S</b>", are remaining digits from your "guess" (Not Fixes) present in your opponent's secret in incorrect position.</p>
+                </div>
                 <script src="js/room.js"></script>
             </div>
             <div id="game_room" style="display: none" class="round_edges">

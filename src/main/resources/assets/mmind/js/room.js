@@ -1,10 +1,12 @@
 'use strict';
 
+const SECRET_LENGTH = 4;
+
 let Room = (function () {
 
     let joinRoom = function (result) {
-        $('#room_number_label').html(result.roomNumber);
-        $('#room_pwd_label').html(atob(result.roomPassword));
+        $('#room_number_label').html('&#x1F3E0;' +result.roomNumber);
+        $('#room_pwd_label').html('&#x1F511;' + atob(result.roomPassword));
         $('#user_name_label').html(result.userName);
         $('#login_room').hide();
         $('#room_info').show();
@@ -19,6 +21,26 @@ let Room = (function () {
         }
     };
 
+    function cleanBorders(elms) {
+        elms.forEach(function(elm) {
+            elm.css('border-color', '#e6e9ec');
+        })
+    }
+
+    function markFieldError(pwdElm) {
+        pwdElm.css('border-color', 'red');
+    }
+
+    function reportError(msg) {
+        let div = $("#login_error_section");
+        let msgElm = $('<b>').html(msg);
+        $('#login_error_section_msg').html(msgElm);
+        div.show();
+        div.fadeTo(2000, 1500).slideUp(1500, function () {
+            div.slideUp(1500);
+        });
+    }
+
     let join = function (evt){
         evt.preventDefault();
         console.log('submit');
@@ -26,7 +48,11 @@ let Room = (function () {
         let roomNumber = $('#room_number').val();
         let secret = $('#secret_code').val();
         let name = $('#player_name').val();
-
+        if(secret.length !== SECRET_LENGTH) {
+            markFieldError($("#secret_code"));
+            reportError('Secret must contain exactly: ' + SECRET_LENGTH + ' letters.');
+            return;
+        }
         $.ajax({
             cache: false,
             type: "POST",
@@ -54,11 +80,24 @@ let Room = (function () {
                 }
             },
             error: function (jqxhr, reasonStr, typeStr) {
+                let roomElm = $("#room_number");
+                let pwdElm = $("#pwd");
+                let secretCodeElm = $("#secret_code");
+                let playerNameElm = $("#player_name");
+                cleanBorders([roomElm, pwdElm, secretCodeElm, playerNameElm]);
                 console.log(typeStr + ' ' + JSON.stringify(jqxhr.responseJSON) + ': ' + reasonStr);
                 if(jqxhr.responseJSON.error.indexOf('wrong password') > 0) {
-                    $("#pwd").css("border-color","red");
+                    markFieldError(pwdElm);
+                    reportError('Wrong Room Password');
                 } else if(jqxhr.responseJSON.error.indexOf('room is full') > 0) {
-                    $("#room_number").css("border-color","red");
+                    markFieldError(roomElm);
+                    reportError('Room Is Full, Join another room');
+                } else if(jqxhr.responseJSON.error.indexOf('Invalid length for given secret') > 0) {
+                    markFieldError(secretCodeElm);
+                    reportError('Secret must contain exactly: ' + SECRET_LENGTH + ' letters.');
+                } else if(jqxhr.responseJSON.error.indexOf('Empty player name') > 0) {
+                    markFieldError(playerNameElm);
+                    reportError('Your name must not be empty');
                 }
             }
         }).done(function (resp) {

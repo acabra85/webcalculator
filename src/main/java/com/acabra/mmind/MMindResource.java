@@ -85,13 +85,13 @@ public class MMindResource implements AppResource {
     public void authenticate(@Suspended final AsyncResponse asyncResponse, MMindJoinRoomRequestDTO request) {
         CompletableFuture.supplyAsync(() -> {
             try {
-                MMindRequestValidator.validateSecret(request.getSecret());
+                MMindRequestValidator.validateJoinRequest(request);
                 return getResponse(Response.Status.OK, "guess submitted",
                         roomsAdmin.attemptAuthenticate(idGen.incrementAndGet(), request));
             } catch (Exception e) {
                 logger.error("error", e);
                 e.printStackTrace();
-                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, "submitted guess: " + e.getMessage(),
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage(),
                         error(idGen.incrementAndGet(), "unable to authenticate", e));
             }
         }).thenApply(asyncResponse::resume);
