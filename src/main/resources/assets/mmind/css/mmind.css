@@ -80,14 +80,8 @@
     width: 60px;
 }
 
-#admin_stats_table th td {
-    font-size: 8px;
-}
-
 #admin_section {
     display: none;
-    float: right;
-    width: 35%;
     padding: 3px;
 }
 
@@ -136,4 +130,15 @@ html, body{
 .expand_down {
     flex: 1;
 
+}
+
+.last_added_row {
+    border: 2px solid deepskyblue !important;
+}
+
+#admin_stats_rooms_table th, #admin_stats_rooms_table td {
+    padding: 0.25em !important;
+}
+#admin_stats_tokens_table th, #admin_stats_tokens_table td {
+    padding: 0.25em !important;
 }

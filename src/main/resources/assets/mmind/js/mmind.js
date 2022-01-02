@@ -26,13 +26,16 @@ let Main = (function () {
                     if (!res.failure) {
                         renderer.updateUserHistory(res.moveResult);
                         window.localStorage.setItem('lastConsumedEventId', res.moveResult.id);
-                        q.resolve(res);
+                        q.resolve(true);
                     } else {
-                        q.resolve();
+                        q.resolve(false);
                     }
-                }).fail(function (res) {
-                    console.log(res);
-                    q.resolve();
+                }).fail(function (jqhxr, errorText, type) {
+                    console.log(errorText);
+                    if(jqhxr.responseJSON.error.indexOf('Invalid length for given secret') > 0) {
+                        $('#guess_value').css('border-color', 'red');
+                    }
+                    q.resolve(false);
                 });
                 return q.promise();
             }
@@ -74,6 +77,10 @@ let Main = (function () {
             if(clearContents) {
                 tableBodyElm.html('');
             }
+            node.addClass('last_added_row');
+            setTimeout(function() {
+                node.removeClass('last_added_row');
+            }, 3000);
             tableBodyElm.prepend(node);
         }
 
@@ -88,8 +95,8 @@ let Main = (function () {
         };
 
         let drawRoomTokenInformation = function (tokenInfo) {
-            if (!tokenInfo) return '';
             let tokenInfoColumn = $('<td>');
+            if (!tokenInfo) return tokenInfoColumn;
             let tokenInfoElm = $('<ul>');
             tokenInfoElm.append($('<li>').html(tokenInfo.token));
             tokenInfoElm.append($('<li>').html(tokenInfo.expiresAfter));
@@ -124,7 +131,7 @@ let Main = (function () {
                         dataType: "json"
                     }).done(function (res){
                         if(!res.failure) {
-                            row.html('');
+                            row.remove();
                         } else {
                             alerts.showError('unable to remove token', 1000);
                         }
@@ -139,6 +146,34 @@ let Main = (function () {
             return row;
         }
 
+        function drawDeleteRoomButton(roomNumber, rowId) {
+            let deleteBtnElm = $('<button>');
+            deleteBtnElm.addClass('btn btn-danger btn-sm');
+            deleteBtnElm.html('X');
+            deleteBtnElm.click(function (){
+                $.ajax({
+                    cache: false,
+                    type: "DELETE",
+                    url: encodeURI('/api/mmind/room'),
+                    data: JSON.stringify({
+                        roomNumber: roomNumber,
+                        token: token
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function (res) {
+                    if(!res.failure) {
+                        $('#' + rowId).remove();
+                    } else {
+                        alerts.showError(res.message, 3000);
+                    }
+                }).fail(function (jqhxr, error, type) {
+                    alerts.showError(jqhxr.responseJSON.message, 3000);
+                });
+            })
+            return deleteBtnElm;
+        }
+
         let drawSystemInfoTable = function (resp) {
             let rooms = resp.rooms;
             let adminStats = $('#admin_stats');
@@ -146,8 +181,9 @@ let Main = (function () {
 
                 let tableBody = $('#admin_stats_rooms_table tbody');
                 tableBody.html('');
-                rooms.forEach(function (room) {
-                    let row = $('<tr>');
+                rooms.forEach(function (room, idx) {
+                    let rowId = 'room_row' + idx;
+                    let row = $('<tr id="' + rowId + '">');
 
                     let columnNumber = $('<td>');
                     columnNumber.html(room.number);
@@ -159,7 +195,7 @@ let Main = (function () {
 
                     row.append(drawRoomTokenInformation(room.hostToken));
                     row.append(drawRoomTokenInformation(room.guestToken));
-
+                    row.append($('<td style="text-align: center">').append(drawDeleteRoomButton(room.number, rowId)));
                     tableBody.append(row);
                 });
                 adminStats.show();
@@ -357,8 +393,7 @@ let Main = (function () {
         let guessBtn = $('#btn_guess');
         guessBtn.removeClass();
         guessBtn.prop('disabled', true);
-        let guessSectionElm = $('#guess_section');
-        guessSectionElm.hide();
+        $('#guess_section').hide();
         let btnRestart = $('#btn_restart');
         btnRestart.prop('disabled', false);
         btnRestart.addClass('btn btn-primary');
@@ -409,24 +444,29 @@ let Main = (function () {
         if (token != null) {
             let guessBtn = $("#btn_guess");
             let guessVal = $('#guess_value');
+            guessVal.css('border-color', '#e6e9ec');
             guessBtn.prop('disabled', true);
-            guessBtn.removeClass();
-            if (guessVal.val() && guessVal.val().trim().length > 0) {
+            if (guessVal.val() && guessVal.val().trim().length === SECRET_LENGTH) {
                 let num = parseInt(guessVal.val());
                 if (num >= 0 && num <= 9999) {
                     mmind.SendNumber(guessVal.val()).then(function (refresh) {
                         guessVal.val('');
                         if(refresh) {
+                            guessBtn.removeClass();
                             cycleRefresh();
+                        } else {
+                            guessBtn.prop('disabled', false);
                         }
                     });
                 } else {
-                    alerts.showError("Invalid: Numbers go from 0000 to 9999", 1500);
+                    alerts.showError("Invalid Guess: Only from 0000 to 9999", 1500);
                     guessBtn.prop('disabled', false);
+                    guessVal.css('border-color', 'red');
                 }
             } else {
-                alerts.showError("Invalid: Number to send must not be empty", 1500);
+                alerts.showError("Invalid Guess: Only from 0000 to 9999", 1500);
                 guessBtn.prop('disabled', false);
+                guessVal.css('border-color', 'red');
             }
         }
     };
@@ -483,6 +523,7 @@ let Main = (function () {
                 renderer.renderOwnSecret(res.secret);
                 $('#new_secret_value').val('');
                 renderer.resetGuessRow();
+                $('#guess_section').show();
                 cycleRefresh();
             } else if('AWAIT_MOVE' === res.action) {
                 alerts.showInfo('Get Ready game has restarted ...', 5000);
@@ -490,6 +531,7 @@ let Main = (function () {
                 renderer.renderOwnSecret(res.secret);
                 $('#new_secret_value').val('');
                 renderer.resetGuessRow();
+                $('#guess_section').show();
                 cycleRefresh();
             } else { // force room change
                 alerts.showError('Room Expired ... please refresh the page (press F5)', 10000);
@@ -524,7 +566,7 @@ $(document).ready(function () {
         Main.getRenderer().renderOpponentName(storedOpponentName);
     }
 
-    Main.getRenderer().renderSelectRow();
+    //Main.getRenderer().renderSelectRow();
 
     function isAdmin() {
         return window.localStorage.getItem('is_admin') === 'true';

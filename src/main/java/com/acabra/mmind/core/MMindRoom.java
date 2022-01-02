@@ -40,6 +40,7 @@ public class MMindRoom {
     }
 
     public boolean hasPlayerWithToken(String token) {
+        if(null == token) return false;
         final String hostToken = manager.retrieveHostToken();
         final String guestToken = manager.retrieveGuestToken();
         return token.equals(hostToken) || token.equals(guestToken);

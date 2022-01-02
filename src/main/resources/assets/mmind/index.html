@@ -11,100 +11,102 @@
     <body>
         <script src="../js/provider/jquery.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
-        <div id="general_information" style="display: none; text-align: center">
-            <h3><span id="general_information_msg"></span></h3>
-        </div>
-        <div id="admin_stats" style="display: none" class="round_edges">
-            <table id="admin_stats_rooms_table" class="table">
-                <thead><tr><th>Room #</th><th>Expiration</th><th>Host Token</th><th>Guest Token</th></tr></thead>
-                <tbody></tbody>
-            </table>
-            <table id="admin_stats_tokens_table" class="table">
-                <thead>
-                    <tr>
-                        <th>Token #</th><th>Expiration</th><th>Admin?</th><th>Room#</th>
-                        <th style="text-align: center">X</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div id="guess_section" class="round_edges" style="display: none">
-            <div style="float: left; width: 65%">
-                <form action="#" id="mmind_form" class="form-inline">
-                    <label class="sr-only" for="guess_value">Guess</label>
-                    <div class="input-group mb-2 mr-sm-2">
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">Guess</div>
-                        </div>
-                        <input id="guess_value" type="text" class="form-control"
-                               name="guess_value" minlength="4" maxlength="4"
-                               placeholder="XXXX" required/>
-                        <input id="btn_guess_surrogate" value="Guess" type="submit" class="" />
-                    </div>
-                </form>
+        <div style="display: flex;flex-direction: column; height: 100%">
+            <div id="general_information" style="display: none; text-align: center">
+                <h3><span id="general_information_msg"></span></h3>
             </div>
-            <div id="admin_section" style="display: none">
-                <button id="get_stats_button" type="button" class="btn btn-info btn-sm">Get Stats</button>
-            </div>
-        </div>
-        <div id="restart_section" style="display: none">
-            <form action="#" id="mmind_restart_form" class="form-inline">
-                <label class="sr-only" for="new_secret_value">New Secret</label>
-                <div class="input-group mb-2 mr-sm-2">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">New Secret</div>
-                    </div>
-                    <input id="new_secret_value" type="number" class="form-control"
-                           name="new_secret_value" min="0" max="9999" placeholder="XXXX" required/>
-                    <input id="btn_restart" value="Restart" type="submit" class="btn btn-primary"/>
-                </div>
-            </form>
-        </div>
-        <div id="game_result" style="display: none; text-align: center">
-            <h2><span id="game_result_label"></span></h2><br/>
-            <h3><span id="game_result_message"></span></h3>
-        </div>
-        <div id="history_section" class="round_edges">
-            <div id="opponent_moves">
-                <table id="opponent_table" class="table">
+            <div id="admin_stats" style="display: none" class="round_edges">
+                <table id="admin_stats_rooms_table" class="table-sm">
+                    <thead><tr><th>Room #</th><th>Expiration</th><th>Host Token</th>
+                        <th>Guest Token</th><th>X</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <table id="admin_stats_tokens_table" class="table-sm">
                     <thead>
                         <tr>
-                            <th colspan="6" style="text-align: center">
-                                <p>Last <span id="opponent_username" style="color: blue">[Opponent]</span>'s move</p>
-                            </th>
-                        </tr>
-                        <tr id="opponent_number_guess">
-                            <th colspan="5"></th>
-                            <th>Res</th>
+                            <th>Token #</th><th>Expiration</th><th>Admin?</th><th>Room#</th>
+                            <th style="text-align: center">X</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
-            <div id="user_moves">
-                <table id="user_table" class="table">
-                    <thead>
-                        <tr>
-                            <th colspan="6" style="text-align: center">
-                                <span>Your moves</span>
-                            </th>
-                        </tr>
-                        <tr id="user_number_guess">
-                            <th class="index_column">#</th>
-                            <th>?</th>
-                            <th>?</th>
-                            <th>?</th>
-                            <th>?</th>
-                            <th>Res</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+            <div id="game_result" style="display: none; text-align: center">
+                <h2><span id="game_result_label"></span></h2>
+                <h3><span id="game_result_message"></span></h3>
+            </div>
+            <div id="history_section" class="round_edges" style="flex: 1;">
+                <div id="opponent_moves">
+                    <table id="opponent_table" class="table">
+                        <thead>
+                            <tr>
+                                <th colspan="6" style="text-align: center">
+                                    <p>Last <span id="opponent_username" style="color: blue">[Opponent]</span>'s move</p>
+                                </th>
+                            </tr>
+                            <tr id="opponent_number_guess">
+                                <th colspan="5"></th>
+                                <th>Res</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div id="user_moves">
+                    <table id="user_table" class="table">
+                        <thead>
+                            <tr>
+                                <th colspan="6" style="text-align: center">
+                                    <div style="width: 100%;">
+                                        <div id="restart_section" style="display: none">
+                                            <form action="#" id="mmind_restart_form" class="form-inline">
+                                                <label class="sr-only" for="new_secret_value">New Secret</label>
+                                                <div class="input-group mb-2 mr-sm-2">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">New Secret</div>
+                                                    </div>
+                                                    <input id="new_secret_value" type="number" class="form-control"
+                                                           name="new_secret_value" min="0" max="9999" placeholder="XXXX" required/>
+                                                    <input id="btn_restart" value="Restart" type="submit" class="btn btn-primary"/>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div id="guess_section" class="round_edges" style="display: flex; flex-direction: row">
+                                            <div style="flex:1">
+                                                <form action="#" id="mmind_form" class="form-inline" style="display: block !important;">
+                                                    <label class="sr-only" for="guess_value">Guess</label>
+                                                    <div class="input-group mb-2 mr-sm-2">
+                                                        <div class="input-group-prepend">
+                                                            <div class="input-group-text">Guess</div>
+                                                        </div>
+                                                        <input id="guess_value" type="number" class="form-control"
+                                                               name="guess_value" min="0" max="9999"
+                                                               placeholder="XXXX" required/>
+                                                        <input id="btn_guess" value="Guess" type="submit" class="" disabled="disabled"/>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div id="admin_section" style="display: none; width: 15%">
+                                                <button id="get_stats_button" type="button" class="btn btn-info btn-xs">Stats</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            <tr id="user_number_guess">
+                                <th class="index_column">#</th>
+                                <th>?</th>
+                                <th>?</th>
+                                <th>?</th>
+                                <th>?</th>
+                                <th>Res</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
         <script src="js/mmind.js"></script>
     </body>
 </html>

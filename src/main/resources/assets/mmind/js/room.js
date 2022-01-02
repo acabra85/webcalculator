@@ -120,5 +120,14 @@ $(document).ready(function () {
     }
     console.log('ready');
     cleanLocalStorage();
+
+    function fastDefaults(room, password, name, secret) {
+        $('#room_number').val(room);
+        $('#pwd').val(password);
+        $('#player_name').val(name);
+        $('#secret_code').val(secret);
+    }
+
+    //fastDefaults('12', 'dasdas', 'name', '1111');
     $('#room_form').submit(Room.join);
 })

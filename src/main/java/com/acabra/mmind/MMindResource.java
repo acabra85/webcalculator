@@ -3,11 +3,9 @@ package com.acabra.mmind;
 import com.acabra.calculator.resources.AppResource;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.auth.MMindRequestValidator;
-import com.acabra.mmind.request.MMindDeleteTokenRequest;
-import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
-import com.acabra.mmind.request.MMindRequestDTO;
-import com.acabra.mmind.request.MMindRestartRequest;
+import com.acabra.mmind.request.*;
 import com.acabra.mmind.response.ErrorResponse;
+import com.acabra.mmind.response.MMindDeleteRoomResponse;
 import com.acabra.shared.CommonExecutorService;
 import com.codahale.metrics.annotation.Timed;
 import lombok.NonNull;
@@ -164,6 +162,26 @@ public class MMindResource implements AppResource {
                 final SimpleResponse deleteResult = roomsAdmin.processDeleteTokenRequest(idGen.incrementAndGet(), req);
                 return getResponse(deleteResult.isFailure() ? Response.Status.BAD_REQUEST : Response.Status.OK,
                         "delete status", deleteResult);
+            } catch (Exception e) {
+                logger.error("error", e);
+                return getResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                        "Unable To process delete request: " + e.getMessage(),
+                        error(idGen.incrementAndGet(), "unable to process delete", e));
+            }
+        }).thenApply(asyncResponse::resume);
+    }
+
+    @DELETE
+    @Timed
+    @ManagedAsync
+    @Path("/room")
+    public void deleteRoom(@Suspended final AsyncResponse asyncResponse, MMindDeleteRoomRequest req) {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                MMindRequestValidator.validateDeleteRoomRequest(req);
+                final MMindDeleteRoomResponse deleteResult = roomsAdmin.processDeleteRoomRequest(idGen.incrementAndGet(), req);
+                return getResponse(deleteResult.isFailure() ? Response.Status.NOT_FOUND : Response.Status.OK,
+                        deleteResult.getMessage(), deleteResult);
             } catch (Exception e) {
                 logger.error("error", e);
                 return getResponse(Response.Status.INTERNAL_SERVER_ERROR,

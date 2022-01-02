@@ -3,10 +3,7 @@ package com.acabra.mmind;
 import com.acabra.calculator.response.SimpleResponse;
 import com.acabra.mmind.auth.MMindTokenInfo;
 import com.acabra.mmind.core.*;
-import com.acabra.mmind.request.MMindDeleteTokenRequest;
-import com.acabra.mmind.request.MMindJoinRoomRequestDTO;
-import com.acabra.mmind.request.MMindRequestDTO;
-import com.acabra.mmind.request.MMindRestartRequest;
+import com.acabra.mmind.request.*;
 import com.acabra.mmind.response.*;
 import com.acabra.mmind.utils.B64Helper;
 import com.acabra.mmind.utils.TimeDateHelper;
@@ -103,10 +100,12 @@ public class MMindRoomsAdministrator {
             return hostARoom(request, request.getRoomNumber(), isAdmin);
         }
         if(room.getManager().awaitingGuest()) {
-            if((isAdmin || password.equals(room.getPassword()))) {
-                return joinRoomAsGuest(request, room, isAdmin);
-            }
-            throw new UnsupportedOperationException("Unable to join, wrong password for room: " + request.getRoomNumber());
+            //if((isAdmin || password.equals(room.getPassword()))) {
+                if(!room.hasPlayerWithToken(request.getToken())) {
+                    return joinRoomAsGuest(request, room, isAdmin);
+                }
+            //}
+            //throw new UnsupportedOperationException("Unable to join, wrong password for room: " + request.getRoomNumber());
         }
         throw new UnsupportedOperationException("Unable to join, room is full: " + request.getRoomNumber());
     }
@@ -231,6 +230,33 @@ public class MMindRoomsAdministrator {
         return MMindDeleteTokenResponse.builder()
                 .withId(id)
                 .withFailure(true)
+                .withMessage("unable to delete token as it might be in use")
+                .build();
+    }
+
+    public synchronized MMindDeleteRoomResponse processDeleteRoomRequest(long id, MMindDeleteRoomRequest req) {
+        MMindRoom room = rooms.get(req.getRoomNumber());
+        if(null != room && room.getRoomNumber() != auth.get(req.getToken()).getRoomNumber()) {
+            String guestToken = room.getManager().retrieveGuestToken();
+            if(auth.get(guestToken) != null) {
+                auth.remove(guestToken);
+            }
+            String hostToken = room.getManager().retrieveHostToken();
+            if (auth.get(hostToken) != null) {
+                auth.remove(hostToken);
+            }
+            rooms.remove(room.getRoomNumber());
+            return MMindDeleteRoomResponse.builder()
+                    .withMessage("room deleted :" + room.getRoomNumber())
+                    .withId(id)
+                    .withFailure(false)
+                    .build();
+        }
+        String msg = ": " + ((room == null) ? "not found" : "can't delete current room");
+        return MMindDeleteRoomResponse.builder()
+                .withId(id)
+                .withFailure(true)
+                .withMessage("unable to delete room: " + req.getRoomNumber() + msg)
                 .build();
     }
 }
