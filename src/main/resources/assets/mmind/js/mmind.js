@@ -268,6 +268,7 @@ let Main = (function () {
         let showAllOpponentMoves = function () {
             let opponentTable = $('#opponent_table tfoot');
             opponentTable.toggle();
+            $('#guess_value').focus();
         };
         return {
             updateUserHistory: updateUserHistory,

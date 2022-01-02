@@ -23,9 +23,9 @@ let Room = (function () {
             navigator.clipboard.writeText(buildUrlToShare(result.roomNumber, result.roomPassword))
                 .then(function(){
                     reportMessage('Link copied to clipboard!');
-                    $('#guess_value').focus();
+                    $('#game_room_content').contents().find('input[id=guess_value]').focus();
                 }, function () {
-                    $('#guess_value').focus();
+                    $('#game_room_content').contents().find('input[id=guess_value]').focus();
                     reportError('Unable to get link to share');
                 });
         });
