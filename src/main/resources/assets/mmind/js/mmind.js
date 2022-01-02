@@ -47,7 +47,7 @@ let Main = (function () {
             return fixes === 4 ? 'status_guess_winner' : spikes === 4 || fixes === 3 ? 'status_guess_close' : '';
         }
 
-        function appendHistory(tableBodySelector, moveResult, includeIndex, clearContents) {
+        function appendHistory(tableSelector, moveResult, includeIndex, clearContents) {
             let node = $('<tr>');
             let guess = moveResult.guess;
             if(includeIndex) {
@@ -73,9 +73,13 @@ let Main = (function () {
             resultColumn.append(spikesNode);
 
             node.append(resultColumn);
+            let tableBodySelector = tableSelector + ' tbody';
             let tableBodyElm = $(tableBodySelector);
             if(clearContents) {
+                let oldLastRow = tableBodyElm.html();
                 tableBodyElm.html('');
+                let tableFooterElm = $(tableSelector + ' tfoot');
+                tableFooterElm.prepend(oldLastRow);
             }
             node.addClass('last_added_row');
             setTimeout(function() {
@@ -86,12 +90,12 @@ let Main = (function () {
 
         let updateUserHistory = function (move) {
             console.log('updating view');
-            appendHistory('#user_table tbody', move, true, false);
+            appendHistory('#user_table', move, true, false);
         };
 
         let updateOpponentsMove = function (move) {
             console.log('update opponent\'s move');
-            appendHistory('#opponent_table tbody', move, true, true);
+            appendHistory('#opponent_table', move, true, true);
         };
 
         let drawRoomTokenInformation = function (tokenInfo) {
@@ -261,6 +265,10 @@ let Main = (function () {
             $('#user_table thead').append(rowElm);
         };
 
+        let showAllOpponentMoves = function () {
+            let opponentTable = $('#opponent_table tfoot');
+            opponentTable.toggle();
+        };
         return {
             updateUserHistory: updateUserHistory,
             updateOpponentsMove: updateOpponentsMove,
@@ -275,6 +283,7 @@ let Main = (function () {
             cleanMoves: function () {
                 $('#user_table tbody').html('');
                 $('#opponent_table tbody').html('');
+                $('#opponent_table tfoot').html('');
             },
             renderOwnSecret: function (secret) {
                 secret = secret ? secret : localStorage.getItem('ownsecret');
@@ -295,7 +304,8 @@ let Main = (function () {
                 for (let i = 0; i <SECRET_LENGTH; ++i) {
                     $('#digit_index_'+i).val(AVAILABLE_DIGITS.charAt(0));
                 }
-            }
+            },
+            showAllOpponentMoves : showAllOpponentMoves
         };
     }
 
@@ -332,7 +342,7 @@ let Main = (function () {
             if (result === parseInt(playerIdStr, 10)) {
                 return ['You WON&#x1F389;&#x1F38A;!!', 'Congratulations &#x1F44F;'];
             }
-            return ['You Lost!!&#x1F613;', '... better luck next time'];
+            return [opponentName + ' won!!&#x1F613;', '... better luck next time'];
         }
 
         function getResultDecoration(result) {
@@ -369,7 +379,6 @@ let Main = (function () {
     let alerts = Alerts();
 
     let statusTimeoutVar = null;
-    let restartTimeoutVar = null;
 
     function drawLastMove(statusResponse) {
         const lastConsumedEventIdKey = 'lastConsumedEventId';
@@ -596,6 +605,7 @@ $(document).ready(function () {
     }
     $('#mmind_form').submit(Main.sendNumber);
     $('#mmind_restart_form').submit(Main.restart);
+    $('#btn_show_all_opponent_moves').click(Main.getRenderer().showAllOpponentMoves);
     console.log('JOINED!!');
     Main.cycleRefresh();
 });
