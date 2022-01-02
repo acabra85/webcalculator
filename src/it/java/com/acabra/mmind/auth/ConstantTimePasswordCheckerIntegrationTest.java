@@ -9,11 +9,11 @@ import java.util.LongSummaryStatistics;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-class ConstantTimePasswordCheckerTest {
-    private Random random = new Random();
+public class ConstantTimePasswordCheckerIntegrationTest {
 
     @Test
     public void avgTimeChecking() {
+        Random random = new Random();
         LongSummaryStatistics lss = new LongSummaryStatistics();
         String[] passwords = UtilsTest.readPasswordsFromFile("timecheck_test_input.txt");
         int bound = passwords.length;
@@ -27,7 +27,10 @@ class ConstantTimePasswordCheckerTest {
         long averageMillis = TimeUnit.NANOSECONDS.toMillis(Double.valueOf(lss.getAverage()).longValue());
         System.out.println("millis ->" + averageMillis);
         System.out.println("nano ->" + lss.getAverage());
-        Assertions.assertThat(averageMillis).isCloseTo(200L, Assertions.within(5L));
+        Assertions.assertThat(averageMillis)
+                .withFailMessage("Expected Average Time to differ only by 5ms but was: "
+                        + Math.abs(200L - averageMillis))
+                .isCloseTo(200L, Assertions.within(5L));
     }
 
 }

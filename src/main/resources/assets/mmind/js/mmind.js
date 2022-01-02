@@ -407,6 +407,7 @@ let Main = (function () {
         btnRestart.prop('disabled', false);
         btnRestart.addClass('btn btn-primary');
         $('#restart_section').show();
+        $('#new_secret_value').focus();
     }
 
     function executeMakeMoveEvent(statusResponse) {
@@ -533,6 +534,7 @@ let Main = (function () {
                 $('#new_secret_value').val('');
                 renderer.resetGuessRow();
                 $('#guess_section').show();
+                $('#guess_value').focus();
                 cycleRefresh();
             } else if('AWAIT_MOVE' === res.action) {
                 alerts.showInfo('Get Ready game has restarted ...', 5000);
@@ -541,6 +543,7 @@ let Main = (function () {
                 $('#new_secret_value').val('');
                 renderer.resetGuessRow();
                 $('#guess_section').show();
+                $('#guess_value').focus();
                 cycleRefresh();
             } else { // force room change
                 alerts.showError('Room Expired ... please refresh the page (press F5)', 10000);
@@ -603,6 +606,7 @@ $(document).ready(function () {
             }
         });
     }
+    $('#guess_value').focus();
     $('#mmind_form').submit(Main.sendNumber);
     $('#mmind_restart_form').submit(Main.restart);
     $('#btn_show_all_opponent_moves').click(Main.getRenderer().showAllOpponentMoves);

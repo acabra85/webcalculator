@@ -93,7 +93,7 @@
     text-align: center;
 }
 
-#login_error_section {
+#login_notification_section {
     display: none;
     text-align: center;
     padding-top: 25px;

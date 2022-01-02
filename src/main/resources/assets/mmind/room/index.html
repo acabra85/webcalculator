@@ -60,15 +60,15 @@
                         <input id="btn_join" value="Join Room" type="submit" class="btn btn-primary"/>
                     </form>
                 </div>
-                <div id="login_error_section" class="error_alert round_edges">
-                    <span id="login_error_section_msg"></span>
-                </div>
                 <div class="round_edges">
                     <p><b>Game's Objective: </b> Guess your opponent's <b>Secret</b></p>
                     <p><b>Fixes: </b>Represented by "<b>F</b>", are digits in your "guess" that are present in your opponent's secret in the exact position.</p>
                     <p><b>Spikes: </b>Represented by "<b>S</b>", are remaining digits from your "guess" (Not Fixes) present in your opponent's secret in incorrect position.</p>
                 </div>
                 <script src="js/room.js"></script>
+            </div>
+            <div id="login_notification_section" class="round_edges">
+                <span id="login_notification_section_msg"></span>
             </div>
             <div id="game_room" style="display: none" class="round_edges">
                 <iframe id="game_room_content" src="" class="game_room_content_cls"></iframe>
