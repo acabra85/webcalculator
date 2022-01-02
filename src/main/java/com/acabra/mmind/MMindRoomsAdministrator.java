@@ -1,6 +1,7 @@
 package com.acabra.mmind;
 
 import com.acabra.calculator.response.SimpleResponse;
+import com.acabra.mmind.auth.ConstantTimePasswordChecker;
 import com.acabra.mmind.auth.MMindTokenInfo;
 import com.acabra.mmind.core.*;
 import com.acabra.mmind.request.*;
@@ -80,7 +81,7 @@ public class MMindRoomsAdministrator {
     }
 
     private boolean isAdminPassword(String password) {
-        return ADM_PWD.equals(password);
+        return ConstantTimePasswordChecker.check(ADM_PWD, password);
     }
 
     private boolean isAdminToken(String token) {
@@ -100,12 +101,12 @@ public class MMindRoomsAdministrator {
             return hostARoom(request, request.getRoomNumber(), isAdmin);
         }
         if(room.getManager().awaitingGuest()) {
-            //if((isAdmin || password.equals(room.getPassword()))) {
+            if((isAdmin || ConstantTimePasswordChecker.check(room.getPassword(), password))) {
                 if(!room.hasPlayerWithToken(request.getToken())) {
                     return joinRoomAsGuest(request, room, isAdmin);
                 }
-            //}
-            //throw new UnsupportedOperationException("Unable to join, wrong password for room: " + request.getRoomNumber());
+            }
+            throw new UnsupportedOperationException("Unable to join, wrong password for room: " + request.getRoomNumber());
         }
         throw new UnsupportedOperationException("Unable to join, room is full: " + request.getRoomNumber());
     }

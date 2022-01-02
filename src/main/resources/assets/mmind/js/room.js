@@ -111,6 +111,18 @@ let Room = (function () {
 })();
 
 $(document).ready(function () {
+    function buildQueryParamsMap() {
+        let map = new Map();
+        let hasParams = window.location.href.indexOf('?');
+        if(!hasParams) return map;
+        let hashes = window.location.href.slice(hasParams + 1).split('&');
+        for(let i = 0; i < hashes.length; ++i) {
+            let item = hashes[i].split('=');
+            map.set(item[0], item[1]);
+        }
+        return map;
+    }
+
     function cleanLocalStorage() {
         let cacheKeys = ['sessid', 'room_number', 'ownsecret', 'is_admin', 'lastConsumedEventId', 'player_id',
             'opponentName'];
@@ -128,6 +140,13 @@ $(document).ready(function () {
         $('#secret_code').val(secret);
     }
 
+    let queryParams = buildQueryParamsMap();
     //fastDefaults('12', 'dasdas', 'name', '1111');
+    if(queryParams.has('room_number')) {
+        $('#room_number').val(queryParams.get('room_number'));
+    }
+    if(queryParams.has('room_password')) {
+        $('#pwd').val(queryParams.get('room_password'));
+    }
     $('#room_form').submit(Room.join);
 })
