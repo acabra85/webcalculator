@@ -183,5 +183,8 @@ $(document).ready(function () {
     if(queryParams.has('room_password')) {
         $('#pwd').val(atob(queryParams.get('room_password')));
     }
+    $(window).on("beforeunload", function() { 
+        return 'Your progress will be lost';
+    });
     $('#room_form').submit(Room.join);
 })
