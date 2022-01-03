@@ -20,6 +20,7 @@
                     <p>
                         <span id="room_number_label"></span>
                         <span id="room_pwd_label"></span>
+                        <span id="logout_label"></span>
                     </p>
                 </div>
             </div>
@@ -60,10 +61,23 @@
                         <input id="btn_join" value="Join Room" type="submit" class="btn btn-primary"/>
                     </form>
                 </div>
-                <div class="round_edges">
-                    <p><b>Game's Objective: </b> Guess your opponent's <b>Secret</b></p>
-                    <p><b>Fixes: </b>Represented by "<b>F</b>", are digits in your "guess" that are present in your opponent's secret in the exact position.</p>
-                    <p><b>Spikes: </b>Represented by "<b>S</b>", are remaining digits from your "guess" (Not Fixes) present in your opponent's secret in incorrect position.</p>
+                <div id="game_rules_section" class="round_edges">
+                    <table class="table-sm">
+                        <thead>
+                            <tr>
+                                <th>Rules</th>
+                                <th>
+                                    <select id="language_picker_id" class="form-control-sm">
+                                        <option value="_none" selected>-Select-</option>
+                                        <option value="en">English</option>
+                                        <option value="es">Espanol</option>
+                                    </select>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
                 <script src="js/room.js"></script>
             </div>
