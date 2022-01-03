@@ -12,16 +12,12 @@ let Room = (function () {
             + '&room_password='+roomPassword);
     }
 
-    let joinRoom = function (result) {
-        $('#room_number_label').html('&#x1F3E0;' +result.roomNumber);
-        let roomLabelElm = $('#room_pwd_label');
-        roomLabelElm.html('');
-        let buttonShareElm = $('<button class="btn btn-xs btn-secondary" ' +
-            'style="padding: 0rem .75rem; font-size: 0.75em">');
+    function appendShareButton(result) {
+        let buttonShareElm = $('<button class="btn btn-xs btn-secondary room-info-buttons">');
         buttonShareElm.html('&#x1F511;' + atob(result.roomPassword));
-        buttonShareElm.click(function(){
+        buttonShareElm.click(function () {
             navigator.clipboard.writeText(buildUrlToShare(result.roomNumber, result.roomPassword))
-                .then(function(){
+                .then(function () {
                     reportMessage('Link copied to clipboard!');
                     $('#game_room_content').contents().find('input[id=guess_value]').focus();
                 }, function () {
@@ -29,7 +25,27 @@ let Room = (function () {
                     reportError('Unable to get link to share');
                 });
         });
-        roomLabelElm.append(buttonShareElm);
+        return buttonShareElm;
+    }
+
+    let logout = function () {
+    };
+
+    function appendLogoutButton() {
+        let logoutButtonElm = $('<button class="btn btn-xs btn-primary room-info-buttons">');
+        logoutButtonElm.html('&#x26D4;');
+        logoutButtonElm.click(logout);
+        return logoutButtonElm;
+    }
+
+    let joinRoom = function (result) {
+        $('#room_number_label').html('&#x1F3E0;' +result.roomNumber);
+        let roomLabelElm = $('#room_pwd_label');
+        roomLabelElm.html('');
+        roomLabelElm.append(appendShareButton(result));
+        //let logoutLabelElm = $('#logout_label');
+        //logoutLabelElm.html('');
+        //logoutLabelElm.append(appendLogoutButton());
         $('#user_name_label').html(result.userName);
         $('#login_room').hide();
         $('#room_info').show();

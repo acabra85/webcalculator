@@ -12,6 +12,10 @@
 
 #opponent_table th, #opponent_table td {
     padding: 0.35em !important;
+    text-align: center !important;
+}
+#user_table th, #opponent_table td {
+    text-align: center !important;
 }
 
 .room_info_player_label {
@@ -142,3 +146,10 @@ html, body{
 #admin_stats_tokens_table th, #admin_stats_tokens_table td {
     padding: 0.25em !important;
 }
+
+.room-info-buttons {
+    padding: 0rem .75rem !important;
+    font-size: 0.75em !important;
+}
+
+

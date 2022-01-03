@@ -129,15 +129,18 @@ public class MMindRoomsAdministrator {
         MMindStatusEventType eventType = manager.calculateEventType(token);
         MMindMoveResultDTO lastMove = lastHistoryItem != null ?
                 MMindResultMapper.toResultDTO(lastHistoryItem.getMoveResult()) : null;
-        return MMindStatusResponse.builder()
+        MMindStatusResponse.MMindStatusResponseBuilder builder = MMindStatusResponse.builder()
                 .withId(id)
                 .withFailure(false)
                 .withEventType(eventType.toString())
                 .withLastMove(lastMove)
                 .withOpponentName(manager.getOpponentsName(token))
-                .withIsOwnMove(lastHistoryItem != null ? token.equals(lastHistoryItem.getPlayerToken()) : null)
-                .withResult(MMindStatusEventType.GAME_OVER_EVT == eventType ? manager.provideEndResult() : null)
-                .build();
+                .withIsOwnMove(lastHistoryItem != null ? token.equals(lastHistoryItem.getPlayerToken()) : null);
+        if(eventType == MMindStatusEventType.GAME_OVER_EVT) {
+            builder.withResult(manager.provideEndResult())
+                .withOpponentSecret(manager.provideOpponentsSecret(token));
+        }
+        return builder.build();
     }
 
     public synchronized void clean() {

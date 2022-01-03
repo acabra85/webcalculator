@@ -47,8 +47,22 @@ let Main = (function () {
             return fixes === 4 ? 'status_guess_winner' : spikes === 4 || fixes === 3 ? 'status_guess_close' : '';
         }
 
-        function appendHistory(tableSelector, moveResult, includeIndex, clearContents) {
-            let node = $('<tr>');
+        function swapLastMoveToFooterSection(tableBodyElm, tableSelector) {
+            let row = tableBodyElm.children('tr:first');
+            let tableFooterElm = $(tableSelector + ' tfoot');
+            let footRow = $('<tr style="text-align: center">');
+            row.children().each(function (idx, td) {
+                let tdElm = $(td);
+                let footCol = (idx === 0) ? $('<th>').addClass('index_column') : $('<td>');
+                footCol.text(tdElm.text())
+                footRow.append(footCol);
+            });
+            row.remove();
+            tableFooterElm.prepend(footRow);
+        }
+
+        function appendHistory(tableSelector, moveResult, includeIndex, swapLastMoveToFooter) {
+            let node = $('<tr style="text-align: center">');
             let guess = moveResult.guess;
             if(includeIndex) {
                 let index_column = $('<th>');
@@ -63,7 +77,7 @@ let Main = (function () {
                 column.html(guess.charAt(i));
                 node.append(column);
             }
-            let resultColumn = $('<td>');
+            let resultColumn = $('<td style="text-align: center">');
             resultColumn.addClass(colorGuess);
             let fixesNode = $('<span>');
             fixesNode.html('<b>F:</b>' + moveResult.fixes + '&nbsp;');
@@ -75,11 +89,8 @@ let Main = (function () {
             node.append(resultColumn);
             let tableBodySelector = tableSelector + ' tbody';
             let tableBodyElm = $(tableBodySelector);
-            if(clearContents) {
-                let oldLastRow = tableBodyElm.html();
-                tableBodyElm.html('');
-                let tableFooterElm = $(tableSelector + ' tfoot');
-                tableFooterElm.prepend(oldLastRow);
+            if(swapLastMoveToFooter) {
+                swapLastMoveToFooterSection(tableBodyElm, tableSelector);
             }
             node.addClass('last_added_row');
             setTimeout(function() {
@@ -270,6 +281,57 @@ let Main = (function () {
             opponentTable.toggle();
             $('#guess_value').focus();
         };
+        let animateSecretVar = null;
+
+        function decorateUndecorate(opponentsSecretElm, cls, addClass) {
+            opponentsSecretElm.children().each(function (idx, td) {
+                if (idx >= 1 && idx <= 4) {
+                    if (addClass) {
+                        $(td).addClass(cls);
+                    } else {
+                        $(td).removeClass();
+                    }
+                }
+            });
+        }
+
+        function flickerResult(jqElm, cls, addClass) {
+            decorateUndecorate(jqElm, cls, addClass);
+            animateSecretVar = setTimeout(function(){
+                flickerResult(jqElm, cls, !addClass);
+            }, 1500);
+        }
+
+        let animateOpponentsSecret = function (opponentSecret, cls) {
+            let opponentsSecretElm = $('#user_number_guess');
+            opponentsSecretElm.children().each(function (idx, td) {
+                if(idx >= 1 && idx <= 4) {
+                    let child = $(td);
+                    child.html(opponentSecret.charAt(idx-1));
+                    child.addClass(cls);
+                }
+            });
+            flickerResult(opponentsSecretElm, cls, false);
+        };
+
+        let drawQuestionMarksForOpponentsSecret = function() {
+            let opponentsSecretElm = $('#user_number_guess');
+            opponentsSecretElm.html('');
+            opponentsSecretElm.append($('<th class="index_column">').text('#'))
+                .append($('<th>').text('?'))
+                .append($('<th>').text('?'))
+                .append($('<th>').text('?'))
+                .append($('<th>').text('?'))
+                .append($('<th style="text-align: center">').text('Res'));
+        }
+
+        let getResultDecorationClass = function (result) {
+            if(result === -1 || result === parseInt(playerIdStr, 10)) {
+                return 'winner_result_cls'
+            }
+            return 'loser_result_cls';
+        };
+
         return {
             updateUserHistory: updateUserHistory,
             updateOpponentsMove: updateOpponentsMove,
@@ -296,9 +358,7 @@ let Main = (function () {
                     child.html(secret.charAt(i));
                     targetRow.append(child);
                 }
-                let resultCol = $('<th>');
-                resultCol.html('Res');
-                targetRow.append(resultCol);
+                targetRow.append($('<th style="text-align: center">').html('Res'));
             },
             renderSelectRow: renderSelectRow,
             resetGuessRow: function () {
@@ -306,7 +366,14 @@ let Main = (function () {
                     $('#digit_index_'+i).val(AVAILABLE_DIGITS.charAt(0));
                 }
             },
-            showAllOpponentMoves : showAllOpponentMoves
+            showAllOpponentMoves : showAllOpponentMoves,
+            animateOpponentsSecret: animateOpponentsSecret,
+            getResultDecorationClass: getResultDecorationClass,
+            drawQuestionMarksForOpponentsSecret: drawQuestionMarksForOpponentsSecret,
+            stopFlickerAnimation: function () {
+                clearTimeout(animateSecretVar);
+                animateSecretVar = null;
+            }
         };
     }
 
@@ -346,13 +413,6 @@ let Main = (function () {
             return [opponentName + ' won!!&#x1F613;', '... better luck next time'];
         }
 
-        function getResultDecoration(result) {
-            if(result === -1 || result === parseInt(playerIdStr, 10)) {
-                return 'winner_result_cls'
-            }
-            return 'loser_result_cls';
-        }
-
         return {
             showError: function (msg, durationMillis) {
                 showInfo(msg, durationMillis, ERROR_MSG_TYPE);
@@ -364,12 +424,12 @@ let Main = (function () {
             showInfo: function (msg) {
                 showInfo(msg, 3000, INFO_MSG_TYPE);
             },
-            gameOver: function (result, opponentName) {
+            gameOver: function (result, opponentName, decoration_cls) {
                 let gameResultElm = $('#game_result');
                 let textResults = buildTextResult(result, opponentName);
                 $('#game_result_label').html(textResults[0]);
                 $('#game_result_message').html(textResults[1]);
-                gameResultElm.addClass(getResultDecoration(result));
+                gameResultElm.addClass(decoration_cls);
                 gameResultElm.show();
             }
         };
@@ -399,7 +459,9 @@ let Main = (function () {
     function executeGameOverEvent(statusResponse) {
         stopFunction(statusTimeoutVar);
         drawLastMove(statusResponse);
-        alerts.gameOver(statusResponse.result, statusResponse.opponentName);
+        let decoration_cls = renderer.getResultDecorationClass(statusResponse.result);
+        alerts.gameOver(statusResponse.result, statusResponse.opponentName, decoration_cls);
+        renderer.animateOpponentsSecret(statusResponse.opponentSecret, decoration_cls);
         let guessBtn = $('#btn_guess');
         guessBtn.removeClass();
         guessBtn.prop('disabled', true);
@@ -434,7 +496,10 @@ let Main = (function () {
                 }
             })
             .fail(function (failedResponse) {
-                alerts.showError('failed to retrieve status: ' + failedResponse.statusText + ' please refresh (press F5) the page!');
+                alerts.showError(
+                    'failed to retrieve status: ' + failedResponse.statusText + ' please refresh (press F5) the page!',
+                    600000);
+                stopFunction(statusTimeoutVar);
             })
             .always(function () {
                 console.log('retrieved status');
@@ -492,6 +557,7 @@ let Main = (function () {
 
     let restart = function (evt) {
         evt.preventDefault();
+        renderer.stopFlickerAnimation();
         let btnRestart = $('#btn_restart');
         btnRestart.prop('disabled', true);
 
@@ -528,6 +594,7 @@ let Main = (function () {
             let restartSectionElm  = $('#restart_section');
             restartSectionElm.removeClass();
             restartSectionElm.hide();
+            renderer.drawQuestionMarksForOpponentsSecret();
             if ('AWAIT_GUEST' === res.action) {
                 alerts.showInfo('Game starting soon, awaiting for guest...');
                 $('#btn_guess').prop('disabled', true);
@@ -573,13 +640,12 @@ let Main = (function () {
 })();
 
 $(document).ready(function () {
+    if(!localStorage.getItem('ownsecret')) return;
     Main.getRenderer().renderOwnSecret();
     let storedOpponentName = window.localStorage.getItem('opponentName');
     if(storedOpponentName) {
         Main.getRenderer().renderOpponentName(storedOpponentName);
     }
-
-    //Main.getRenderer().renderSelectRow();
 
     function isAdmin() {
         return window.localStorage.getItem('is_admin') === 'true';
@@ -611,6 +677,5 @@ $(document).ready(function () {
     $('#mmind_form').submit(Main.sendNumber);
     $('#mmind_restart_form').submit(Main.restart);
     $('#btn_show_all_opponent_moves').click(Main.getRenderer().showAllOpponentMoves);
-    console.log('JOINED!!');
     Main.cycleRefresh();
 });

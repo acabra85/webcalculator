@@ -117,13 +117,11 @@ public class MMindGameManager {
             final MMindHistoryItem p2MoveHistoryItem = moves.get(moves.size() - 2);
             MMindMoveResult p1MoveResult = p1MoveHistoryItem.getMoveResult();
             MMindMoveResult p2MoveResult = p2MoveHistoryItem.getMoveResult();
-            if (isGameOver(p1MoveResult, p2MoveResult)) {
-                int res = Integer.compare(p1MoveResult.getFixes(), p2MoveResult.getFixes());
-                if (res == 0) {
-                    return -1L;
-                }
-                return res < 0 ? p2MoveHistoryItem.getPlayerId() : p1MoveHistoryItem.getPlayerId();
+            int res = Integer.compare(p1MoveResult.getFixes(), p2MoveResult.getFixes());
+            if (res == 0) {
+                return -1L;
             }
+            return res < 0 ? p2MoveHistoryItem.getPlayerId() : p1MoveHistoryItem.getPlayerId();
         }
         return null;
     }
@@ -168,5 +166,13 @@ public class MMindGameManager {
 
     public String getGuestName() {
         return getGuest().getName();
+    }
+
+    public String provideOpponentsSecret(String token) {
+        MMindPlayer guest = getGuest();
+        if(guest.getToken().equals(token)) {
+            return new String(getHost().getSecret());
+        }
+        return new String(guest.getSecret());
     }
 }

@@ -12,6 +12,7 @@ public class MMindStatusResponse extends SimpleResponse {
     private final MMindMoveResultDTO lastMove;
     private final Long result;
     private final String opponentName;
+    private final String opponentSecret;
     private final Boolean isOwnMove;
     private final String eventType;
 
@@ -22,6 +23,7 @@ public class MMindStatusResponse extends SimpleResponse {
                                   @JsonProperty("lastMove") MMindMoveResultDTO lastMove,
                                   @JsonProperty("result") Long result,
                                   @JsonProperty("opponentName") String opponentName,
+                                  @JsonProperty("opponentSecret") String opponentSecret,
                                   @JsonProperty("isOwnMove") Boolean isOwnMove) {
         super(id, failure);
         this.eventType = eventType;
@@ -29,5 +31,6 @@ public class MMindStatusResponse extends SimpleResponse {
         this.result = result;
         this.opponentName = opponentName;
         this.isOwnMove = isOwnMove;
+        this.opponentSecret = opponentSecret;
     }
 }
