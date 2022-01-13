@@ -7,7 +7,7 @@ import com.acabra.calculator.resources.WebCalculatorResource;
 import com.acabra.calculator.view.RenderType;
 import com.acabra.calculator.view.WebCalculatorRenderFactory;
 import com.acabra.health.TemplateHealthCheck;
-import com.acabra.mmind.MMindResource;
+import com.acabra.fsands.FixSpikeResource;
 import com.acabra.roulette.resource.RouletteResource;
 import com.acabra.shared.CommonExecutorService;
 import io.dropwizard.Application;
@@ -81,7 +81,7 @@ public class WebCalculatorApplication extends Application<WebCalculatorConfigura
         CommonExecutorService commonExecutorService = new CommonExecutorService();
         environment.jersey().register(new WebCalculatorResource(webCalculatorManager));
         environment.jersey().register(new RouletteResource(commonExecutorService));
-        environment.jersey().register(new MMindResource(commonExecutorService));
+        environment.jersey().register(new FixSpikeResource(commonExecutorService));
 
         registerHealthChecks(configuration, environment);
 

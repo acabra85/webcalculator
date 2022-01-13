@@ -1,1 +1,1 @@
-web:    java -jar target\webcalculator-MMIND1.0-SNAPSHOT.jar server config\webcalculator.yml
+web:    java -jar target\FIXSPIKE-1.0-SNAPSHOT.jar server config\webcalculator.yml

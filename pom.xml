@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.acabra</groupId>
-    <version>MMIND1.0-SNAPSHOT</version>
-    <artifactId>webcalculator</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <artifactId>FIXSPIKE</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -21,8 +21,8 @@
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <roulette.assets>${project.basedir}/src/main/resources/assets/roulette</roulette.assets>
         <roulette.assets.ovr>${project.basedir}/src/main/resources/assets/localhost%3a8080/roulette</roulette.assets.ovr>
-        <mmind.assets>${project.basedir}/src/main/resources/assets/mmind</mmind.assets>
-        <mmind.assets.ovr>${project.basedir}/src/main/resources/assets/localhost%3a8080/mmind</mmind.assets.ovr>
+        <fsands.assets>${project.basedir}/src/main/resources/assets/fsands</fsands.assets>
+        <fsands.assets.ovr>${project.basedir}/src/main/resources/assets/localhost%3a8080/fsands</fsands.assets.ovr>
     </properties>
     <profiles>
 
@@ -360,40 +360,40 @@
                                         <copy file="${roulette.assets.ovr}/css/roulette.css" tofile="${roulette.assets}/css/roulette.css" />
                                     </then>
                                 </if>
-                                <!--mmind resources-->
+                                <!--fsands resources-->
                                 <if>
-                                    <available file="${mmind.assets.ovr}/index.html" />
+                                    <available file="${fsands.assets.ovr}/index.html" />
                                     <then>
-                                        <copy file="${mmind.assets}/index.html" tofile="${mmind.assets}/index.html.orig" />
-                                        <copy file="${mmind.assets.ovr}/index.html" tofile="${mmind.assets}/index.html" />
+                                        <copy file="${fsands.assets}/index.html" tofile="${fsands.assets}/index.html.orig" />
+                                        <copy file="${fsands.assets.ovr}/index.html" tofile="${fsands.assets}/index.html" />
                                     </then>
                                 </if>
                                 <if>
-                                    <available file="${mmind.assets.ovr}/room/index.html" />
+                                    <available file="${fsands.assets.ovr}/room/index.html" />
                                     <then>
-                                        <copy file="${mmind.assets}/room/index.html" tofile="${mmind.assets}/room/index.html.orig" />
-                                        <copy file="${mmind.assets.ovr}/room/index.html" tofile="${mmind.assets}/room/index.html" />
+                                        <copy file="${fsands.assets}/room/index.html" tofile="${fsands.assets}/room/index.html.orig" />
+                                        <copy file="${fsands.assets.ovr}/room/index.html" tofile="${fsands.assets}/room/index.html" />
                                     </then>
                                 </if>
                                 <if>
-                                    <available file="${mmind.assets.ovr}/js/mmind.js" />
+                                    <available file="${fsands.assets.ovr}/js/fsands.js" />
                                     <then>
-                                        <copy file="${mmind.assets}/js/mmind.js" tofile="${mmind.assets}/js/mmind.js.orig" />
-                                        <copy file="${mmind.assets.ovr}/js/mmind.js" tofile="${mmind.assets}/js/mmind.js" />
+                                        <copy file="${fsands.assets}/js/fsands.js" tofile="${fsands.assets}/js/fsands.js.orig" />
+                                        <copy file="${fsands.assets.ovr}/js/fsands.js" tofile="${fsands.assets}/js/fsands.js" />
                                     </then>
                                 </if>
                                 <if>
-                                    <available file="${mmind.assets.ovr}/js/room.js" />
+                                    <available file="${fsands.assets.ovr}/js/room.js" />
                                     <then>
-                                        <copy file="${mmind.assets}/js/room.js" tofile="${mmind.assets}/js/room.js.orig" />
-                                        <copy file="${mmind.assets.ovr}/js/room.js" tofile="${mmind.assets}/js/room.js" />
+                                        <copy file="${fsands.assets}/js/room.js" tofile="${fsands.assets}/js/room.js.orig" />
+                                        <copy file="${fsands.assets.ovr}/js/room.js" tofile="${fsands.assets}/js/room.js" />
                                     </then>
                                 </if>
                                 <if>
-                                    <available file="${mmind.assets.ovr}/css/mmind.css" />
+                                    <available file="${fsands.assets.ovr}/css/fsands.css" />
                                     <then>
-                                        <copy file="${mmind.assets}/css/mmind.css" tofile="${mmind.assets}/css/mmind.css.orig" />
-                                        <copy file="${mmind.assets.ovr}/css/mmind.css" tofile="${mmind.assets}/css/mmind.css" />
+                                        <copy file="${fsands.assets}/css/fsands.css" tofile="${fsands.assets}/css/fsands.css.orig" />
+                                        <copy file="${fsands.assets.ovr}/css/fsands.css" tofile="${fsands.assets}/css/fsands.css" />
                                     </then>
                                 </if>
                             </target>
