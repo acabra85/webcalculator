@@ -14,7 +14,7 @@
         <mockito.version>4.2.0</mockito.version>
         <assertj.version>3.20.2</assertj.version>
         <junitjuniper.version>5.8.2</junitjuniper.version>
-        <quartz.version>2.3.1</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
         <jdkversion>11</jdkversion>
         <lombokversion>1.18.22</lombokversion>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
