@@ -206,7 +206,22 @@ let Rules = (function () {
                 '<tr><th>Tur</th><td> En spiller sender et <b>gæt</b>, og for svar i form af "F" og "S"</td></tr>' +
                 '<tr><th>Runde</th><td> Består af 2 ture (en for hver spiller), der er ingen grænser for antal ture i spillet.</td></tr>' +
                 '<tr><th>Spillets afslutning</th><td>Ved slutningen af en <b>Runde</b>hvor en eller begge spiller har gætte deres modstanders (<b>4 Fixes</b>)</td></tr>'
+        },
+        {
+            id: 'pl',
+            name: 'Polski',
+            rulesLabel: 'Zasady',
+            rulesHTML: '<tr><th>Cel gry</th><td>Zgadnij <b>sekret</b> przeciwnika</td></tr>' +
+                '<tr><th>Sekret</th><td>Cztery cyfry w przedziale od 0000 do 9999</td></tr>' +
+                '<tr><th>Fixes</th><td>Reprezentowane przez „<b>F</b>" to cyfry w twoim „zgadywaniu”, które są obecne w sekrecie przeciwnika w dokładnej pozycji</td></tr>' +
+                '<tr><th>Spikes</th><td>Reprezentowane przez „<b>S</b>” to pozostałe cyfry z twojego „zgadywania” obecne w sekrecie przeciwnika w nieprawidłowej pozycji</td></tr>' +
+                '<tr><th>Ruch</th><td> Gracz wpisuje cyfry i naciska <b>Guess</b> i otrzymuje wynik w postaci „<b>F</b>” i „<b>S</b>”</td></tr>' +
+                '<tr><th>Runda</th><td>Składa się z 2 <b>ruchy</b> (po jednej dla każdego gracza), nie ma limitu liczby rund w grze</td></tr>' +
+                '<tr><th>Zakończenia gry</th><td>gdy pod koniec jednej <b>rundy</b> gracz (lub obaj) odgadli sekret przeciwnika (4 <b>F</b>)</td></tr>'
         }];
+    AVAILABLE_LANGUAGES.sort(function(a, b) {
+        return a.id < b.id ? -1 : (a.id === b.id ? 0 : 1);
+    });
 
     let langMap = new Map();
     AVAILABLE_LANGUAGES.forEach(function (langObj){
