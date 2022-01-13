@@ -38,6 +38,12 @@ let Room = (function () {
         return logoutButtonElm;
     }
 
+    function decorateHelpButton() {
+        let helpButtonElm = $('#room_info_help_btn');
+        helpButtonElm.html('&#x2754;');
+        return helpButtonElm;
+    }
+
     let joinRoom = function (result) {
         $('#room_number_label').html('&#x1F3E0;' +result.roomNumber);
         let roomLabelElm = $('#room_pwd_label');
@@ -46,6 +52,7 @@ let Room = (function () {
         let logoutLabelElm = $('#logout_label');
         logoutLabelElm.html('');
         logoutLabelElm.append(appendLogoutButton());
+        decorateHelpButton();
         $('#user_name_label').html(result.userName);
         $('#login_room').hide();
         $('#game_rules_section').hide();
@@ -255,5 +262,7 @@ $(document).ready(function () {
     Rules.updateRules();
     $('#language_picker_id').change(Rules.updateRules);
     $('#language_picker_modal_id').change(Rules.updateRulesModal);
+    Rules.updateRulesModal();
+    Rules.updateRules();
     $('#room_form').submit(Room.join);
 })

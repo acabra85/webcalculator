@@ -14,15 +14,55 @@
         <div id="full_window_content">
             <div id="room_info" class="top_header_info" style="display: none;">
                 <div class="room_info_player_label">
-                    <h4><span id="user_name_label"></span></h4>
+                    <span id="user_name_label"></span>
                 </div>
                 <div class="room_info_details">
                     <p>
                         <span id="room_number_label"></span>
                         <span id="room_pwd_label"></span>
+                        <span id="help_label">
+                            <button id="room_info_help_btn" type="button"
+                                    class="btn btn-xs btn-primary room-info-buttons"
+                                    data-toggle="modal" data-target="#rulesModalCentered">
+                            </button>
+                        </span>
                         <span id="logout_label"></span>
                     </p>
                 </div>
+                <!-- Modal -->
+                <div class="modal fade" id="rulesModalCentered" tabindex="-1" role="dialog" aria-labelledby="rulesModalCenteredTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content" style="color: black">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Fixes & Spikes</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div id="game_rules_modal_section" class="modal-body">
+                                <table class="table-sm">
+                                    <thead>
+                                    <tr>
+                                        <th>Rules:</th>
+                                        <th>
+                                            <select id="language_picker_modal_id" class="form-control-sm">
+                                                <option value="en" selected>English</option>
+                                                <option value="es">Español</option>
+                                            </select>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal -->
             </div>
             <div id="login_room" class="round_edges float_center" style="display: block">
                 <div class="top_header_info">
@@ -61,42 +101,6 @@
                         <input id="btn_join" value="Join Room" type="submit" class="btn btn-primary"/>
                     </form>
                 </div>
-                <!-- Modal -->
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rulesModalCentered">?</button>
-                <div class="modal fade" id="rulesModalCentered" tabindex="-1" role="dialog" aria-labelledby="rulesModalCenteredTitle" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLongTitle">Fixes and Spikes</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div id="game_rules_modal_section" class="modal-body">
-                                <table class="table-sm">
-                                    <thead>
-                                    <tr>
-                                        <th>Rules:</th>
-                                        <th>
-                                            <select id="language_picker_modal_id" class="form-control-sm">
-                                                <option value="_none" selected>-Select-</option>
-                                                <option value="en">English</option>
-                                                <option value="es">Español</option>
-                                            </select>
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Modal -->
                 <div id="game_rules_section" class="round_edges">
                     <table class="table-sm">
                         <thead>
@@ -104,8 +108,7 @@
                                 <th>Rules</th>
                                 <th>
                                     <select id="language_picker_id" class="form-control-sm">
-                                        <option value="_none" selected>-Select-</option>
-                                        <option value="en">English</option>
+                                        <option value="en" selected>English</option>
                                         <option value="es">Espanol</option>
                                     </select>
                                 </th>
