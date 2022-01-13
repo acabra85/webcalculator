@@ -170,48 +170,56 @@ let Room = (function () {
 })();
 
 let Rules = (function () {
-    let rulesEn = 
-        '<tr><th>Game\'s Objective</th><td> Guess your opponent\'s <b>Secret</b></td></tr>' +
-        '<tr><th>Secret</th><td>Four digits in your from 0000 to 9999</td></tr>' +
-        '<tr><th>Fixes</th><td>Represented by "<b>F</b>", are digits in your "guess" that are present in your opponent\'s secret in the exact position.</td></tr>' +
-        '<tr><th>Spikes</th><td>Represented by "<b>S</b>", are remaining digits from your "guess" (Not Fixes) present in your opponent\'s secret in incorrect position.</td></tr>' +
-        '<tr><th>Turn</th><td> A player sends a <b>Guess</b>, and receives a result in the form of "F" and "S"</td></tr>' +
-        '<tr><th>Round</th><td> Consist of 2 turns (one of each player), there is no limit on the amount of rounds in a game.</td></tr>' +
-        '<tr><th>Game Finishes</th><td>when at the end of one <b>round</b> a player (or both) have guessed their opponent\'s secret (<b>4 Fixes</b>)</td></tr>' +
-        '';
-    let rulesEs = '<tr><th>Objetivo</th><td> Encontrar el <b>secreto</b> del oponente</td></tr>' +
-        '<tr><th>Secreto</th><td>Cuatro digitos desde 0000 hasta 9999</td></tr>' +
-        '<tr><th>Fijas</th><td>Representadas por "<b>F</b>", son digitos de su "Pregunta" que estan presentes y en la posicion correcta del secreto de su oponente.</td></tr>' +
-        '<tr><th>Picas</th><td>Representadas por "<b>S</b>", son los digitos restantes de su "Pregunta" (No Fijas) que estan presentes en el secreto de su oponente en posicion incorrecta.</td></tr>' +
-        '<tr><th>Turno</th><td> El jugador hace una <b>Pregunta</b>, y recibe un resultado en la forma de "F" y "S"</td></tr>' +
-        '<tr><th>Ronda</th><td> Consiste en 2 turnos (uno de cada jugador), no hay limite de rondas en un juego.</td></tr>' +
-        '<tr><th>Fin del Juego</th><td>Cuando al final de una <b>ronda</b> algun jugador (o los 2) ha adivinado el secreto de su oponente (<b>4 Fijas</b>)</td></tr>' +
-        '';
-    let rulesDk = 
-        '<tr><th>Spillets mål</th><td>Gæt din modstanders <b>Hemmelighed</b></td></tr>' +
-        '<tr><th>Hemmelighed</th><td>fire ciffre mellem 0000-9999</td></tr>' +
-        '<tr><th>Fixes</th><td>Repræsenteret af "<b>F</b>", er cifre i dit gæt der er i din modstanderens hemmelighed i den korrekte position .</td></tr>' +
-        '<tr><th>Spikes</th><td>Repræsenteret af "<b>S</b>", er de tilbageværende cifre for dit gæt (ikke Fixes) der er tilstede i din modstanders hemmelighed der er i en ukorrekt position.</td></tr>' +
-        '<tr><th>Tur</th><td> En spiller sender et <b>gæt</b>, og for svar i form af "F" og "S"</td></tr>' +
-        '<tr><th>Runde</th><td> Består af 2 ture (en for hver spiller), der er ingen grænser for antal ture i spillet.</td></tr>' +
-        '<tr><th>Spillets afslutning</th><td>Ved slutningen af en <b>Runde</b>hvor en eller begge spiller har gætte deres modstanders (<b>4 Fixes</b>)</td></tr>' +
-        '';
+    let AVAILABLE_LANGUAGES = [
+        {
+            id: 'en',
+            name: 'English',
+            rulesLabel: 'Rules',
+            rulesHTML: '<tr><th>Game\'s Objective</th><td> Guess your opponent\'s <b>Secret</b></td></tr>' +
+                '<tr><th>Secret</th><td>Four digits in your from 0000 to 9999</td></tr>' +
+                '<tr><th>Fixes</th><td>Represented by "<b>F</b>", are digits in your "guess" that are present in your opponent\'s secret in the exact position.</td></tr>' +
+                '<tr><th>Spikes</th><td>Represented by "<b>S</b>", are remaining digits from your "guess" (Not Fixes) present in your opponent\'s secret in incorrect position.</td></tr>' +
+                '<tr><th>Turn</th><td> A player sends a <b>Guess</b>, and receives a result in the form of "F" and "S"</td></tr>' +
+                '<tr><th>Round</th><td> Consist of 2 turns (one of each player), there is no limit on the amount of rounds in a game.</td></tr>' +
+                '<tr><th>Game Finishes</th><td>when at the end of one <b>round</b> a player (or both) have guessed their opponent\'s secret (<b>4 Fixes</b>)</td></tr>'
+        },
+        {
+            id: 'es',
+            name: 'Español',
+            rulesLabel: 'Reglas',
+            rulesHTML: '<tr><th>Objetivo</th><td> Encontrar el <b>secreto</b> del oponente</td></tr>' +
+                '<tr><th>Secreto</th><td>Cuatro digitos desde 0000 hasta 9999</td></tr>' +
+                '<tr><th>Fijas</th><td>Representadas por "<b>F</b>", son digitos de su "Pregunta" que estan presentes y en la posicion correcta del secreto de su oponente.</td></tr>' +
+                '<tr><th>Picas</th><td>Representadas por "<b>S</b>", son los digitos restantes de su "Pregunta" (No Fijas) que estan presentes en el secreto de su oponente en posicion incorrecta.</td></tr>' +
+                '<tr><th>Turno</th><td> El jugador hace una <b>Pregunta</b>, y recibe un resultado en la forma de "F" y "S"</td></tr>' +
+                '<tr><th>Ronda</th><td> Consiste en 2 turnos (uno de cada jugador), no hay limite de rondas en un juego.</td></tr>' +
+                '<tr><th>Fin del Juego</th><td>Cuando al final de una <b>ronda</b> algun jugador (o los 2) ha adivinado el secreto de su oponente (<b>4 Fijas</b>)</td></tr>'
+        },
+        {
+            id: 'dk',
+            name: 'Dansk',
+            rulesLabel: 'Regler',
+            rulesHTML: '<tr><th>Spillets mål</th><td>Gæt din modstanders <b>Hemmelighed</b></td></tr>' +
+                '<tr><th>Hemmelighed</th><td>fire ciffre mellem 0000-9999</td></tr>' +
+                '<tr><th>Fixes</th><td>Repræsenteret af "<b>F</b>", er cifre i dit gæt der er i din modstanderens hemmelighed i den korrekte position .</td></tr>' +
+                '<tr><th>Spikes</th><td>Repræsenteret af "<b>S</b>", er de tilbageværende cifre for dit gæt (ikke Fixes) der er tilstede i din modstanders hemmelighed der er i en ukorrekt position.</td></tr>' +
+                '<tr><th>Tur</th><td> En spiller sender et <b>gæt</b>, og for svar i form af "F" og "S"</td></tr>' +
+                '<tr><th>Runde</th><td> Består af 2 ture (en for hver spiller), der er ingen grænser for antal ture i spillet.</td></tr>' +
+                '<tr><th>Spillets afslutning</th><td>Ved slutningen af en <b>Runde</b>hvor en eller begge spiller har gætte deres modstanders (<b>4 Fixes</b>)</td></tr>'
+        }];
+
+    let langMap = new Map();
+    AVAILABLE_LANGUAGES.forEach(function (langObj){
+        langMap.set(langObj.id, langObj);
+    });
 
     function updateRulesForSelectors(selectSelector, tableSelector) {
         let language = $(selectSelector).val();
         let gameRulesTableBody = $(tableSelector + ' table tbody');
-        if('es' === language) {
-            $(tableSelector + ' table thead').find('tr:first').find('th:first').text('Reglas');
-            gameRulesTableBody.html(rulesEs);
-            gameRulesTableBody.show();
-        } else if ('en' === language) {
-            $(tableSelector + ' table thead').find('tr:first').find('th:first').text('Rules');
-            gameRulesTableBody.html(rulesEn);
-            gameRulesTableBody.show();
-        } else {
-            $(tableSelector + ' table thead').find('tr:first').find('th:first').text('Rules');
-            gameRulesTableBody.hide();
-        }
+        let langObj = langMap.get(language) ? langMap.get(language) : langMap.get('en');
+        $(tableSelector + ' table thead').find('tr:first').find('th:first').text(langObj.rulesLabel);
+        gameRulesTableBody.html(langObj.rulesHTML);
+        gameRulesTableBody.show();
     }
 
     let updateRules = function () {
@@ -221,9 +229,33 @@ let Rules = (function () {
     let updateRulesModal = function () {
         updateRulesForSelectors('#language_picker_modal_id', '#game_rules_modal_section');
     };
+
+    function appendAvailableLanguages(jqElm) {
+        let first = false;
+        AVAILABLE_LANGUAGES.forEach(function (lang) {
+            let option = $('<option value="' +  lang.id + '">');
+            option.html(lang.name);
+            if(first) {
+                option.attr('selected', 'selected');
+                first = false;
+            }
+            jqElm.append(option);
+        })
+    }
+
     return {
         updateRules: updateRules,
-        updateRulesModal: updateRulesModal
+        updateRulesModal: updateRulesModal,
+        prepareLanguages: function () {
+            let languagePickerElm = $('#language_picker_id');
+            let languagePickerModalElm = $('#language_picker_modal_id');
+            appendAvailableLanguages(languagePickerElm);
+            appendAvailableLanguages(languagePickerModalElm);
+            languagePickerElm.change(updateRules);
+            languagePickerModalElm.change(updateRulesModal);
+            updateRules();
+            updateRulesModal();
+        }
     };
 })();
 
@@ -265,13 +297,9 @@ $(document).ready(function () {
     if(queryParams.has('room_password')) {
         $('#pwd').val(atob(queryParams.get('room_password')));
     }
-    $(window).on("beforeunload", function() { 
+    $(window).on("beforeunload", function() {
         return 'Your progress will be lost';
     });
-    Rules.updateRules();
-    $('#language_picker_id').change(Rules.updateRules);
-    $('#language_picker_modal_id').change(Rules.updateRulesModal);
-    Rules.updateRulesModal();
-    Rules.updateRules();
+    Rules.prepareLanguages();
     $('#room_form').submit(Room.join);
 })
