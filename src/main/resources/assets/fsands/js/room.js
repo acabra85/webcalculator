@@ -187,6 +187,15 @@ let Rules = (function () {
         '<tr><th>Ronda</th><td> Consiste en 2 turnos (uno de cada jugador), no hay limite de rondas en un juego.</td></tr>' +
         '<tr><th>Fin del Juego</th><td>Cuando al final de una <b>ronda</b> algun jugador (o los 2) ha adivinado el secreto de su oponente (<b>4 Fijas</b>)</td></tr>' +
         '';
+    let rulesDk = 
+        '<tr><th>Spillets mål</th><td>Gæt din modstanders <b>Hemmelighed</b></td></tr>' +
+        '<tr><th>Hemmelighed</th><td>fire ciffre mellem 0000-9999</td></tr>' +
+        '<tr><th>Fixes</th><td>Repræsenteret af "<b>F</b>", er cifre i dit gæt der er i din modstanderens hemmelighed i den korrekte position .</td></tr>' +
+        '<tr><th>Spikes</th><td>Repræsenteret af "<b>S</b>", er de tilbageværende cifre for dit gæt (ikke Fixes) der er tilstede i din modstanders hemmelighed der er i en ukorrekt position.</td></tr>' +
+        '<tr><th>Tur</th><td> En spiller sender et <b>gæt</b>, og for svar i form af "F" og "S"</td></tr>' +
+        '<tr><th>Runde</th><td> Består af 2 ture (en for hver spiller), der er ingen grænser for antal ture i spillet.</td></tr>' +
+        '<tr><th>Spillets afslutning</th><td>Ved slutningen af en <b>Runde</b>hvor en eller begge spiller har gætte deres modstanders (<b>4 Fixes</b>)</td></tr>' +
+        '';
 
     function updateRulesForSelectors(selectSelector, tableSelector) {
         let language = $(selectSelector).val();
