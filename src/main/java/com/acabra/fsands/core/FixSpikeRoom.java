@@ -45,4 +45,5 @@ public class FixSpikeRoom {
         final String guestToken = manager.retrieveGuestToken();
         return token.equals(hostToken) || token.equals(guestToken);
     }
+
 }

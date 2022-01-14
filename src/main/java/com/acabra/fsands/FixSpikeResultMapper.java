@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FixSpikeResultMapper {
-    public static FixSpikeMoveResultDTO toResultDTO(FixSpikeMoveResult moveResult) {
+    public static FixSpikeMoveResultDTO toMoveResultDTO(FixSpikeMoveResult moveResult) {
         if(null == moveResult) {
             return null;
         }
@@ -51,7 +51,7 @@ public class FixSpikeResultMapper {
 
     private static FixSpikeSystemStatusRoomDTO toFixSpikeSystemRoomDTO(Map<String, FixSpikeTokenInfo> tokens, FixSpikeRoom room, long now) {
         final String hostToken = room.getManager().retrieveHostToken();
-        final String guestToken = (room.getManager().awaitingGuest()) ? null : room.getManager().retrieveGuestToken();
+        final String guestToken = (room.getManager().hostWaitingForGuest()) ? null : room.getManager().retrieveGuestToken();
         return FixSpikeSystemStatusRoomDTO.builder()
                 .withHostToken(hostToken == null ? null : toTokenDTO(tokens.get(hostToken), now))
                 .withGuestToken(guestToken == null ? null : toTokenDTO(tokens.get(guestToken), now))
@@ -76,7 +76,7 @@ public class FixSpikeResultMapper {
                 .withId(id)
                 .withFailure(false)
                 .withPlayerId(authResponse.getPlayerId())
-                .withOpponentName(authResponse.getOpponentName())
+                .withHostName(authResponse.getHostName())
                 .withToken(authResponse.getToken())
                 .withAction(authResponse.getAction().toString())
                 .withRoomPassword(B64Helper.encode(authResponse.getRoomPassword()))

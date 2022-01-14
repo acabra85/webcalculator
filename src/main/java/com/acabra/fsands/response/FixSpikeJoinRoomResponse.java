@@ -16,7 +16,7 @@ public class FixSpikeJoinRoomResponse extends SimpleResponse {
     private final Long playerId;
     private final String action;
     private final String userName;
-    private final String opponentName;
+    private final String hostName;
 
     @JsonCreator
     @Builder(setterPrefix = "with")
@@ -26,7 +26,7 @@ public class FixSpikeJoinRoomResponse extends SimpleResponse {
                                   @JsonProperty("playerId") Long playerId,
                                   @JsonProperty("action") String action,
                                   @JsonProperty("userName") String userName,
-                                  @JsonProperty("opponentName") String opponentName) {
+                                  @JsonProperty("hostName") String hostName) {
         super(id, failure);
         this.token = token;
         this.roomPassword = roomPassword;
@@ -34,6 +34,6 @@ public class FixSpikeJoinRoomResponse extends SimpleResponse {
         this.playerId = playerId;
         this.action = action;
         this.userName = userName;
-        this.opponentName = opponentName;
+        this.hostName = hostName;
     }
 }

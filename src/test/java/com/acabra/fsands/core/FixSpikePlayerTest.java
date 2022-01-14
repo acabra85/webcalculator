@@ -5,12 +5,15 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class FixSpikePlayerTest {
+
+    FixSpikePlayer otherPlayer =  new FixSpikePlayer(0, "other", "secret", "other_token");
+
     @Test
     public void mustReturnF4S0() {
         String secret = "1234";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, secret.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, secret.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(4);
         Assertions.assertThat(actual.spikes).isEqualTo(0);
     }
@@ -21,7 +24,7 @@ class FixSpikePlayerTest {
         String _guess = "1235";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(3);
         Assertions.assertThat(actual.spikes).isEqualTo(0);
     }
@@ -32,7 +35,7 @@ class FixSpikePlayerTest {
         String _guess = "1285";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(2);
         Assertions.assertThat(actual.spikes).isEqualTo(0);
     }
@@ -43,7 +46,7 @@ class FixSpikePlayerTest {
         String _guess = "1000";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(1);
         Assertions.assertThat(actual.spikes).isEqualTo(0);
     }
@@ -54,7 +57,7 @@ class FixSpikePlayerTest {
         String _guess = "7896";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(0);
         Assertions.assertThat(actual.spikes).isEqualTo(0);
     }
@@ -65,7 +68,7 @@ class FixSpikePlayerTest {
         String _guess = "7396";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(0);
         Assertions.assertThat(actual.spikes).isEqualTo(1);
     }
@@ -76,7 +79,7 @@ class FixSpikePlayerTest {
         String _guess = "7391";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(0);
         Assertions.assertThat(actual.spikes).isEqualTo(2);
     }
@@ -87,7 +90,7 @@ class FixSpikePlayerTest {
         String _guess = "4391";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(0);
         Assertions.assertThat(actual.spikes).isEqualTo(3);
     }
@@ -100,7 +103,7 @@ class FixSpikePlayerTest {
         int expectedSpikes = 4;
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(expectedFixes);
         Assertions.assertThat(actual.spikes).isEqualTo(expectedSpikes);
     }
@@ -113,7 +116,7 @@ class FixSpikePlayerTest {
         int expectedSpikes = 3;
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(expectedFixes);
         Assertions.assertThat(actual.spikes).isEqualTo(expectedSpikes);
     }
@@ -126,7 +129,7 @@ class FixSpikePlayerTest {
         int expectedSpikes = 2;
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(expectedFixes);
         Assertions.assertThat(actual.spikes).isEqualTo(expectedSpikes);
     }
@@ -139,7 +142,7 @@ class FixSpikePlayerTest {
         int expectedSpikes = 1;
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(expectedFixes);
         Assertions.assertThat(actual.spikes).isEqualTo(expectedSpikes);
     }
@@ -152,7 +155,7 @@ class FixSpikePlayerTest {
         int expectedSpikes = 1;
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(expectedFixes);
         Assertions.assertThat(actual.spikes).isEqualTo(expectedSpikes);
     }
@@ -165,7 +168,7 @@ class FixSpikePlayerTest {
         int expectedSpikes = 2;
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, "token");
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
         Assertions.assertThat(actual.fixes).isEqualTo(expectedFixes);
         Assertions.assertThat(actual.spikes).isEqualTo(expectedSpikes);
     }
@@ -180,11 +183,11 @@ class FixSpikePlayerTest {
         String token = "token";
         FixSpikePlayer underTest = new FixSpikePlayer(1L, "player", secret, token).newSecret(newSecret);
 
-        FixSpikeMoveResult actual = underTest.respond(0L, 0, _guess.toCharArray());
+        FixSpikeMoveResult actual = underTest.respond(0L, otherPlayer, _guess.toCharArray());
 
         Assertions.assertThat(underTest.getToken()).isEqualTo(token);
-        Assertions.assertThat(underTest.secret).isNotEqualTo(secret.toCharArray());
-        Assertions.assertThat(underTest.secret).isEqualTo(newSecret.toCharArray());
+        Assertions.assertThat(underTest.getSecret()).isNotEqualTo(secret);
+        Assertions.assertThat(underTest.getSecret()).isEqualTo(newSecret);
         Assertions.assertThat(underTest.move()).isEqualTo(0L);
         Assertions.assertThat(underTest.move()).isEqualTo(1L);
         Assertions.assertThat(actual.fixes).isEqualTo(expectedFixes);

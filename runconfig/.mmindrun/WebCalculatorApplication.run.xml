@@ -6,7 +6,7 @@
       <env name="admpwd" value="1234" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="com.acabra.WebCalculatorApplication" />
-    <module name="webcalculator" />
+    <module name="FIXSPIKE" />
     <option name="PROGRAM_PARAMETERS" value="server config/webcalculator.yml" />
     <option name="VM_PARAMETERS" value="-Ddw.server.connector.port=8080" />
     <extension name="coverage">

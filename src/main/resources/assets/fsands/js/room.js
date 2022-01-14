@@ -29,6 +29,7 @@ let Room = (function () {
     }
 
     let logout = function () {
+        location.reload();
     };
 
     function appendLogoutButton() {
@@ -289,7 +290,7 @@ $(document).ready(function () {
 
     function cleanLocalStorage() {
         let cacheKeys = ['sessid', 'room_number', 'ownsecret', 'is_admin', 'lastConsumedEventId', 'player_id',
-            'opponentName'];
+            'opponentName', 'sequence_response_id'];
         cacheKeys.forEach(function(key) {
             window.localStorage.removeItem(key);
         });

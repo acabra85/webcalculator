@@ -11,6 +11,14 @@ let Main = (function () {
         return {
             SendNumber: function (guess) {
                 let q = $.Deferred();
+                window.localStorage.removeItem('sequence_response_id');
+                function buildMoveResult(success, action) {
+                    return {
+                        success: success,
+                        action: action
+                    };
+                }
+
                 $.ajax({
                     cache: false,
                     type: "POST",
@@ -26,16 +34,25 @@ let Main = (function () {
                     if (!res.failure) {
                         renderer.updateUserHistory(res.moveResult);
                         window.localStorage.setItem('lastConsumedEventId', res.moveResult.id);
-                        q.resolve(true);
+                        q.resolve(buildMoveResult(true, 'AWAIT_MOVE'));
                     } else {
-                        q.resolve(false);
+                        q.resolve(buildMoveResult(false, 'NO_ACT'));
                     }
                 }).fail(function (jqhxr, errorText, type) {
                     console.log(errorText);
                     if(jqhxr.responseJSON.error.indexOf('Invalid length for given secret') > 0) {
                         $('#guess_value').css('border-color', 'red');
+                        alerts.showError('Invalid secret', 3000);
+                        q.resolve(buildMoveResult(false, 'NO_ACT'));
+                    } else if(jqhxr.responseJSON.error.indexOf('Not your turn') > 0) {
+                        $('#guess_value').css('border-color', 'red');
+                        alerts.showError('not your turn', 3000);
+                        q.resolve(buildMoveResult(false, 'NO_ACT'));
+                    } else if(jqhxr.responseJSON.error.indexOf('Restart required: opponent left') > 0) {
+                        $('#guess_value').css('border-color', 'red');
+                        alerts.showError('your opponent has left the game ... please restart', 5000);
+                        q.resolve(buildMoveResult(false, 'RESTART_ACT'));
                     }
-                    q.resolve(false);
                 });
                 return q.promise();
             }
@@ -332,6 +349,17 @@ let Main = (function () {
             return 'loser_result_cls';
         };
 
+        let enableRestart = function () {
+            let buttonGuessElm = $('#btn_guess');
+            buttonGuessElm.prop('disabled', true);
+            buttonGuessElm.removeClass();
+            $('#guess_section').hide();
+
+            let btnRestartElm = $('#btn_restart');
+            btnRestartElm.prop('disabled', false);
+            btnRestartElm.addClass('btn btn-primary');
+            $('#restart_section').show();
+        };
         return {
             updateUserHistory: updateUserHistory,
             updateOpponentsMove: updateOpponentsMove,
@@ -373,7 +401,8 @@ let Main = (function () {
             stopFlickerAnimation: function () {
                 clearTimeout(animateSecretVar);
                 animateSecretVar = null;
-            }
+            },
+            enableRestart: enableRestart
         };
     }
 
@@ -397,10 +426,12 @@ let Main = (function () {
             $('#general_information_msg').html(msg);
             div.addClass(CLS_MSG_TYPES[type]);
             div.show();
-            div.fadeTo(durMillis, opacity).slideUp(animationLength, function () {
-                div.slideUp(animationLength);
-                div.removeClass();
-            });
+            if(durMillis > 0) {
+                div.fadeTo(durMillis, opacity).slideUp(animationLength, function () {
+                    div.slideUp(animationLength);
+                    div.removeClass();
+                });
+            }
         };
 
         function buildTextResult(result, opponentName) {
@@ -441,11 +472,10 @@ let Main = (function () {
 
     let statusTimeoutVar = null;
 
-    function drawLastMove(statusResponse) {
+    function drawLastMove(lastMove) {
         const lastConsumedEventIdKey = 'lastConsumedEventId';
         let lastConsumedEventId = parseInt(!window.localStorage.getItem(lastConsumedEventIdKey)
             ? '-1' : window.localStorage.getItem(lastConsumedEventIdKey), 10);
-        let lastMove = statusResponse.lastMove;
         if (lastMove && lastMove.id > lastConsumedEventId) {
             window.localStorage.setItem(lastConsumedEventIdKey, lastMove.id);
             if(lastMove.isOwnMove) {
@@ -456,12 +486,13 @@ let Main = (function () {
         }
     }
 
-    function executeGameOverEvent(statusResponse) {
+    function executeGameOverEvent(response, gameStatus) {
+        let values = gameStatus.gameOverValues;
         stopFunction(statusTimeoutVar);
-        drawLastMove(statusResponse);
-        let decoration_cls = renderer.getResultDecorationClass(statusResponse.result);
-        alerts.gameOver(statusResponse.result, statusResponse.opponentName, decoration_cls);
-        renderer.animateOpponentsSecret(statusResponse.opponentSecret, decoration_cls);
+        drawLastMove(response.lastMove);
+        let decoration_cls = renderer.getResultDecorationClass(values.result);
+        alerts.gameOver(values.result, response.opponentName, decoration_cls);
+        renderer.animateOpponentsSecret(values.opponentSecret, decoration_cls);
         let guessBtn = $('#btn_guess');
         guessBtn.removeClass();
         guessBtn.prop('disabled', true);
@@ -473,36 +504,57 @@ let Main = (function () {
         $('#new_secret_value').focus();
     }
 
-    function executeMakeMoveEvent(statusResponse) {
+    function executeMakeMoveEvent(response) {
         stopFunction(statusTimeoutVar);
-        drawLastMove(statusResponse);
-        renderer.renderOpponentName(statusResponse.opponentName);
+        drawLastMove(response.lastMove);
+        renderer.renderOpponentName(response.opponentName);
         let guessBtn = $('#btn_guess');
         guessBtn.addClass("btn btn-primary");
         guessBtn.prop('disabled', false);
         alerts.yourMove();
     }
 
+    function executeRequestRestart() {
+        stopFunction(statusTimeoutVar);
+        alerts.showError('your opponent has left the room ... please restart', 5000);
+        renderer.enableRestart();
+    }
+
     function retrieveStatus() {
+        let sequenceId = !!localStorage.getItem('sequence_response_id')
+            ? parseInt(localStorage.getItem('sequence_response_id'),10)
+            : -1;
         $.get({
             cache: false,
-            url: encodeURI('/api/fsands/status?token=' + token + '&room='+ roomNumberStr)
+            url: encodeURI('/api/fsands/status?token=' + token + '&room='+ roomNumberStr + '&seq='+sequenceId)
         })
             .done(function (statusResponse) {
-                if('GAME_OVER_EVT' === statusResponse.eventType) {
-                    executeGameOverEvent(statusResponse);
-                } else if('MAKE_MOVE_EVT' === statusResponse.eventType) {
-                    executeMakeMoveEvent(statusResponse);
+                let gameStatus = statusResponse.gameStatus;
+                if(statusResponse.failure || sequenceId === statusResponse.sequenceId) {
+                    return;
+                }
+                localStorage.setItem('sequence_response_id', statusResponse.sequenceId);
+                if('GAME_OVER_STATE' === gameStatus.type) {
+                    executeGameOverEvent(statusResponse, gameStatus);
+                } else if('GAME_IN_PROGRESS_STATE' === gameStatus.type) {
+                    if('MAKE_MOVE_ACT' === gameStatus.action) {
+                        executeMakeMoveEvent(statusResponse);
+                    } else if('RESTART_ACT' === gameStatus.action) {
+                        executeRequestRestart();
+                    }
+                } else if('GAME_NOT_STARTED_STATE' === gameStatus.type) {
+                    console.log(gameStatus.type  + '-'  + gameStatus.action);
                 }
             })
             .fail(function (failedResponse) {
-                alerts.showError(
-                    'failed to retrieve status: ' + failedResponse.statusText + ' please refresh (press F5) the page!',
-                    600000);
-                stopFunction(statusTimeoutVar);
+                console.log(
+                    'failed to retrieve status: ' + failedResponse.statusText + ' please refresh (press F5) the page!');
+                let responseText = failedResponse.responseText;
+                if(responseText && failedResponse.responseText.indexOf('Unable to attend call for given room') > 0) {
+                    stopFunction(statusTimeoutVar);
+                }
             })
             .always(function () {
-                console.log('retrieved status');
             });
     }
 
@@ -525,13 +577,18 @@ let Main = (function () {
             if (guessVal.val() && guessVal.val().trim().length === SECRET_LENGTH) {
                 let num = parseInt(guessVal.val());
                 if (num >= 0 && num <= 9999) {
-                    fixSpike.SendNumber(guessVal.val()).then(function (refresh) {
+                    fixSpike.SendNumber(guessVal.val()).then(function (result) {
                         guessVal.val('');
-                        if(refresh) {
+                        if(result.success) {
                             guessBtn.removeClass();
                             cycleRefresh();
                         } else {
-                            guessBtn.prop('disabled', false);
+                            if(result.action === 'NO_ACT') {
+                                guessBtn.prop('disabled', false);
+                            } else if(result.action === 'RESTART_ACT') {
+                                guessBtn.removeClass();
+                                executeRequestRestart();
+                            }
                         }
                     });
                 } else {
@@ -549,7 +606,7 @@ let Main = (function () {
 
     function cleanLocalStorage() {
         let cacheKeys = ['sessid', 'room_number', 'ownsecret', 'is_admin', 'lastConsumedEventId', 'player_id',
-            'opponentName'];
+            'opponentName', 'sequence_response_id'];
         cacheKeys.forEach(function (key) {
             window.localStorage.removeItem(key);
         });
@@ -562,7 +619,8 @@ let Main = (function () {
         btnRestart.prop('disabled', true);
 
         const SECRET_KEY = 'ownsecret';
-        const LAST_CONSUMED_EVT_ID = 'lastConsumedEventId';
+        const LAST_CONSUMED_EVT_ID_KEY = 'lastConsumedEventId';
+        const SEQ_RESPONSE_KEY = 'sequence_response_id';
 
         renderer.cleanWinnerBanner();
         renderer.cleanMoves();
@@ -574,7 +632,8 @@ let Main = (function () {
             return;
         }
         window.localStorage.setItem(SECRET_KEY, newSecretValue);
-        window.localStorage.removeItem(LAST_CONSUMED_EVT_ID);
+        window.localStorage.removeItem(LAST_CONSUMED_EVT_ID_KEY);
+        window.localStorage.removeItem(SEQ_RESPONSE_KEY);
 
         $.ajax({
             cache: false,
@@ -623,6 +682,23 @@ let Main = (function () {
         })
 
     };
+    let exitRoom = async function (evt) {
+        if(!token || !roomNumberStr) return;
+        try {
+            stopFunction(statusTimeoutVar);
+            let result = await $.get({cache: false, url: encodeURI('/api/fsands/exit?token='+ token + '&room=' + roomNumberStr)})
+                .done(function() {
+                    console.log('exit reported to server');
+                })
+                .fail(function (){
+                    console.log('failed to report exit to server');
+                });
+            return result;
+        } catch (err) {
+            console.log(err);
+            return "";
+        }
+    };
     return {
         sendNumber: sendNumber,
         cycleRefresh: cycleRefresh,
@@ -636,6 +712,7 @@ let Main = (function () {
             }
         },
         restart: restart,
+        exitRoom: exitRoom
     };
 })();
 
@@ -673,6 +750,12 @@ $(document).ready(function () {
             }
         });
     }
+
+    window.addEventListener("beforeunload", function(evt) {
+        Main.exitRoom();
+        return 'Your progress will be lost';
+    });
+
     $('#guess_value').focus();
     $('#fsands_form').submit(Main.sendNumber);
     $('#fsands_restart_form').submit(Main.restart);

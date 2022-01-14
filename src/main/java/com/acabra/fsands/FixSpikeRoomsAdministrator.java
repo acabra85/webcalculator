@@ -22,7 +22,6 @@ public class FixSpikeRoomsAdministrator {
     private final Map<String, FixSpikeTokenInfo> auth;
     private final AtomicLong playerIdGen;
 
-
     private FixSpikeRoomsAdministrator() {
         this.rooms = new HashMap<>();
         this.auth = new HashMap<>();
@@ -33,16 +32,16 @@ public class FixSpikeRoomsAdministrator {
         String token = UUID.randomUUID().toString();
         FixSpikePlayer player = new FixSpikePlayer(playerIdGen.getAndIncrement(), request.getPlayerName(), request.getSecret(), token);
         auth.put(token, FixSpikeTokenInfo.builder()
-                        .withAdminToken(isAdmin)
-                        .withRoomNumber(room.getRoomNumber())
-                        .withToken(token)
-                        .withExpiresAfter(newTokenExpiration())
+                .withAdminToken(isAdmin)
+                .withRoomNumber(room.getRoomNumber())
+                .withToken(token)
+                .withExpiresAfter(newTokenExpiration())
                 .build());
         room.getManager().addGuest(player);
         return FixSpikeAuthResponse.builder()
                 .withToken(token)
                 .withPlayerId(player.getId())
-                .withOpponentName(room.getHostName())
+                .withHostName(room.getHostName())
                 .withRoomPassword(room.getPassword())
                 .withRoomNumber(room.getRoomNumber())
                 .withAction(isAdmin ? FixSpikeAuthAction.JOIN_ADMIN : FixSpikeAuthAction.JOIN_GUEST)
@@ -89,10 +88,6 @@ public class FixSpikeRoomsAdministrator {
         return tokenInfo != null && tokenInfo.isAdminToken();
     }
 
-    public static FixSpikeRoomsAdministrator of() {
-        return new FixSpikeRoomsAdministrator();
-    }
-
     private synchronized FixSpikeAuthResponse authenticate(FixSpikeJoinRoomRequestDTO request) {
         FixSpikeRoom room = rooms.get(request.getRoomNumber());
         String password = B64Helper.decode(request.getPassword());
@@ -100,7 +95,7 @@ public class FixSpikeRoomsAdministrator {
         if(null == room) {
             return hostARoom(request, request.getRoomNumber(), isAdmin);
         }
-        if(room.getManager().awaitingGuest()) {
+        if(room.getManager().hostWaitingForGuest() || room.getManager().gameHasNotStarted()) {
             if((isAdmin || ConstantTimePasswordChecker.check(room.getPassword(), password))) {
                 if(!room.hasPlayerWithToken(request.getToken())) {
                     return joinRoomAsGuest(request, room, isAdmin);
@@ -111,6 +106,10 @@ public class FixSpikeRoomsAdministrator {
         throw new UnsupportedOperationException("Unable to join, room is full: " + request.getRoomNumber());
     }
 
+    public static FixSpikeRoomsAdministrator of() {
+        return new FixSpikeRoomsAdministrator();
+    }
+
     public synchronized FixSpikeGameManager findRoomManager(FixSpikeRequestDTO req) {
         FixSpikeTokenInfo tokenInfo = auth.get(req.getToken());
         if(tokenInfo == null || tokenInfo.getRoomNumber() != req.getRoomNumber()) {
@@ -119,28 +118,22 @@ public class FixSpikeRoomsAdministrator {
         return rooms.get(req.getRoomNumber()).getManager();
     }
 
-    public synchronized FixSpikeStatusResponse getStatus(long id, String token, long roomNumber) {
+    public synchronized FixSpikeStatusResponseDTO getStatus(long id, Long seq, String token, long roomNumber) {
         FixSpikeTokenInfo tokenInfo = auth.get(token);
         if(tokenInfo == null || tokenInfo.getRoomNumber() != roomNumber) {
             throw new UnsupportedOperationException("Unable to attend call for given room: " + roomNumber);
         }
         FixSpikeGameManager manager = rooms.get(roomNumber).getManager();
-        FixSpikeHistoryItem lastHistoryItem = manager.getLastHistoryItem();
-        FixSpikeStatusEventType eventType = manager.calculateEventType(token);
-        FixSpikeMoveResultDTO lastMove = lastHistoryItem != null ?
-                FixSpikeResultMapper.toResultDTO(lastHistoryItem.getMoveResult()) : null;
-        FixSpikeStatusResponse.FixSpikeStatusResponseBuilder builder = FixSpikeStatusResponse.builder()
+        FixSpikeGameState gameState = manager.provideGameState(seq, token);
+        return FixSpikeStatusResponseDTO.builder()
                 .withId(id)
                 .withFailure(false)
-                .withEventType(eventType.toString())
-                .withLastMove(lastMove)
-                .withOpponentName(manager.getOpponentsName(token))
-                .withIsOwnMove(lastHistoryItem != null ? token.equals(lastHistoryItem.getPlayerToken()) : null);
-        if(eventType == FixSpikeStatusEventType.GAME_OVER_EVT) {
-            builder.withResult(manager.provideEndResult())
-                .withOpponentSecret(manager.provideOpponentsSecret(token));
-        }
-        return builder.build();
+                .withGameStatus(gameState.getGameStatus())
+                .withIsOwnMove(gameState.getIsOwnMove())
+                .withLastMove(FixSpikeResultMapper.toMoveResultDTO(gameState.getLastMove()))
+                .withOpponentName(gameState.getOpponentName())
+                .withSequenceId(gameState.getSequenceId())
+                .build();
     }
 
     public synchronized void clean() {
@@ -182,18 +175,18 @@ public class FixSpikeRoomsAdministrator {
                         .build();
             }
             final FixSpikeGameManager manager = room.getManager();
-            if(manager.isGameOver()) {
+            if(manager.isGameOver() || manager.lastMoveExit()) {
                 auth.put(req.getToken(), tokenInfo.renew());
                 final FixSpikeGameManager newManager = manager.newManager(req.getToken(), req.getSecret());
                 rooms.put(room.getRoomNumber(), room.restartGame(newManager));
                 return FixSpikeRestartResponse.builder()
                         .withId(id)
                         .withFailure(false)
-                        .withAction(FixSpikeRestartAction.AWAIT_GUEST.toString())
                         .withSecret(req.getSecret())
+                        .withAction(FixSpikeRestartAction.AWAIT_GUEST.toString())
                         .build();
             }
-            if (manager.awaitingGuest()) {
+            if (manager.hostWaitingForGuest()) {
                 auth.put(req.getToken(), tokenInfo.renew());
                 manager.addGuestWithNewSecret(req.getToken(), req.getSecret());
                 return FixSpikeRestartResponse.builder()
@@ -240,7 +233,7 @@ public class FixSpikeRoomsAdministrator {
 
     public synchronized FixSpikeDeleteRoomResponse processDeleteRoomRequest(long id, FixSpikeDeleteRoomRequest req) {
         FixSpikeRoom room = rooms.get(req.getRoomNumber());
-        if(null != room && room.getRoomNumber() != auth.get(req.getToken()).getRoomNumber()) {
+        if(null != room) {
             String guestToken = room.getManager().retrieveGuestToken();
             if(auth.get(guestToken) != null) {
                 auth.remove(guestToken);
@@ -256,11 +249,49 @@ public class FixSpikeRoomsAdministrator {
                     .withFailure(false)
                     .build();
         }
-        String msg = ": " + ((room == null) ? "not found" : "can't delete current room");
+        String msg = ": not found";
         return FixSpikeDeleteRoomResponse.builder()
                 .withId(id)
                 .withFailure(true)
                 .withMessage("unable to delete room: " + req.getRoomNumber() + msg)
                 .build();
+    }
+
+    public synchronized SimpleResponse exitRoom(long id, String token, long roomNumber) {
+        FixSpikeTokenInfo tokenInfo = auth.get(token);
+        if(tokenInfo != null && tokenInfo.getRoomNumber() == roomNumber) {
+            FixSpikeRoom room = rooms.get(tokenInfo.getRoomNumber());
+            FixSpikeGameManager manager = room.getManager();
+            if(manager.hostWaitingForGuest()|| manager.lastMoveExit()) {
+                rooms.remove(room.getRoomNumber());
+            } else {
+                manager.playerExit(token);
+            }
+            auth.remove(token);
+            return okResponse(id);
+        }
+        return failResponse(id);
+    }
+
+    public SimpleResponse failResponse(long id) {
+        return simpleResponse(id, true);
+    }
+
+    public SimpleResponse okResponse(long id) {
+        return simpleResponse(id, false);
+    }
+
+    private SimpleResponse simpleResponse(long id, boolean isFailure) {
+        return new SimpleResponse(id, isFailure) {
+            private static final long serialVersionUID = -2324953824486824277L;
+            @Override
+            public long getId() {
+                return id;
+            }
+            @Override
+            public boolean isFailure() {
+                return isFailure;
+            }
+        };
     }
 }

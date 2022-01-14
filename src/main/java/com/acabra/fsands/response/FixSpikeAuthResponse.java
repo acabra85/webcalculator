@@ -10,7 +10,7 @@ public class FixSpikeAuthResponse {
     Long roomNumber;
     Long playerId;
     String roomPassword;
-    String opponentName;
+    String hostName;
     String token;
     FixSpikeAuthAction action;
 }
