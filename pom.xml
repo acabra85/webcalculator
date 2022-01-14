@@ -11,7 +11,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <dropwizard.version>0.8.1</dropwizard.version>
         <pittest.version>1.1.5</pittest.version>
-        <quartz.version>2.2.1</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
     </properties>
     <build>
         <plugins>
